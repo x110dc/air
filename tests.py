@@ -3,9 +3,6 @@
 import unittest
 import dev
 import tempfile
-import shutil
-import os
-import os.path
 
 from sh import svnadmin
 from sh import svn
@@ -17,6 +14,7 @@ def overwrite(file_object, text):
         file_object.write(text)
         file_object.close()
 
+
 def create_svn_repo():
 
     repo_dir = tempfile.mkdtemp()
@@ -24,19 +22,20 @@ def create_svn_repo():
     # create repo, with trunk and branches directories
     svnadmin.create(repo_dir)
     repo_url = '{}{}'.format('file://', repo_dir)
-    trunk_url= '{}/trunk'.format(repo_url)
-    branch_url= '{}/branches'.format(repo_url)
+    trunk_url = '{}/trunk'.format(repo_url)
+    branch_url = '{}/branches'.format(repo_url)
     svn.mkdir(trunk_url, m='trunk dir')
     svn.mkdir(branch_url, m='branches dir')
 
     return repo_url
 
+
 def setup_svn():
 
     # create repo
     repo_url = create_svn_repo()
-    trunk_url= '{}/trunk'.format(repo_url)
-    branch_url= '{}/branches'.format(repo_url)
+    trunk_url = '{}/trunk'.format(repo_url)
+    branch_url = '{}/branches'.format(repo_url)
 
     # checkout trunk
     working_dir = tempfile.mkdtemp()
@@ -44,29 +43,29 @@ def setup_svn():
 
     # create a file
     repo_file = tempfile.NamedTemporaryFile(dir=working_dir, delete=False)
-    overwrite(repo_file,'123\n')
+    overwrite(repo_file, '123\n')
     # commit it
-    file_url='{}/{}'.format(trunk_url,os.path.basename(repo_file.name))
     svn.add(repo_file.name, _cwd=working_dir)
-    svn.commit(m='message',_cwd=working_dir)
+    svn.commit(m='message', _cwd=working_dir)
 
     # create a branch
     new_branch_url = '{}/new-branch'.format(branch_url)
-    svn.cp(trunk_url, new_branch_url,m='creating new branch')
-    svn.switch(new_branch_url,_cwd=working_dir)
+    svn.cp(trunk_url, new_branch_url, m='creating new branch')
+    svn.switch(new_branch_url, _cwd=working_dir)
     # change the file and commit
-    overwrite(repo_file,'456\n')
-    svn.commit(m='message',_cwd=working_dir)
+    overwrite(repo_file, '456\n')
+    svn.commit(m='message', _cwd=working_dir)
 
     # change the same file on trunk
-    cmd = svn.switch(trunk_url,_cwd=working_dir)
-    overwrite(repo_file,'789\n')
-    commit = svn.commit(m='message',_cwd=working_dir)
+    svn.switch(trunk_url, _cwd=working_dir)
+    overwrite(repo_file, '789\n')
+    svn.commit(m='message', _cwd=working_dir)
 
-    cmd = svn.up(_cwd=working_dir)
-    cmd = svn.merge(new_branch_url, _cwd=working_dir, accept='postpone')
+    svn.up(_cwd=working_dir)
+    svn.merge(new_branch_url, _cwd=working_dir, accept='postpone')
 
     return repo_url
+
 
 class Test(unittest.TestCase):
 
@@ -93,10 +92,9 @@ class Test(unittest.TestCase):
                 u' G   /var/folders/y7/mn3mrzyd6_jbz8wm429y57fc0000gq/T/tmpakzinC\n']
 
     def test_get_unique_branch(self):
-       actual = dev.get_unique_branch(self.branches, '1174')
-       expected = 'MCM-1033-MCM-1174_EntitlementsToBlockAccess_CMS'
-       self.assertEqual(expected, actual)
+        actual = dev.get_unique_branch(self.branches, '1174')
+        expected = 'MCM-1033-MCM-1174_EntitlementsToBlockAccess_CMS'
+        self.assertEqual(expected, actual)
 
     def test_blah(self):
         setup_svn()
-
