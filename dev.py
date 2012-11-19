@@ -33,16 +33,22 @@ def refresh(branch):
     src = '{}/{}'.format(svn_cfg['branch_url'], branch)
     try:
         working_dir = tempfile.mkdtemp()
+        print 'Checking out {}'.format(src)
         co = svn.co(src, working_dir)
         if co.exit_code:
             raise Exception("unable to check out branch")
+        print 'Merging trunk into {}'.format(branch)
         merge = svn.merge(svn_cfg['trunk_url'], _cwd=working_dir,
                 accept='postpone')
+        print merge
         if 'conflicts' in merge:
             raise Exception(
                     'unable to merge due to conflicts; merge manually')
-        commit = svn.commit(m='refreshed from trunk',_cwd=working_dir)
+        print 'Committing...'
+        commit = svn.commit(m='refreshed from trunk', _cwd=working_dir)
+        print commit
     finally:
+        print 'Cleaning up.'
         shutil.rmtree(working_dir)
 
 
