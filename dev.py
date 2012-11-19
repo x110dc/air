@@ -95,6 +95,14 @@ def create_ticket(summary):
     return new_issue.key
 
 
+def list_tickets():
+    tickets = jira.search_issues('assignee=currentUser() \
+            AND status != Closed AND status != Resolved \
+            AND fixVersion != "Post-GA Release"')
+    for key, summary in [(x.key, x.fields.summary) for x in tickets]:
+        print '{}:\t{}'.format(key, summary)
+
+
 def get_ticket(ticket):
     return jira.issue('{}-{}'.format(jira_cfg['project'], ticket))
 
