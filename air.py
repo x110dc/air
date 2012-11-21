@@ -15,17 +15,6 @@ from configobj import ConfigObj
 from jira.client import JIRA
 from sh import svn
 
-# read config file:
-config = ConfigObj(expanduser('~/.dev.cfg'))
-jira_cfg = config['jira']
-svn_cfg = config['svn']
-aliases = config['aliases']
-
-# open Jira connection:
-options = {'server': jira_cfg['server']}
-jira = JIRA(options,
-        basic_auth=(jira_cfg['username'], jira_cfg['password']))
-
 
 class MultipleMatchException(Exception):
     pass
