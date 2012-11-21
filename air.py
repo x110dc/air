@@ -186,26 +186,31 @@ class Commands(object):
         return output
 
 
-def main():
-
-    commands = Commands()
-
-    # get the names of the functions in the Commands class to use as names for
-    # subcommands for the parser:
-    methods = [x for x in inspect.getmembers(commands) if
-            inspect.ismethod(x[1])]
+def get_parser(names):
 
     arger = argparse.ArgumentParser()
     arger.add_argument('-v', '--verbose', action='count', default=0)
     subparsers = arger.add_subparsers(dest='command')
 
-    # add subcommands to the argument parser:
-    for name, _ in methods:
-        subparsers.add_parser(name)
+    [subparsers.add_parser(x) for x in names]
 
-    # add any aliases defined in the config file as allowed subcommand names:
-    for x in aliases:
-        subparsers.add_parser(x)
+    return arger
+
+
+def main():
+
+    config = ConfigObj(expanduser('~/.dev.cfg'))
+    aliases = config['aliases']
+    commands = Commands(config)
+
+    # get the names of the functions in the Commands class to use as names for
+    # subcommands for the parser:
+    # TODO: use filter() here?
+    methods = [x for x in inspect.getmembers(commands) if
+            inspect.ismethod(x[1])]
+
+    names = [x[0] for x in methods] + aliases.keys()
+    arger = get_parser(names)
 
     opts = arger.parse_known_args()
     subcommand = opts[0].command
