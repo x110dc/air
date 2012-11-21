@@ -1,0 +1,45 @@
+user stories:
+- list tickets assigned to me @done
+- given a brief description, create a bug in Jira @done
+- given a brief description, create a task in Jira
+- given a ticket, create a branch in svn for it @done
+- start an issue: create branch, start progress, add Svn URL to Jira
+- refresh a branch from trunk @done
+- finish a ticket - mark ticket as ready for review, update CHANGES
+- start a review - mark ticket as 'in review', create Crucible review,
+- reject ticket
+- finish review - mark it as closed, reintegrate it, delete branch
+- self-assign: assign a ticket to me
+- add a comment to a ticket
+
+TODO:
+
+- start an issue (create branch, start progress, add SVN URL to Jira)
+- allow 'refresh' (and others?) to deduce ticket from PWD (Svn or Git?)
+- finish a ticket
+- think of a good name (2 or 3 character)
+- more tests!
+- create tasks in Jira
+- start a review
+- reject ticket
+- finish review
+- self-assign (take)
+- construct branch and trunk URLs from root url if not specified?
+- zsh/bash completions
+- use filters already in Jira account too or instead of hardcoded one?
+- put JQL filters in config file?
+- Crucible integration
+- logging?
+- better handling of output vs. print?
+- use tearDown to close bugs I've created through testing?
+- test aliases
+- use .coveragerc to exclude tests from test coverage
+- list tickets ready for review
+- use git-flow for inspiration?
+
+caveats: 
+- doesn't work with multiple SVN repos at the same time
+- doesn't work with multiple Jira projects or users at the same time
+- uses same text for summary and description of new Jira issues
+
+test coverage @done
