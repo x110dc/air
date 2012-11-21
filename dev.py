@@ -6,6 +6,7 @@ import string
 from os.path import expanduser
 import tempfile
 import shutil
+import inspect
 
 # installed:
 from configobj import ConfigObj
@@ -104,6 +105,10 @@ def get_ticket(ticket):
 
 
 def main():
+    # get the names of the functions in the Commands class to use as names for
+    # subcommands for the parser:
+    methods = [x for x in inspect.getmembers(commands) if
+            inspect.ismethod(x[1])]
 
     # shamelessly stolen from:
     # http://stackoverflow.com/questions/362426/implementing-a-command-action-parameter-style-command-line-interfaces
@@ -115,25 +120,31 @@ def main():
 
     mkticket_parser = subparsers.add_parser('mkticket')
     mkticket_parser.add_argument('text')
+    # add subcommands to the argument parser:
+    for name, _ in methods:
+        subparsers.add_parser(name)
 
     mkbranch_parser = subparsers.add_parser('mkbranch')
     mkbranch_parser.add_argument('ticket')
+    # add any aliases defined in the config file as allowed subcommand names:
+    for x in aliases:
+        subparsers.add_parser(x)
 
     refresh_parser = subparsers.add_parser('refresh')
     refresh_parser.add_argument('ticket', nargs='?')
+    opts = arger.parse_known_args()
+    subcommand = opts[0].command
 
-    opts = arger.parse_args()
+    # substitute the real command:
+    if subcommand in aliases:
+        subcommand = aliases[subcommand]
 
-    if opts.command == 'mkticket':
-        ticket = create_ticket(opts.text)
-        print 'ticket created: {}'.format(ticket)
-    elif opts.command == 'mkbranch':
-        issue = get_ticket(opts.ticket)
-        make_branch(issue)
-    elif opts.command == 'refresh':
-        branches = get_branches()
-        branch = get_unique_branch(branches, opts.ticket)
-        refresh(branch)
+    # call the subcommand, pass the argument parser object
+    if hasattr(commands, subcommand):
+        output = getattr(commands, subcommand)(arger)
+        [print(x) for x in output]
+    else:
+        print ('Unrecognized command: {}'.format(subcommand))
 
 
 if __name__ == '__main__':
