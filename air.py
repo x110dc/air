@@ -178,7 +178,7 @@ class Commands(object):
         '''
         output = list()
 
-        tickets = jira.search_issues('assignee=currentUser() \
+        tickets = self.jira.query('assignee=currentUser() \
                 AND status != Closed AND status != Resolved \
                 AND fixVersion != "Post-GA Release"')
         for key, summary in [(x.key, x.fields.summary) for x in tickets]:
