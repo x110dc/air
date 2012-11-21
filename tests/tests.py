@@ -163,5 +163,19 @@ class TestJira(unittest.TestCase):
 
     def test_create_bug(self):
         sys.argv = ['bogus', 'create_bug', 'this is a test bug']
-        actual = self.cmd.create_bug(self.arger)
+        actual = self.cmd.create_bug(self.arger)[0]
         self.assertRegexpMatches(actual, 'ticket created: MMSANDBOX-\d*')
+
+
+class TestMain(unittest.TestCase):
+
+    def setUp(self):
+        # mock the configuration file:
+        self.config = ConfigObj('./tests/config')
+        dev.config = self.config
+
+    def test_get_branches(self):
+        sys.argv = ['bogus', 'list_tickets']
+        return_value = dev.main()
+        expected = 0
+        self.assertEqual(expected, return_value)
