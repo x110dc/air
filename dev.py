@@ -20,6 +20,7 @@ from sh import svn
 config = ConfigObj(expanduser('~/.dev.cfg'))
 jira_cfg = config['jira']
 svn_cfg = config['svn']
+aliases = config['aliases']
 
 # open Jira connection:
 options = {'server': jira_cfg['server']}
