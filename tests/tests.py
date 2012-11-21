@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # the program we're testing:
-import dev
+import air
 
 # stdlib
 import sys
@@ -96,12 +96,12 @@ class TestSvn(unittest.TestCase):
     def setUp(self):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
-        dev.config = self.config
+        air.config = self.config
 
         self.arger = argparse.ArgumentParser()
         subparsers = self.arger.add_subparsers(dest='command')
 
-        self.cmd = dev.Commands()
+        self.cmd = air.Commands()
 
         methods = [x for x in inspect.getmembers(self.cmd) if
             inspect.ismethod(x[1])]
@@ -111,21 +111,21 @@ class TestSvn(unittest.TestCase):
             subparsers.add_parser(name)
 
         self.repo_url, self.repo_file = setup_svn()
-        dev.svn_cfg['root_url'] = self.repo_url
-        dev.svn_cfg['branch_url'] = self.repo_url + '/branches'
-        dev.svn_cfg['trunk_url'] = self.repo_url + '/trunk'
+        air.svn_cfg['root_url'] = self.repo_url
+        air.svn_cfg['branch_url'] = self.repo_url + '/branches'
+        air.svn_cfg['trunk_url'] = self.repo_url + '/trunk'
 
     def test_get_unique_branch(self):
         expected = 'foo-branch'
-        actual = dev.get_unique_branch('foo')
+        actual = air.get_unique_branch('foo')
         self.assertEqual(expected, actual)
 
-        with self.assertRaises(dev.MultipleMatchException):
-            actual = dev.get_unique_branch('branch')
+        with self.assertRaises(air.MultipleMatchException):
+            actual = air.get_unique_branch('branch')
 
     def test_get_branches(self):
         expected = [u'foo-branch/\n', u'new-branch/\n']
-        actual = dev.get_branches()
+        actual = air.get_branches()
         self.assertEqual(expected, actual)
 
     def test_refresh(self):
@@ -136,7 +136,7 @@ class TestSvn(unittest.TestCase):
     def test_refresh_exception(self):
         sys.argv = ['bogus', 'refresh', 'new-branch']
         create_conflict(self.repo_url, self.repo_file)
-        with self.assertRaises(dev.MergeException):
+        with self.assertRaises(air.MergeException):
             self.cmd.refresh(self.arger)
 
 
@@ -145,14 +145,14 @@ class TestJira(unittest.TestCase):
     def setUp(self):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
-        dev.config = self.config
+        air.config = self.config
 
-        dev.jira_cfg = self.config['jira']
+        air.jira_cfg = self.config['jira']
 
         self.arger = argparse.ArgumentParser()
         subparsers = self.arger.add_subparsers(dest='command')
 
-        self.cmd = dev.Commands()
+        self.cmd = air.Commands()
 
         methods = [x for x in inspect.getmembers(self.cmd) if
             inspect.ismethod(x[1])]
@@ -172,10 +172,10 @@ class TestMain(unittest.TestCase):
     def setUp(self):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
-        dev.config = self.config
+        air.config = self.config
 
     def test_get_branches(self):
         sys.argv = ['bogus', 'list_tickets']
-        return_value = dev.main()
+        return_value = air.main()
         expected = 0
         self.assertEqual(expected, return_value)
