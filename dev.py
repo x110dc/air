@@ -12,10 +12,6 @@ from configobj import ConfigObj
 from jira.client import JIRA
 from sh import svn
 
-# dev mkticket "text goes here"
-# dev mkbranch <ticket number> (creates a branch based on a Jira ticket)
-# dev start <ticket> (marks ticket as in progress?)
-
 # read config file:
 config = ConfigObj(expanduser('~/.dev.cfg'))
 jira_cfg = config['jira']
