@@ -23,52 +23,68 @@ class MultipleMatchException(Exception):
 class MergeException(Exception):
     pass
 
-# helper functions:
 
-def get_branches():
-    '''
-    Returns a list of branches in the SVN repo based on the 'branch_url' given
-    in the configuration file.
-    '''
+class Subversion(object):
 
-    cmd = svn.ls(svn_cfg['branch_url'])
-    return [x for x in cmd]
+    def __init__(self, config):
+        self.config = config
+        self.strippers = ''.join(['/', string.whitespace])
 
+    def get_branches(self):
+        '''
+        Returns a list of branches in the SVN repo based on the 'branch_url'
+        given in the configuration file.
+        '''
 
-def get_unique_branch(search_string):
-    '''
-    Given a search string attempts to find one branch that contains the string
-    in it's name. If more than one branch matches then an exception is raised.
-    '''
+        cmd = svn.ls(self.config['branch_url'])
+        return [x.rstrip(self.strippers) for x in cmd]
 
-    branches = get_branches()
+    def get_unique_branch(self, search_string):
+        '''
+        Given a search string attempts to find one branch that contains the
+        string in it's name. If more than one branch matches then an exception
+        is raised.
+        '''
 
-    strippers = ''.join(['/', string.whitespace])
-    branch = [x.rstrip(strippers) for x in branches if search_string in x]
-    if len(branch) > 1:
-        raise MultipleMatchException('more than one branch matches "{}"')
+        branches = self.get_branches()
 
-    return branch[0]
+        branch = [x.rstrip(self.strippers)
+                for x in branches if search_string in x]
+        if len(branch) > 1:
+            raise MultipleMatchException('more than one branch matches "{}"')
 
-
-def get_ticket(ticket):
-    '''
-    Unused?
-    '''
-    return jira.issue('{}-{}'.format(jira_cfg['project'], ticket))
+        return branch[0]
 
 
-def make_jira_issue(summary, description, kind='Bug'):
+class Jira(object):
 
-    new_issue = jira.create_issue(
-        project={'key': jira_cfg['project']},
-        summary=summary,
-        description=summary,
+    def __init__(self, config):
+        self.config = config
+        self.options = {'server': config['server']}
+        self.server = JIRA(self.options,
+                basic_auth=(config['username'], config['password']))
+
+    def query(self, jql_query):
+        return self.server.search_issues(jql_query)
+
+    def create_issue(self, summary, description, kind='Bug'):
+
+        new_issue = self.server.create_issue(
+            project={'key': self.config['project']},
+            summary=summary,
+            description=summary,
 #       components=[{'id': '10301', 'name': 'Server Engineering'}],
-        assignee={'name': jira_cfg['username']},
-        issuetype={'name': kind})
+            assignee={'name': self.config['username']},
+            issuetype={'name': kind})
 
-    return new_issue.key
+        return new_issue.key
+
+    def get_issue(self, ticket):
+        '''
+        Given an issue name, returns a Jira instance of that issue.
+        '''
+        return self.server.issue('{}'.format(ticket))
+
 
 class Commands(object):
     '''
@@ -84,6 +100,11 @@ class Commands(object):
     further processing of command line arguments is left to this function.
     '''
 
+    def __init__(self, config):
+        self.config = config
+        self.jira = Jira(config['jira'])
+        self.svn = Subversion(config['svn'])
+
     def refresh(self, arger):
         '''
         Given a Jira ticket, refresh the associated branch from trunk.  If
@@ -96,16 +117,16 @@ class Commands(object):
         arger.add_argument('ticket')
         opts = arger.parse_args()
 
-        branch = get_unique_branch(opts.ticket)
+        branch = self.svn.get_unique_branch(opts.ticket)
 
-        src = '{}/{}'.format(svn_cfg['branch_url'], branch)
+        src = '{}/{}'.format(self.config['svn']['branch_url'], branch)
         try:
             working_dir = tempfile.mkdtemp()
             co = svn.co(src, working_dir)
             if co.exit_code:
                 raise Exception("unable to check out branch")
-            merge = svn.merge(svn_cfg['trunk_url'], _cwd=working_dir,
-                    accept='postpone')
+            merge = svn.merge(self.config['svn']['trunk_url'],
+                    _cwd=working_dir, accept='postpone')
             output.append(merge)
             if 'conflicts' in merge:
                 raise MergeException(
@@ -123,12 +144,13 @@ class Commands(object):
 
         arger.add_argument('ticket')
         opts = arger.parse_args()
-        issue = opts.ticket
+        issue = self.jira.get_issue(opts.ticket)
 
         summary = issue.fields.summary.replace(' ', '_')
         message = 'creating branch for {}'.format(issue.key)
-        src = svn_cfg['trunk_url']
-        dest = '{}{}_{}'.format(svn_cfg['branch_url'], issue.key, summary)
+        src = self.config['svn']['trunk_url']
+        dest = '{}/{}_{}'.format(self.config['svn']['branch_url'], issue.key,
+                summary)
 
         process = svn.copy(src, dest, m=message)
 
@@ -146,7 +168,7 @@ class Commands(object):
         arger.add_argument('text')
         summary = arger.parse_args().text
 
-        bug = make_jira_issue(summary, summary)
+        bug = self.jira.create_issue(summary, summary)
 
         return ['ticket created: {}'.format(bug)]
 
