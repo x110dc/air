@@ -201,9 +201,8 @@ def main():
     if hasattr(commands, subcommand):
         output = getattr(commands, subcommand)(arger)
         [print(x) for x in output]
-    else:
-        print ('Unrecognized command: {}'.format(subcommand))
 
+    return 0
 
 if __name__ == '__main__':
     main()
