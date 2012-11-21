@@ -17,8 +17,7 @@ from sh import svn
 # dev start <ticket> (marks ticket as in progress?)
 
 # read config file:
-config_file = expanduser('~/.dev.cfg')
-config = ConfigObj(config_file)
+config = ConfigObj(expanduser('~/.dev.cfg'))
 jira_cfg = config['jira']
 svn_cfg = config['svn']
 
