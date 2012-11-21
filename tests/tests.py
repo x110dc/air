@@ -90,45 +90,53 @@ def create_conflict(repo_url, repo_file):
 #    svn.up(_cwd=working_dir)
 #    svn.merge(new_branch_url, _cwd=working_dir, accept='postpone')
 
-
-class TestSvn(unittest.TestCase):
+class TestMakeBranch(unittest.TestCase):
 
     def setUp(self):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
-        air.config = self.config
-
-        self.arger = argparse.ArgumentParser()
-        subparsers = self.arger.add_subparsers(dest='command')
-
-        self.cmd = air.Commands()
-
-        methods = [x for x in inspect.getmembers(self.cmd) if
-            inspect.ismethod(x[1])]
-
-        # add subcommands to the argument parser:
-        for name, _ in methods:
-            subparsers.add_parser(name)
+        self.summary = "test bug"
+        jira = air.Jira(self.config['jira'])
+        self.bug = jira.create_issue(self.summary, self.summary)
+        self.cmd = air.Commands(self.config)
 
         self.repo_url, self.repo_file = setup_svn()
-        air.svn_cfg['root_url'] = self.repo_url
-        air.svn_cfg['branch_url'] = self.repo_url + '/branches'
-        air.svn_cfg['trunk_url'] = self.repo_url + '/trunk'
+        self.config['svn']['root_url'] = self.repo_url
+        self.config['svn']['branch_url'] = self.repo_url + '/branches'
+        self.config['svn']['trunk_url'] = self.repo_url + '/trunk'
+
+    def test_make_branch(self):
+        sys.argv = ['bogus', 'make_branch', self.bug]
+        arger = air.get_parser(['make_branch'])
+        branch_name = '{}_{}'.format(self.bug, self.summary.replace(' ', '_'))
+        self.cmd.make_branch(arger)
+        self.assertIn(branch_name, self.cmd.svn.get_branches())
 
 
+class TestSvn(unittest.TestCase):
 
+    def setUp(self):
+        self.config = ConfigObj('./tests/config')
+        self.repo_url, self.repo_file = setup_svn()
+        self.arger = air.get_parser(['refresh'])
+        self.cmd = air.Commands(self.config)
+
+        # use new values for SVN url:
+        self.config['svn']['root_url'] = self.repo_url
+        self.config['svn']['branch_url'] = self.repo_url + '/branches'
+        self.config['svn']['trunk_url'] = self.repo_url + '/trunk'
 
     def test_get_unique_branch(self):
         expected = 'foo-branch'
-        actual = air.get_unique_branch('foo')
+        actual = self.cmd.svn.get_unique_branch('foo')
         self.assertEqual(expected, actual)
 
         with self.assertRaises(air.MultipleMatchException):
-            actual = air.get_unique_branch('branch')
+            actual = self.cmd.svn.get_unique_branch('branch')
 
     def test_get_branches(self):
-        expected = [u'foo-branch/\n', u'new-branch/\n']
-        actual = air.get_branches()
+        expected = [u'foo-branch', u'new-branch']
+        actual = self.cmd.svn.get_branches()
         self.assertEqual(expected, actual)
 
     def test_refresh(self):
@@ -148,14 +156,11 @@ class TestJira(unittest.TestCase):
     def setUp(self):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
-        air.config = self.config
-
-        air.jira_cfg = self.config['jira']
 
         self.arger = argparse.ArgumentParser()
         subparsers = self.arger.add_subparsers(dest='command')
 
-        self.cmd = air.Commands()
+        self.cmd = air.Commands(self.config)
 
         methods = [x for x in inspect.getmembers(self.cmd) if
             inspect.ismethod(x[1])]
