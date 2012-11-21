@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 
-import unittest
+# the program we're testing:
 import dev
-import tempfile
 
+# stdlib
+import sys
+import unittest
+import tempfile
+import argparse
+import inspect
+from os.path import basename
+
+# installed libraries:
 from sh import svnadmin
 from sh import svn
+from configobj import ConfigObj
 
 
 def overwrite(file_object, text):
@@ -56,45 +65,103 @@ def setup_svn():
     overwrite(repo_file, '456\n')
     svn.commit(m='message', _cwd=working_dir)
 
+    # create another branch
+    new_branch_url = '{}/foo-branch'.format(branch_url)
+    svn.cp(trunk_url, new_branch_url, m='creating another new branch')
+
+    return [repo_url, repo_file]
+
+
+def create_conflict(repo_url, repo_file):
+
+    trunk_url = '{}/trunk'.format(repo_url)
+
+    # checkout trunk
+    working_dir = tempfile.mkdtemp()
+    svn.co(trunk_url, working_dir)
+
     # change the same file on trunk
-    svn.switch(trunk_url, _cwd=working_dir)
+    svn.co(trunk_url, working_dir)
+    repo_file = working_dir + '/' + basename(repo_file.name)
+    repo_file = open(repo_file, 'w')
     overwrite(repo_file, '789\n')
-    svn.commit(m='message', _cwd=working_dir)
+    svn.commit(m='creating conflict', _cwd=working_dir)
 
-    svn.up(_cwd=working_dir)
-    svn.merge(new_branch_url, _cwd=working_dir, accept='postpone')
-
-    return repo_url
+#    svn.up(_cwd=working_dir)
+#    svn.merge(new_branch_url, _cwd=working_dir, accept='postpone')
 
 
-class Test(unittest.TestCase):
+class TestSvn(unittest.TestCase):
 
     def setUp(self):
-        self.branches = [
-                u'CIGNA-1614_Free_Form_Search_Returns_No_Results/\n',
-                u'CIGNAINC-1479_prov_type_mapping/\n',
-                u'CIGNAINC-1509_improve_claims_api_documentation/\n',
-                u'CIGNAINC-1583_ChangePassword_Additional_Security_Fix/\n',
-                u'CIGNAINC-1738_Claim_Overview_Claim_Search_Mismatch_Fix/\n',
-                u'MCM-1033-MCM-1174_EntitlementsToBlockAccess_CMS/\n',
-                u'CIGNAINC-1829_In_Network_Deductible_field/\n',
-                u'CIGNAINC-1830_deductible_not_display_id_card/\n',
-                u'CIGNAINC-1931_ider_detail_test_for_added_quality_booleans/\n'
-                u'CIGNAINC-1941_no_id_cards_successful/\n']
+        # mock the configuration file:
+        self.config = ConfigObj('./tests/config')
+        dev.config = self.config
 
-        self.mergeout = [
-                u"--- Merging r15521 through r15668 into '/var/folders/y7/mn3mrzyd6_jbz8wm429y57fc0000gq/T/tmpakzinC':\n",
-                u'A /var/folders/y7/mn3mrzyd6_jbz8wm429y57fc0000gq/T/tmpakzinC/test/data/drugs\n',
-                u'A /var/folders/y7/mn3mrzyd6_jbz8wm429y57fc0000gq/T/tmpakzinC/test/data/drugs/drug_prices.json\n',
-                u'U /var/folders/y7/mn3mrzyd6_jbz8wm429y57fc0000gq/T/tmpakzinC/CHANGES\n',
-                u' G   /var/folders/y7/mn3mrzyd6_jbz8wm429y57fc0000gq/T/tmpakzinC\n',
-                u"--- Recording mergeinfo for merge of r15521 through r15668 into '/var/folders/y7/mn3mrzyd6_jbz8wm429y57fc0000gq/T/tmpakzinC':\n",
-                u' G   /var/folders/y7/mn3mrzyd6_jbz8wm429y57fc0000gq/T/tmpakzinC\n']
+        self.arger = argparse.ArgumentParser()
+        subparsers = self.arger.add_subparsers(dest='command')
+
+        self.cmd = dev.Commands()
+
+        methods = [x for x in inspect.getmembers(self.cmd) if
+            inspect.ismethod(x[1])]
+
+        # add subcommands to the argument parser:
+        for name, _ in methods:
+            subparsers.add_parser(name)
+
+        self.repo_url, self.repo_file = setup_svn()
+        dev.svn_cfg['root_url'] = self.repo_url
+        dev.svn_cfg['branch_url'] = self.repo_url + '/branches'
+        dev.svn_cfg['trunk_url'] = self.repo_url + '/trunk'
 
     def test_get_unique_branch(self):
-        actual = dev.get_unique_branch(self.branches, '1174')
-        expected = 'MCM-1033-MCM-1174_EntitlementsToBlockAccess_CMS'
+        expected = 'foo-branch'
+        actual = dev.get_unique_branch('foo')
         self.assertEqual(expected, actual)
 
-    def test_blah(self):
-        setup_svn()
+        with self.assertRaises(dev.MultipleMatchException):
+            actual = dev.get_unique_branch('branch')
+
+    def test_get_branches(self):
+        expected = [u'foo-branch/\n', u'new-branch/\n']
+        actual = dev.get_branches()
+        self.assertEqual(expected, actual)
+
+    def test_refresh(self):
+        sys.argv = ['bogus', 'refresh', 'new-branch']
+        output = self.cmd.refresh(self.arger)
+        self.assertRegexpMatches(str(output[-1]), 'Committed revision 7')
+
+    def test_refresh_exception(self):
+        sys.argv = ['bogus', 'refresh', 'new-branch']
+        create_conflict(self.repo_url, self.repo_file)
+        with self.assertRaises(dev.MergeException):
+            self.cmd.refresh(self.arger)
+
+
+class TestJira(unittest.TestCase):
+
+    def setUp(self):
+        # mock the configuration file:
+        self.config = ConfigObj('./tests/config')
+        dev.config = self.config
+
+        dev.jira_cfg = self.config['jira']
+
+        self.arger = argparse.ArgumentParser()
+        subparsers = self.arger.add_subparsers(dest='command')
+
+        self.cmd = dev.Commands()
+
+        methods = [x for x in inspect.getmembers(self.cmd) if
+            inspect.ismethod(x[1])]
+
+        # add subcommands to the argument parser:
+        for name, _ in methods:
+            subparsers.add_parser(name)
+
+    def test_create_bug(self):
+        sys.argv = ['bogus', 'create_bug', 'this is a test bug']
+        actual = self.cmd.create_bug(self.arger)
+        self.assertRegexpMatches(actual, 'ticket created: MMSANDBOX-\d*')
