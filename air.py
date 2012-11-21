@@ -36,7 +36,6 @@ class MergeException(Exception):
 
 # helper functions:
 
-
 def get_branches():
     '''
     Returns a list of branches in the SVN repo based on the 'branch_url' given
@@ -63,12 +62,24 @@ def get_unique_branch(search_string):
     return branch[0]
 
 
-def get_ticket(self, ticket):
+def get_ticket(ticket):
     '''
     Unused?
     '''
     return jira.issue('{}-{}'.format(jira_cfg['project'], ticket))
 
+
+def make_jira_issue(summary, description, kind='Bug'):
+
+    new_issue = jira.create_issue(
+        project={'key': jira_cfg['project']},
+        summary=summary,
+        description=summary,
+#       components=[{'id': '10301', 'name': 'Server Engineering'}],
+        assignee={'name': jira_cfg['username']},
+        issuetype={'name': kind})
+
+    return new_issue.key
 
 class Commands(object):
     '''
@@ -146,14 +157,9 @@ class Commands(object):
         arger.add_argument('text')
         summary = arger.parse_args().text
 
-        new_issue = jira.create_issue(
-                    project={'key': jira_cfg['project']},
-                    summary=summary,
-                    description=summary,
-        #            components=[{'id': '10301', 'name': 'Server Engineering'}],
-                    assignee={'name': jira_cfg['username']},
-                    issuetype={'name': 'Bug'})
-        return ['ticket created: {}'.format(new_issue.key)]
+        bug = make_jira_issue(summary, summary)
+
+        return ['ticket created: {}'.format(bug)]
 
     def list_tickets(self, arger):
         '''

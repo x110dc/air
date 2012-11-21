@@ -115,6 +115,9 @@ class TestSvn(unittest.TestCase):
         air.svn_cfg['branch_url'] = self.repo_url + '/branches'
         air.svn_cfg['trunk_url'] = self.repo_url + '/trunk'
 
+
+
+
     def test_get_unique_branch(self):
         expected = 'foo-branch'
         actual = air.get_unique_branch('foo')
