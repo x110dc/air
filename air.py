@@ -214,33 +214,42 @@ def get_parser(names):
     return arger
 
 
+class Dispatcher(object):
+
+    def __init__(self, config):
+        self.config = config
+        self.commands = Commands(config)
+        self.aliases = config['aliases']
+
+    def go(self):
+        # get the names of the functions in the Commands class to use
+        # as names for  subcommands for the parser:
+        # TODO: use filter() here?
+        methods = [x for x in inspect.getmembers(self.commands) if
+                inspect.ismethod(x[1])]
+
+        names = [x[0] for x in methods] + self.aliases.keys()
+        arger = get_parser(names)
+
+        opts = arger.parse_known_args()
+        subcommand = opts[0].command
+
+        # substitute the real command:
+        if subcommand in self.aliases:
+            subcommand = self.aliases[subcommand]
+
+        # call the subcommand, pass the argument parser object
+        if hasattr(self.commands, subcommand):
+            output = getattr(self.commands, subcommand)(arger)
+            return output
+
+
 def main():
 
     config = ConfigObj(expanduser('~/.dev.cfg'))
-    aliases = config['aliases']
-    commands = Commands(config)
-
-    # get the names of the functions in the Commands class to use as names for
-    # subcommands for the parser:
-    # TODO: use filter() here?
-    methods = [x for x in inspect.getmembers(commands) if
-            inspect.ismethod(x[1])]
-
-    names = [x[0] for x in methods] + aliases.keys()
-    arger = get_parser(names)
-
-    opts = arger.parse_known_args()
-    subcommand = opts[0].command
-
-    # substitute the real command:
-    if subcommand in aliases:
-        subcommand = aliases[subcommand]
-
-    # call the subcommand, pass the argument parser object
-    if hasattr(commands, subcommand):
-        output = getattr(commands, subcommand)(arger)
-        [print(x) for x in output]
-
+    dispatcher = Dispatcher(config)
+    out = dispatcher.go()
+    [print(x) for x in out]
     return 0
 
 if __name__ == '__main__':
