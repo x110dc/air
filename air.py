@@ -25,6 +25,9 @@ class MergeException(Exception):
 
 
 class Subversion(object):
+    '''
+    This class encapsulates interaction with Subversion
+    '''
 
     def __init__(self, config):
         self.config = config
@@ -57,6 +60,9 @@ class Subversion(object):
 
 
 class Jira(object):
+    '''
+    Encapsulates interaction with Jira server.
+    '''
 
     def __init__(self, config):
         self.config = config
@@ -65,9 +71,15 @@ class Jira(object):
                 basic_auth=(config['username'], config['password']))
 
     def query(self, jql_query):
+        '''
+        Run a JQL query.
+        '''
         return self.server.search_issues(jql_query)
 
     def create_issue(self, summary, description, kind='Bug'):
+        '''
+        Create a Jira issue -- defaults to a bug.
+        '''
 
         new_issue = self.server.create_issue(
             project={'key': self.config['project']},
