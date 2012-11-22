@@ -145,8 +145,6 @@ class Commands(object):
         try:
             working_dir = tempfile.mkdtemp()
             co = svn.co(src, working_dir)
-            if co.exit_code:
-                raise Exception("unable to check out branch")
             merge = svn.merge(self.config['svn']['trunk_url'],
                     _cwd=working_dir, accept='postpone')
             output.append(merge)
@@ -175,9 +173,6 @@ class Commands(object):
                 summary)
 
         process = svn.copy(src, dest, m=message)
-
-        if process.exit_code:
-            return process.stderr
 
         return process.stdout
 
