@@ -90,6 +90,17 @@ class Jira(object):
 
         return new_issue.key
 
+    def transition_issue(self, ticket, status='Closed'):
+        # find ID for status:
+        issue = self.get_issue(ticket)
+        transitions = self.server.transitions(issue)
+        # TODO: what if status isn't in list of transitions?
+        _id = [x['id'] for x in transitions if x['name'] == status][0]
+        # close it:
+        rc = self.server.transition_issue(issue, _id)
+        return self.get_issue(ticket)
+
+
     def get_issue(self, ticket):
         '''
         Given an issue name, returns a Jira instance of that issue.
