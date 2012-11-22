@@ -50,7 +50,6 @@ class Subversion(object):
         '''
 
         branches = self.get_branches()
-
         branch = [x.rstrip(self.strippers)
                 for x in branches if search_string in x]
         if len(branch) > 1:
