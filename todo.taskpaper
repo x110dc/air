@@ -15,11 +15,11 @@ user stories:
 TODO:
 
 - start an issue (create branch, start progress, add SVN URL to Jira)
+- use tearDown to close bugs I've created through testing?
 - allow 'refresh' (and others?) to deduce ticket from PWD (Svn or Git?)
 - finish a ticket
-- think of a good name (2 or 3 character)
-- more tests!
-- create tasks in Jira
+- tests for exceptional conditions (bad Svn, etc)
+- create tasks in Jira (not just bugs)
 - start a review
 - reject ticket
 - finish review
@@ -31,15 +31,24 @@ TODO:
 - Crucible integration
 - logging?
 - better handling of output vs. print?
-- use tearDown to close bugs I've created through testing?
-- test aliases
-- use .coveragerc to exclude tests from test coverage
 - list tickets ready for review
 - use git-flow for inspiration?
+- what to do if config file doesn't exist?
+- check that aliases are valid
+- remove __init__ from list of subcommand options
+- do more formal doc strings with params and return values
+- why aren't MMSANDBOX issues assigned to me showing up in the list?
 
 caveats: 
 - doesn't work with multiple SVN repos at the same time
 - doesn't work with multiple Jira projects or users at the same time
 - uses same text for summary and description of new Jira issues
 
-test coverage @done
+Done:
+- test coverage @done
+- pass config object around instead of reading at the module level? @done
+- same for Jira object? @done
+- think of a good name (2 or 3 character) @done
+- use .coveragerc to exclude tests from test coverage @done
+- more tests! @done
+- test aliases @done
