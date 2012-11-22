@@ -90,14 +90,23 @@ def create_conflict(repo_url, repo_file):
 #    svn.up(_cwd=working_dir)
 #    svn.merge(new_branch_url, _cwd=working_dir, accept='postpone')
 
+
+def get_jira_pass():
+
+    with open('./.pass', 'r') as pfile:
+        return pfile.readline().rstrip()
+
+
 class TestMakeBranch(unittest.TestCase):
 
     def setUp(self):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
+        self.config['jira']['password'] = get_jira_pass()
+
         self.summary = "test bug"
-        jira = air.Jira(self.config['jira'])
-        self.bug = jira.create_issue(self.summary, self.summary)
+        self.jira = air.Jira(self.config['jira'])
+        self.bug = self.jira.create_issue(self.summary, self.summary)
         self.cmd = air.Commands(self.config)
 
         self.repo_url, self.repo_file = setup_svn()
@@ -112,11 +121,15 @@ class TestMakeBranch(unittest.TestCase):
         self.cmd.make_branch(arger)
         self.assertIn(branch_name, self.cmd.svn.get_branches())
 
+    def tearDown(self):
+        self.jira.transition_issue(self.bug, status='Closed')
+
 
 class TestSvn(unittest.TestCase):
 
     def setUp(self):
         self.config = ConfigObj('./tests/config')
+        self.config['jira']['password'] = get_jira_pass()
         self.repo_url, self.repo_file = setup_svn()
         self.arger = air.get_parser(['refresh'])
         self.cmd = air.Commands(self.config)
@@ -156,6 +169,7 @@ class TestJira(unittest.TestCase):
     def setUp(self):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
+        self.config['jira']['password'] = get_jira_pass()
 
         self.arger = argparse.ArgumentParser()
         subparsers = self.arger.add_subparsers(dest='command')
@@ -172,7 +186,22 @@ class TestJira(unittest.TestCase):
     def test_create_bug(self):
         sys.argv = ['bogus', 'create_bug', 'this is a test bug']
         actual = self.cmd.create_bug(self.arger)[0]
+#TODO: close this bug via tearDown()
         self.assertRegexpMatches(actual, 'ticket created: MMSANDBOX-\d*')
+
+class TestCloseJiraIssue(unittest.TestCase):
+
+    def setUp(self):
+        self.config = ConfigObj('./tests/config')
+        self.config['jira']['password'] = get_jira_pass()
+        self.summary = "test bug"
+        self.jira = air.Jira(self.config['jira'])
+        self.bug = self.jira.create_issue(self.summary, self.summary)
+
+    def test_transition_issue(self):
+        issue = self.jira.transition_issue(self.bug, status='Closed')
+        expected = 'Closed'
+        self.assertEqual(expected, issue.fields.status.name)
 
 
 class TestMain(unittest.TestCase):
@@ -180,10 +209,22 @@ class TestMain(unittest.TestCase):
     def setUp(self):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
-        air.config = self.config
+        self.config['jira']['password'] = get_jira_pass()
 
-    def test_get_branches(self):
+    def test_aliases(self):
+        '''
+        Testing that aliases specified in the the config file work.
+        '''
+        sys.argv = ['bogus', 'jirals']
+        d = air.Dispatcher(self.config)
+        self.assertIsInstance(d.go(), list)
+
+    def test_main(self):
+        '''
+        This is kinda lame and doesn't test much, but it makes sure there's
+        test coverage for main().
+        '''
         sys.argv = ['bogus', 'list_tickets']
-        return_value = air.main()
+        actual = air.main()
         expected = 0
-        self.assertEqual(expected, return_value)
+        self.assertEqual(expected, actual)
