@@ -15,6 +15,7 @@ user stories:
 TODO:
 
 - start an issue (create branch, start progress, add SVN URL to Jira)
+- have config file in current dir override $HOME one
 - use tearDown to close bugs I've created through testing?
 - allow 'refresh' (and others?) to deduce ticket from PWD (Svn or Git?)
 - finish a ticket
