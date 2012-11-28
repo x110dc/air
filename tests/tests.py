@@ -203,6 +203,42 @@ class TestCloseJiraIssue(unittest.TestCase):
         expected = 'Closed'
         self.assertEqual(expected, issue.fields.status.name)
 
+class TestStartWork(unittest.TestCase):
+
+    def setUp(self):
+        # mock the configuration file:
+        self.config = ConfigObj('./tests/config')
+        self.config['jira']['password'] = get_jira_pass()
+
+        self.summary = "test bug for start of work"
+        self.jira = air.Jira(self.config['jira'])
+        self.bug = self.jira.create_issue(self.summary, self.summary)
+        self.arger = air.get_parser(['start_work'])
+        self.cmd = air.Commands(self.config)
+
+        self.repo_url, self.repo_file = setup_svn()
+        self.config['svn']['root_url'] = self.repo_url
+        self.config['svn']['branch_url'] = self.repo_url + '/branches'
+        self.config['svn']['trunk_url'] = self.repo_url + '/trunk'
+
+    def test_start_work(self):
+        sys.argv = ['bogus', 'start_work', self.bug]
+        arger = air.get_parser(['start_work'])
+        issue = self.cmd.start_work(self.arger)
+
+        # a branch should've been created:
+        actual = self.cmd.svn.get_unique_branch('start')
+        self.assertTrue(actual)
+
+        # and the associated issue should now be "In Progress":
+        expected = 'In Progress'
+        actual = self.jira.get_issue(self.bug).fields.status.name
+        self.assertEqual(expected, actual)
+
+        #TODO: test that the SVN URL is added
+
+    def tearDown(self):
+        self.jira.transition_issue(self.bug, status='Closed')
 
 class TestMain(unittest.TestCase):
 

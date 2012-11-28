@@ -132,6 +132,18 @@ class Commands(object):
         self.jira = Jira(config['jira'])
         self.svn = Subversion(config['svn'])
 
+    def start_work(self, arger):
+
+        self.make_branch(arger)
+        opts = arger.parse_args()
+        issue = self.jira.get_issue(opts.ticket)
+        self.jira.transition_issue(opts.ticket, status='In Progress')
+        branch = self.svn.get_unique_branch(opts.ticket)
+        comment = 'SVN URL: ' + self.config['svn']['branch_url'] + '/' + branch
+        self.jira.add_comment(issue.key, comment)
+        return 'Branch created and issue marked as "In Progress"'
+
+
     def refresh(self, arger):
         '''
         Given a Jira ticket, refresh the associated branch from trunk.  If
