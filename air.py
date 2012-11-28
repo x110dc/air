@@ -100,6 +100,11 @@ class Jira(object):
         rc = self.server.transition_issue(issue, _id)
         return self.get_issue(ticket)
 
+    def add_comment(self, ticket, comment):
+
+        issue = self.get_issue(ticket)
+        self.server.add_comment(issue, comment)
+        return issue
 
     def get_issue(self, ticket):
         '''
