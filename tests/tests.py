@@ -189,6 +189,7 @@ class TestJira(unittest.TestCase):
 #TODO: close this bug via tearDown()
         self.assertRegexpMatches(actual, 'ticket created: MMSANDBOX-\d*')
 
+
 class TestCloseJiraIssue(unittest.TestCase):
 
     def setUp(self):
@@ -202,6 +203,7 @@ class TestCloseJiraIssue(unittest.TestCase):
         issue = self.jira.transition_issue(self.bug, status='Closed')
         expected = 'Closed'
         self.assertEqual(expected, issue.fields.status.name)
+
 
 class TestStartWork(unittest.TestCase):
 
@@ -223,8 +225,7 @@ class TestStartWork(unittest.TestCase):
 
     def test_start_work(self):
         sys.argv = ['bogus', 'start_work', self.bug]
-        arger = air.get_parser(['start_work'])
-        issue = self.cmd.start_work(self.arger)
+        self.cmd.start_work(self.arger)
 
         # a branch should've been created:
         actual = self.cmd.svn.get_unique_branch('start')
@@ -239,6 +240,7 @@ class TestStartWork(unittest.TestCase):
 
     def tearDown(self):
         self.jira.transition_issue(self.bug, status='Closed')
+
 
 class TestMain(unittest.TestCase):
 
