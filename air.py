@@ -245,6 +245,7 @@ class Dispatcher(object):
                 inspect.ismethod(x[1])]
 
         names = [x[0] for x in methods] + self.aliases.keys()
+        names.remove('__init__')
         arger = get_parser(names)
 
         opts = arger.parse_known_args()
