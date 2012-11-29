@@ -97,7 +97,7 @@ class Jira(object):
         # TODO: what if status isn't in list of transitions?
         _id = [x['id'] for x in transitions if x['name'] == status][0]
         # close it:
-        rc = self.server.transition_issue(issue, _id)
+        self.server.transition_issue(issue, _id)
         return self.get_issue(ticket)
 
     def add_comment(self, ticket, comment):
@@ -143,7 +143,6 @@ class Commands(object):
         self.jira.add_comment(issue.key, comment)
         return 'Branch created and issue marked as "In Progress"'
 
-
     def refresh(self, arger):
         '''
         Given a Jira ticket, refresh the associated branch from trunk.  If
@@ -161,7 +160,7 @@ class Commands(object):
         src = '{}/{}'.format(self.config['svn']['branch_url'], branch)
         try:
             working_dir = tempfile.mkdtemp()
-            co = svn.co(src, working_dir)
+            svn.co(src, working_dir)
             merge = svn.merge(self.config['svn']['trunk_url'],
                     _cwd=working_dir, accept='postpone')
             output.append(merge)
