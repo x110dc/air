@@ -1,23 +1,24 @@
 user stories:
+- self-assign: assign a ticket to me
+- given a brief description, create a task in Jira
+- finish a ticket - mark ticket as ready for review, update CHANGES
+- start a review - mark ticket as 'in review', create Crucible review
+- review: reject ticket
+- finish review - mark it as closed, reintegrate it, delete branch
+- add a comment to a ticket
+
+completed user stories:
 - list tickets assigned to me @done
 - given a brief description, create a bug in Jira @done
-- given a brief description, create a task in Jira
 - given a ticket, create a branch in svn for it @done
-- start an issue: create branch, start progress, add Svn URL to Jira
 - refresh a branch from trunk @done
-- finish a ticket - mark ticket as ready for review, update CHANGES
-- start a review - mark ticket as 'in review', create Crucible review,
-- reject ticket
-- finish review - mark it as closed, reintegrate it, delete branch
-- self-assign: assign a ticket to me
-- add a comment to a ticket
+- start an issue: create branch, start progress, add Svn URL to Jira @done
 
 TODO:
 
-- start an issue (create branch, start progress, add SVN URL to Jira)
+- allow 'refresh' (and others?) to deduce ticket from PWD (Svn or Git?)
 - have config file in current dir override $HOME one
 - use tearDown to close bugs I've created through testing?
-- allow 'refresh' (and others?) to deduce ticket from PWD (Svn or Git?)
 - finish a ticket
 - tests for exceptional conditions (bad Svn, etc)
 - create tasks in Jira (not just bugs)
@@ -53,3 +54,4 @@ Done:
 - use .coveragerc to exclude tests from test coverage @done
 - more tests! @done
 - test aliases @done
+- start an issue (create branch, start progress, add SVN URL to Jira) @done
