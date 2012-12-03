@@ -9,11 +9,16 @@ import tempfile
 import argparse
 import inspect
 from os.path import basename
+from StringIO import StringIO
+import contextlib
 
 # installed libraries:
 from sh import svnadmin
 from sh import svn
 from configobj import ConfigObj
+
+#
+from nair.subversion import MultipleMatchException
 
 
 def overwrite(file_object, text):
@@ -121,7 +126,7 @@ class TestMakeBranch(unittest.TestCase):
         self.assertIn(branch_name, self.cmd.svn.get_branches())
 
     def tearDown(self):
-        self.jira.transition_issue(self.bug, status='Closed')
+        self.jira.transition_issue(self.bug, status='Resolve Issue')
 
 
 class TestSvn(unittest.TestCase):
@@ -143,7 +148,7 @@ class TestSvn(unittest.TestCase):
         actual = self.cmd.svn.get_unique_branch('foo')
         self.assertEqual(expected, actual)
 
-        with self.assertRaises(air.MultipleMatchException):
+        with self.assertRaises(MultipleMatchException):
             actual = self.cmd.svn.get_unique_branch('branch')
 
     def test_get_branches(self):
@@ -153,8 +158,10 @@ class TestSvn(unittest.TestCase):
 
     def test_refresh(self):
         sys.argv = ['bogus', 'refresh', 'new-branch']
-        output = self.cmd.refresh(self.arger)
-        self.assertRegexpMatches(str(output[-1]), 'Committed revision 7')
+        out = StringIO()
+        self.cmd.refresh(self.arger, out=out)
+        output = out.getvalue().strip()
+        self.assertRegexpMatches(output, 'Committed revision 7')
 
     def test_refresh_exception(self):
         sys.argv = ['bogus', 'refresh', 'new-branch']
@@ -184,7 +191,9 @@ class TestJira(unittest.TestCase):
 
     def test_create_bug(self):
         sys.argv = ['bogus', 'create_bug', 'this is a test bug']
-        actual = self.cmd.create_bug(self.arger)[0]
+        out = StringIO()
+        self.cmd.create_bug(self.arger, out=out)
+        actual = out.getvalue().strip()
 #TODO: close this bug via tearDown()
         self.assertRegexpMatches(actual, 'ticket created: MMSANDBOX-\d*')
 
@@ -199,8 +208,8 @@ class TestCloseJiraIssue(unittest.TestCase):
         self.bug = self.jira.create_issue(self.summary, self.summary)
 
     def test_transition_issue(self):
-        issue = self.jira.transition_issue(self.bug, status='Closed')
-        expected = 'Closed'
+        issue = self.jira.transition_issue(self.bug, status='Resolve Issue')
+        expected = 'Resolved'
         self.assertEqual(expected, issue.fields.status.name)
 
 
@@ -222,6 +231,10 @@ class TestStartWork(unittest.TestCase):
         self.config['svn']['branch_url'] = self.repo_url + '/branches'
         self.config['svn']['trunk_url'] = self.repo_url + '/trunk'
 
+    def tearDown(self):
+        self.jira.transition_issue(self.bug, status='Stop Progress')
+        self.jira.transition_issue(self.bug, status='Resolve Issue')
+
     def test_start_work(self):
         sys.argv = ['bogus', 'start_work', self.bug]
         self.cmd.start_work(self.arger)
@@ -237,8 +250,18 @@ class TestStartWork(unittest.TestCase):
 
         #TODO: test that the SVN URL is added
 
-    def tearDown(self):
-        self.jira.transition_issue(self.bug, status='Closed')
+
+@contextlib.contextmanager
+def capture():
+    oldout, olderr = sys.stdout, sys.stderr
+    try:
+        out = [StringIO(), StringIO()]
+        sys.stdout, sys.stderr = out
+        yield out
+    finally:
+        sys.stdout, sys.stderr = oldout, olderr
+        out[0] = out[0].getvalue()
+        out[1] = out[1].getvalue()
 
 
 class TestMain(unittest.TestCase):
@@ -254,7 +277,11 @@ class TestMain(unittest.TestCase):
         '''
         sys.argv = ['bogus', 'jirals']
         d = air.Dispatcher(self.config)
-        self.assertIsInstance(d.go(), list)
+        out = StringIO()
+        actual = d.go(out=out)
+        output = out.getvalue().strip()
+        self.assertEqual(0, actual)
+        self.assertGreater(len(output), 0)
 
     def test_main(self):
         '''
