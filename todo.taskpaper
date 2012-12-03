@@ -16,9 +16,10 @@ completed user stories:
 
 TODO:
 
-- split apart into packages/libraries/modules
+- pull parts of Commands into Subversion library (too much direct SVN access)
 - allow 'refresh' (and others?) to deduce ticket from PWD (Svn or Git?)
 - have config file in current dir override $HOME one
+- zsh/bash completions
 - use tearDown to close bugs I've created through testing?
 - finish a ticket
 - tests for exceptional conditions (bad Svn, etc)
@@ -28,17 +29,14 @@ TODO:
 - finish review
 - self-assign (take)
 - construct branch and trunk URLs from root url if not specified?
-- zsh/bash completions
 - use filters already in Jira account too or instead of hardcoded one?
 - put JQL filters in config file?
 - Crucible integration
 - logging?
-- better handling of output vs. print?
 - list tickets ready for review
 - use git-flow for inspiration?
 - what to do if config file doesn't exist?
 - check that aliases are valid
-- remove __init__ from list of subcommand options
 - do more formal doc strings with params and return values
 - why aren't MMSANDBOX issues assigned to me showing up in the list?
 
@@ -56,3 +54,6 @@ Done:
 - more tests! @done
 - test aliases @done
 - start an issue (create branch, start progress, add SVN URL to Jira) @done
+- better handling of output vs. print? @done
+- remove __init__ from list of subcommand options @done
+- split apart into packages/libraries/modules @done
