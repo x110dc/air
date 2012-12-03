@@ -1,7 +1,6 @@
-#!/usr/bin/env python3
 
 # the program we're testing:
-import air
+from nair import air
 
 # stdlib
 import sys
