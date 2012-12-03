@@ -16,6 +16,7 @@ completed user stories:
 
 TODO:
 
+- split apart into packages/libraries/modules
 - allow 'refresh' (and others?) to deduce ticket from PWD (Svn or Git?)
 - have config file in current dir override $HOME one
 - use tearDown to close bugs I've created through testing?
