@@ -9,6 +9,7 @@ from os.path import expanduser
 import tempfile
 import shutil
 import inspect
+import sys
 
 # installed:
 from configobj import ConfigObj
@@ -99,10 +100,11 @@ class Jira(object):
         issue = self.get_issue(ticket)
         transitions = self.server.transitions(issue)
         # TODO: what if status isn't in list of transitions?
-        if status not in transitions:
+        transition_names = [x['name'] for x in transitions]
+        if status not in transition_names:
             raise InvalidJiraStatusException(
-            '{} is not a valid status for this Jira issue'.format(status))
-        from ipdb import set_trace; set_trace()
+            '\'{}\' is not a valid status for this Jira issue. \
+            Valid transitions: {}'.format(status, ', '.join(transition_names)))
         _id = [x['id'] for x in transitions if x['name'] == status][0]
         # close it:
         self.server.transition_issue(issue, _id)
