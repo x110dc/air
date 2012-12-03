@@ -24,6 +24,10 @@ class MergeException(Exception):
     pass
 
 
+class InvalidJiraStatusException(Exception):
+    pass
+
+
 class Subversion(object):
     '''
     This class encapsulates interaction with Subversion
@@ -90,11 +94,15 @@ class Jira(object):
 
         return new_issue.key
 
-    def transition_issue(self, ticket, status='Closed'):
+    def transition_issue(self, ticket, status='Resolve Issue'):
         # find ID for status:
         issue = self.get_issue(ticket)
         transitions = self.server.transitions(issue)
         # TODO: what if status isn't in list of transitions?
+        if status not in transitions:
+            raise InvalidJiraStatusException(
+            '{} is not a valid status for this Jira issue'.format(status))
+        from ipdb import set_trace; set_trace()
         _id = [x['id'] for x in transitions if x['name'] == status][0]
         # close it:
         self.server.transition_issue(issue, _id)
