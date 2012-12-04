@@ -5,9 +5,14 @@ from os.path import expanduser
 
 # installed:
 from configobj import ConfigObj
+from path import path
 
-from nair import air
+from rair import air
 
-config = ConfigObj(expanduser('~/.dev.cfg'))
+# read the configuration file from $HOME
+config = ConfigObj(expanduser('~/.air.cfg'))
+# a file in the current directory will override $HOME settings
+config.merge(ConfigObj('./.air.cfg'))
+
 air.Dispatcher(config).go()
 sys.exit(0)
