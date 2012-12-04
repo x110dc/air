@@ -4,14 +4,12 @@ from __future__ import print_function
 
 # stdlib
 import argparse
-from os.path import expanduser
 import tempfile
 import shutil
 import inspect
 import sys
 
 # installed:
-from configobj import ConfigObj
 from sh import svn
 
 #
@@ -134,6 +132,7 @@ class Commands(object):
         for key in [x.key for x in tickets]:
             out.write('{}\n'.format(key))
 
+
 def get_parser(names):
 
     arger = argparse.ArgumentParser()
@@ -183,13 +182,3 @@ class Dispatcher(object):
             getattr(self.commands, subcommand)(arger, out=out)
 
         return 0
-
-
-def main():
-
-    config = ConfigObj(expanduser('~/.dev.cfg'))
-    Dispatcher(config).go()
-    return 0
-
-if __name__ == '__main__':
-    main()
