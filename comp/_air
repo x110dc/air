@@ -1,0 +1,23 @@
+#compdef air
+
+_air() { 
+    local curcontext="$curcontext" state line
+    typeset -A opt_args
+
+    _arguments \
+        '1: :->subcommand'\
+
+    case $state in
+    subcommand)
+        _arguments '1:subcommand:(make_bug start_work refresh)'
+    ;;
+    *)
+        case $words[2] in
+        refresh | start_work)
+            compadd "$@" `/Users/danielc/Git/mine/air/air ticket_completion`
+        ;;
+        esac
+    esac 
+}
+
+_air "$@"
