@@ -1,4 +1,4 @@
 #!/bin/sh
 
-cp air.py ~/bin/air
+cp air ~/bin/air
 chmod +x ~/bin/air

@@ -6,8 +6,8 @@ from os.path import expanduser
 # installed:
 from configobj import ConfigObj
 
-import air.air
+from nair import air
 
 config = ConfigObj(expanduser('~/.dev.cfg'))
-air.air.Dispatcher(config).go()
+air.Dispatcher(config).go()
 sys.exit(0)
