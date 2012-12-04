@@ -16,10 +16,8 @@ completed user stories:
 
 TODO:
 
-- pull parts of Commands into Subversion library (too much direct SVN access)
 - add comment to a ticket
-- make package installable
-- have config file in current dir override $HOME one
+- pull parts of Commands into Subversion library (too much direct SVN access)
 - allow 'refresh' (and others?) to deduce ticket from PWD (Svn or Git?)
 - self-assign (take)
 - post a comment to the Jira issue when doing a refresh on a branch
@@ -60,3 +58,5 @@ Done:
 - better handling of output vs. print? @done
 - remove __init__ from list of subcommand options @done
 - split apart into packages/libraries/modules @done
+- make package installable @done
+- have config file in current dir override $HOME one @done
