@@ -127,6 +127,12 @@ class Commands(object):
         for key, summary in [(x.key, x.fields.summary) for x in tickets]:
             out.write('{}:\t{}\n'.format(key, summary))
 
+    def ticket_completion(self, arger, out=sys.stdout):
+        tickets = self.jira.query('assignee=currentUser() \
+                AND status != Closed AND status != Resolved \
+                AND fixVersion != "Post-GA Release"')
+        for key in [x.key for x in tickets]:
+            out.write('{}\n'.format(key))
 
 def get_parser(names):
 
@@ -145,6 +151,14 @@ class Dispatcher(object):
         self.config = config
         self.commands = Commands(config)
         self.aliases = config['aliases']
+
+    def completion(self):
+        methods = [x for x in inspect.getmembers(self.commands) if
+                inspect.ismethod(x[1])]
+
+        names = [x[0] for x in methods] + self.aliases.keys()
+        names.remove('__init__')
+        print (' '.join(names))
 
     def go(self, out=sys.stdout):
         # get the names of the functions in the Commands class to use

@@ -4,20 +4,32 @@ _air() {
     local curcontext="$curcontext" state line
     typeset -A opt_args
 
-    _arguments \
-        '1: :->subcommand'\
+    _arguments -C \
+        ':command:->command' \
+        '*::options:->options'
 
     case $state in
-    subcommand)
-        _arguments '1:subcommand:(make_bug start_work refresh)'
-    ;;
-    *)
-        case $words[2] in
-        refresh | start_work)
-            compadd "$@" `/Users/danielc/Git/mine/air/air ticket_completion`
+        (command)
+            local -a subcommands
+            subcommands=(
+                'refresh:refresh a ticket'
+                'start_work:start a ticket'
+                'create_bug:create a bug'
+            )
+            _describe -t commands 'air' subcommands
         ;;
-        esac
-    esac 
+        (options)
+            case $line[1] in
+                (refresh)
+                    _arguments  ':ticket:__tickets'
+                ;;
+            esac
+    esac
+}
+
+__tickets ()
+{
+    _wanted application expl 'command' compadd $(command /Users/danielc/Git/mine/air/air ticket_completion 2> /dev/null)
 }
 
 _air "$@"
