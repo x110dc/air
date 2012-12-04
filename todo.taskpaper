@@ -17,8 +17,12 @@ completed user stories:
 TODO:
 
 - pull parts of Commands into Subversion library (too much direct SVN access)
-- allow 'refresh' (and others?) to deduce ticket from PWD (Svn or Git?)
+- add comment to a ticket
+- make package installable
 - have config file in current dir override $HOME one
+- allow 'refresh' (and others?) to deduce ticket from PWD (Svn or Git?)
+- self-assign (take)
+- post a comment to the Jira issue when doing a refresh on a branch
 - zsh/bash completions
 - use tearDown to close bugs I've created through testing?
 - finish a ticket
@@ -27,7 +31,6 @@ TODO:
 - start a review
 - reject ticket
 - finish review
-- self-assign (take)
 - construct branch and trunk URLs from root url if not specified?
 - use filters already in Jira account too or instead of hardcoded one?
 - put JQL filters in config file?
