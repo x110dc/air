@@ -1,6 +1,6 @@
 
 # the program we're testing:
-from nair import air
+from rair import air
 
 # stdlib
 import sys
@@ -18,7 +18,7 @@ from sh import svn
 from configobj import ConfigObj
 
 #
-from nair.subversion import MultipleMatchException
+from rair.subversion import MultipleMatchException
 
 
 def overwrite(file_object, text):
