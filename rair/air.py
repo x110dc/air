@@ -27,7 +27,7 @@ class Commands(object):
     program.  Each function is a subcommand and must have the following
     signature:
 
-    my_awesome_function(self, arger, out=sys.stdout)
+    my_awesome_function(self, arger, args, out=sys.stdout)
 
     The 'arger' is an instance of ArgumentParse class and will be passed to
     every function as the first (non-self) argument.  The ArgumentParse class
@@ -43,10 +43,10 @@ class Commands(object):
         self.jira = Jira(config['jira'])
         self.svn = Subversion(config['svn'])
 
-    def start_work(self, arger, out=sys.stdout):
+    def start_work(self, arger, args, out=sys.stdout):
 
-        self.make_branch(arger)
-        opts = arger.parse_args()
+        self.make_branch(arger, args)
+        opts = arger.parse_args(args)
         issue = self.jira.get_issue(opts.ticket)
         self.jira.transition_issue(opts.ticket, status='Start Progress')
         branch = self.svn.get_unique_branch(opts.ticket)
@@ -54,7 +54,7 @@ class Commands(object):
         self.jira.add_comment(issue.key, comment)
         out.write('Branch created and issue marked as "In Progress"')
 
-    def refresh(self, arger, out=sys.stdout):
+    def refresh(self, arger, args, out=sys.stdout):
         '''
         Given a Jira ticket, refresh the associated branch from trunk.  If
         conflicts are found during the merge process an exception is raised
@@ -63,7 +63,7 @@ class Commands(object):
 
         #arger.add_argument('ticket', nargs='?')
         arger.add_argument('ticket')
-        opts = arger.parse_args()
+        opts = arger.parse_args(args)
 
         branch = self.svn.get_unique_branch(opts.ticket)
 
@@ -82,13 +82,13 @@ class Commands(object):
         finally:
             shutil.rmtree(working_dir)
 
-    def make_branch(self, arger, out=sys.stdout):
+    def make_branch(self, arger, args, out=sys.stdout):
         '''
         Given a Jira ticket number an Svn branch is created for it.
         '''
 
         arger.add_argument('ticket')
-        opts = arger.parse_args()
+        opts = arger.parse_args(args)
         issue = self.jira.get_issue(opts.ticket)
 
         summary = issue.fields.summary.replace(' ', '_')
@@ -125,7 +125,7 @@ class Commands(object):
         for key, summary in [(x.key, x.fields.summary) for x in tickets]:
             out.write('{}:\t{}\n'.format(key, summary))
 
-    def ticket_completion(self, arger, out=sys.stdout):
+    def ticket_completion(self, arger, args, out=sys.stdout):
         tickets = self.jira.query('assignee=currentUser() \
                 AND status != Closed AND status != Resolved \
                 AND fixVersion != "Post-GA Release"')
@@ -136,12 +136,12 @@ class Commands(object):
 def get_parser(names):
 
     arger = argparse.ArgumentParser()
-    arger.add_argument('-v', '--verbose', action='count', default=0)
-    subparsers = arger.add_subparsers(dest='command')
+    #arger.add_argument('-v', '--verbose', action='count', default=0)
+    subparsers = arger.add_subparsers(dest='command', title='subcommands',
+            description='valid subcommands', help='non-extant additional help')
 
-    [subparsers.add_parser(x) for x in names]
-
-    return arger
+    subparser_dict = {x: subparsers.add_parser(x) for x in names}
+    return arger, subparser_dict
 
 
 class Dispatcher(object):
@@ -168,10 +168,13 @@ class Dispatcher(object):
 
         names = [x[0] for x in methods] + self.aliases.keys()
         names.remove('__init__')
-        arger = get_parser(names)
+        arger, subparser_dict = get_parser(names)
 
         opts = arger.parse_known_args()
         subcommand = opts[0].command
+        # get the subparser for the particular subcommand:
+        arger = subparser_dict[subcommand]
+#        from ipdb import set_trace; set_trace()
 
         # substitute the real command:
         if subcommand in self.aliases:
@@ -179,6 +182,7 @@ class Dispatcher(object):
 
         # call the subcommand, pass the argument parser object
         if hasattr(self.commands, subcommand):
-            getattr(self.commands, subcommand)(arger, out=out)
+            getattr(self.commands, subcommand)(arger,
+                    args=sys.argv[2:], out=out)
 
         return 0
