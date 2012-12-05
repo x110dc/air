@@ -210,7 +210,7 @@ class Dispatcher(object):
 
         names = [x[0] for x in methods] + self.aliases.keys()
         names.remove('__init__')
-        arger, subparser_dict = get_parser(names)
+        arger, subparser_dict = _get_parser(names)
 
         opts = arger.parse_known_args()
         subcommand = opts[0].command
