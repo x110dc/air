@@ -8,9 +8,12 @@ import tempfile
 import shutil
 import inspect
 import sys
+import os.path
+import re
 
 # installed:
 from sh import svn
+from sh import git
 
 #
 from subversion import Subversion
@@ -18,6 +21,10 @@ from atlassian_jira import Jira
 
 
 class MergeException(Exception):
+    pass
+
+
+class TicketSpecificationException(Exception):
     pass
 
 
@@ -62,8 +69,12 @@ class Commands(object):
         '''
 
         #arger.add_argument('ticket', nargs='?')
-        arger.add_argument('ticket')
+        arger.add_argument('-t', '--ticket')
         opts = arger.parse_args(args)
+        if not opts.ticket:
+            opts.ticket = _get_ticket_from_dir()
+            if not opts.ticket:
+                raise TicketSpecificationException("ticket number required")
 
         branch = self.svn.get_unique_branch(opts.ticket)
 
@@ -87,7 +98,7 @@ class Commands(object):
         Given a Jira ticket number an Svn branch is created for it.
         '''
 
-        arger.add_argument('ticket')
+        arger.add_argument('-t', '--ticket')
         opts = arger.parse_args(args)
         issue = self.jira.get_issue(opts.ticket)
 
@@ -119,6 +130,11 @@ class Commands(object):
         arger.add_argument('-t', '--ticket')
         arger.add_argument('comment', nargs='*')
         opts = arger.parse_args(args)
+        if not opts.ticket:
+            opts.ticket = _get_ticket_from_dir()
+            if not opts.ticket:
+                raise TicketSpecificationException("ticket number required")
+
         self.jira.add_comment(opts.ticket, ' '.join(opts.comment))
         out.write('Comment added to {}.\n'.format(opts.ticket))
 
@@ -141,7 +157,25 @@ class Commands(object):
             out.write('{}\n'.format(key))
 
 
-def get_parser(names):
+def _get_ticket_from_dir():
+
+    #TODO: how to handle non-svn Git dirs?
+    def _parse_ticket(string):
+        match = re.search('URL(.*)', string)
+        branch = os.path.basename(match.group(1))
+        ticket = re.search('\S+-\d+', branch).group()
+        return ticket
+
+    if os.path.isdir('.svn'):
+        cmd = svn.info()
+    elif os.path.isdir('.git'):
+        cmd = git.svn.info()
+    else:
+        return None
+    return _parse_ticket(cmd.stdout)
+
+
+def _get_parser(names):
 
     arger = argparse.ArgumentParser()
     #arger.add_argument('-v', '--verbose', action='count', default=0)
