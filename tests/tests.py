@@ -118,7 +118,7 @@ class TestMakeBranch(unittest.TestCase):
         self.config['svn']['trunk_url'] = self.repo_url + '/trunk'
 
     def test_make_branch(self):
-        sys.argv = ['bogus', 'make_branch', self.bug]
+        sys.argv = ['bogus', 'make_branch', '-t', self.bug]
         d = air.Dispatcher(self.config)
         out = StringIO()
         d.go(out=out)
@@ -159,14 +159,14 @@ class TestSvn(unittest.TestCase):
 
     def test_refresh(self):
         out = StringIO()
-        self.cmd.refresh(self.arger, ['new-branch'], out=out)
+        self.cmd.refresh(self.arger, ['-t', 'new-branch'], out=out)
         output = out.getvalue().strip()
         self.assertRegexpMatches(output, 'Committed revision 7')
 
     def test_refresh_exception(self):
         create_conflict(self.repo_url, self.repo_file)
         with self.assertRaises(air.MergeException):
-            self.cmd.refresh(self.arger, ['new-branch'])
+            self.cmd.refresh(self.arger, ['-t', 'new-branch'])
 
 
 class TestJira(unittest.TestCase):
@@ -247,7 +247,7 @@ class TestStartWork(unittest.TestCase):
         self.jira.transition_issue(self.bug, status='Resolve Issue')
 
     def test_start_work(self):
-        sys.argv = ['bogus', 'start_work', self.bug]
+        sys.argv = ['bogus', 'start_work', '-t', self.bug]
         d = air.Dispatcher(self.config)
         out = StringIO()
         actual = d.go(out=out)
