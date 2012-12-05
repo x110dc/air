@@ -1,3 +1,7 @@
+.air.cfg
 .coverage
-htmlcov
 .pass
+build
+dist
+htmlcov
+MANIFEST
