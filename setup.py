@@ -7,6 +7,6 @@ setup(name='air',
       packages=['rair'],
       author='Daniel Craigmile',
       author_email='daniel.craigmile@mutualmobile.com',
-      requires=['configobj', 'jira_python', 'sh',]
+      requires=['configobj', 'jira_python', 'sh'],
       scripts=['air']
       )
