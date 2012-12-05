@@ -7,7 +7,6 @@ import sys
 import unittest
 import tempfile
 import argparse
-import inspect
 from os.path import basename
 from StringIO import StringIO
 import contextlib
@@ -120,9 +119,11 @@ class TestMakeBranch(unittest.TestCase):
 
     def test_make_branch(self):
         sys.argv = ['bogus', 'make_branch', self.bug]
-        arger = air.get_parser(['make_branch'])
+        d = air.Dispatcher(self.config)
+        out = StringIO()
+        d.go(out=out)
+        # now that branch should exist in the list of branches:
         branch_name = '{}_{}'.format(self.bug, self.summary.replace(' ', '_'))
-        self.cmd.make_branch(arger)
         self.assertIn(branch_name, self.cmd.svn.get_branches())
 
     def tearDown(self):
@@ -135,7 +136,7 @@ class TestSvn(unittest.TestCase):
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
         self.repo_url, self.repo_file = setup_svn()
-        self.arger = air.get_parser(['refresh'])
+        self.arger = argparse.ArgumentParser()
         self.cmd = air.Commands(self.config)
 
         # use new values for SVN url:
@@ -157,17 +158,15 @@ class TestSvn(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_refresh(self):
-        sys.argv = ['bogus', 'refresh', 'new-branch']
         out = StringIO()
-        self.cmd.refresh(self.arger, out=out)
+        self.cmd.refresh(self.arger, ['new-branch'], out=out)
         output = out.getvalue().strip()
         self.assertRegexpMatches(output, 'Committed revision 7')
 
     def test_refresh_exception(self):
-        sys.argv = ['bogus', 'refresh', 'new-branch']
         create_conflict(self.repo_url, self.repo_file)
         with self.assertRaises(air.MergeException):
-            self.cmd.refresh(self.arger)
+            self.cmd.refresh(self.arger, ['new-branch'])
 
 
 class TestJira(unittest.TestCase):
@@ -177,22 +176,11 @@ class TestJira(unittest.TestCase):
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
 
-        self.arger = argparse.ArgumentParser()
-        subparsers = self.arger.add_subparsers(dest='command')
-
-        self.cmd = air.Commands(self.config)
-
-        methods = [x for x in inspect.getmembers(self.cmd) if
-            inspect.ismethod(x[1])]
-
-        # add subcommands to the argument parser:
-        for name, _ in methods:
-            subparsers.add_parser(name)
-
     def test_create_bug(self):
-        sys.argv = ['bogus', 'create_bug', 'this is a test bug']
+        sys.argv = ['bogus', 'create_bug', "this is a test bug"]
+        d = air.Dispatcher(self.config)
         out = StringIO()
-        self.cmd.create_bug(self.arger, out=out)
+        d.go(out=out)
         actual = out.getvalue().strip()
 #TODO: close this bug via tearDown()
         self.assertRegexpMatches(actual, 'ticket created: MMSANDBOX-\d*')
@@ -223,7 +211,6 @@ class TestStartWork(unittest.TestCase):
         self.summary = "test bug for start of work"
         self.jira = air.Jira(self.config['jira'])
         self.bug = self.jira.create_issue(self.summary, self.summary)
-        self.arger = air.get_parser(['start_work'])
         self.cmd = air.Commands(self.config)
 
         self.repo_url, self.repo_file = setup_svn()
@@ -237,7 +224,9 @@ class TestStartWork(unittest.TestCase):
 
     def test_start_work(self):
         sys.argv = ['bogus', 'start_work', self.bug]
-        self.cmd.start_work(self.arger)
+        d = air.Dispatcher(self.config)
+        out = StringIO()
+        actual = d.go(out=out)
 
         # a branch should've been created:
         actual = self.cmd.svn.get_unique_branch('start')
