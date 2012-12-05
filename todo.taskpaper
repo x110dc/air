@@ -16,7 +16,7 @@ completed user stories:
 
 TODO:
 
-- add comment to a ticket
+- do completion on -t (tickets)
 - pull parts of Commands into Subversion library (too much direct SVN access)
 - allow 'refresh' (and others?) to deduce ticket from PWD (Svn or Git?)
 - self-assign (take)
@@ -60,3 +60,4 @@ Done:
 - split apart into packages/libraries/modules @done
 - make package installable @done
 - have config file in current dir override $HOME one @done
+- add comment to a ticket @done
