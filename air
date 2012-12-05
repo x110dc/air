@@ -5,7 +5,6 @@ from os.path import expanduser
 
 # installed:
 from configobj import ConfigObj
-from path import path
 
 from rair import air
 
