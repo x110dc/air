@@ -16,14 +16,14 @@ completed user stories:
 
 TODO:
 
-- do completion on -t (tickets)
-- pull parts of Commands into Subversion library (too much direct SVN access)
-- allow 'refresh' (and others?) to deduce ticket from PWD (Svn or Git?)
 - self-assign (take)
-- post a comment to the Jira issue when doing a refresh on a branch
-- zsh/bash completions
-- use tearDown to close bugs I've created through testing?
 - finish a ticket
+- post a comment to the Jira issue when doing a refresh on a branch
+- tests for getting ticket from "svn info" or "git svn info"
+- pull parts of Commands into Subversion library (too much direct SVN access)
+- cache completions?
+- better completions for tickets
+- use tearDown to close bugs I've created through testing?
 - tests for exceptional conditions (bad Svn, etc)
 - create tasks in Jira (not just bugs)
 - start a review
@@ -61,3 +61,6 @@ Done:
 - make package installable @done
 - have config file in current dir override $HOME one @done
 - add comment to a ticket @done
+- do completion on -t (tickets) @done
+- allow 'refresh' (and others?) to deduce ticket from PWD (Svn or Git?) @done
+- zsh/bash completions @done
