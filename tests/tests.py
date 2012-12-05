@@ -296,6 +296,7 @@ class TestMain(unittest.TestCase):
         self.assertEqual(0, actual)
         self.assertGreater(len(output), 0)
 
+    @unittest.skip("removed main -- test air command instead")
     def test_main(self):
         '''
         This is kinda lame and doesn't test much, but it makes sure there's
