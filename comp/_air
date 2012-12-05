@@ -21,7 +21,9 @@ _air() {
         (options)
             case $line[1] in
                 (refresh)
-                    _arguments  ':ticket:__tickets'
+#                    _arguments  ':ticket:__tickets'
+                    _arguments  "(-t --ticket)"{-t,--ticket}"[ticket number]":thing:__tickets \
+                    && ret=0
                 ;;
             esac
     esac
