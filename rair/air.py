@@ -101,20 +101,28 @@ class Commands(object):
 
         out.write(process.stdout)
 
-    def create_bug(self, arger, out=sys.stdout):
+    def create_bug(self, arger, args, out=sys.stdout):
         '''
         Given a brief description a Jira bug will be created. This uses options
         specified in the config file to screate the ticket.
         '''
 
         arger.add_argument('text')
-        summary = arger.parse_args().text
+        summary = arger.parse_args(args).text
 
         bug = self.jira.create_issue(summary, summary)
 
         out.write('ticket created: {}\n'.format(bug))
 
-    def list_tickets(self, arger, out=sys.stdout):
+    def add_comment(self, arger, args, out=sys.stdout):
+
+        arger.add_argument('-t', '--ticket')
+        arger.add_argument('comment', nargs='*')
+        opts = arger.parse_args(args)
+        self.jira.add_comment(opts.ticket, ' '.join(opts.comment))
+        out.write('Comment added to {}.\n'.format(opts.ticket))
+
+    def list_tickets(self, arger, args, out=sys.stdout):
         '''
         Lists all Jira tickets assigned to me.
         '''
