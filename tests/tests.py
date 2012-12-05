@@ -201,6 +201,30 @@ class TestCloseJiraIssue(unittest.TestCase):
         self.assertEqual(expected, issue.fields.status.name)
 
 
+class TestAddComment(unittest.TestCase):
+
+    def setUp(self):
+        # mock the configuration file:
+        self.config = ConfigObj('./tests/config')
+        self.config['jira']['password'] = get_jira_pass()
+
+        self.summary = "test bug for start of work"
+        self.jira = air.Jira(self.config['jira'])
+        self.bug = self.jira.create_issue(self.summary, self.summary)
+
+    def tearDown(self):
+        self.jira.transition_issue(self.bug, status='Resolve Issue')
+
+    def test_add_comment(self):
+        sys.argv = ['bogus', 'add_comment', '-t', self.bug, "this", "is", "a",
+                "test", "comment"]
+        d = air.Dispatcher(self.config)
+        out = StringIO()
+        d.go(out=out)
+        output = out.getvalue().strip()
+        # TODO: check ticket for comment
+
+
 class TestStartWork(unittest.TestCase):
 
     def setUp(self):
