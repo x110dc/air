@@ -47,17 +47,25 @@ class Commands(object):
 
     def __init__(self, config):
         self.config = config
-        self.jira = Jira(config['jira'])
-        self.svn = Subversion(config['svn'])
+        if 'jira' in config:
+            self.jira = Jira(config['jira'])
+        else:
+            self.jira = None
+        if 'svn' in config:
+            self.svn = Subversion(config['svn'])
+        else:
+            self.svn = None
 
     def start_work(self, arger, args, out=sys.stdout):
 
         self.make_branch(arger, args)
         opts = arger.parse_args(args)
         issue = self.jira.get_issue(opts.ticket)
+        out.write('Marking issue {} as "In Progress"'.format(issue))
         self.jira.transition_issue(opts.ticket, status='Start Progress')
         branch = self.svn.get_unique_branch(opts.ticket)
         comment = 'SVN URL: ' + self.config['svn']['branch_url'] + '/' + branch
+        out.write('Adding SVN URL for branch to Jira issue')
         self.jira.add_comment(issue.key, comment)
         out.write('Branch created and issue marked as "In Progress"')
 
