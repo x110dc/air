@@ -113,12 +113,9 @@ class Commands(object):
         issue = self.jira.get_issue(opts.ticket)
 
         summary = issue.fields.summary.replace(' ', '_')
-        message = 'creating branch for {}'.format(issue.key)
-        src = self.config['svn']['trunk_url']
-        dest = '{}/{}_{}'.format(self.config['svn']['branch_url'], issue.key,
-                summary)
-
-        process = svn.copy(src, dest, m=message)
+        message = 'created branch for {}'.format(issue.key)
+        name = "{}_{}".format(issue.key, summary)
+        process = self.svn.make_branch(name, message)
 
         out.write(process.stdout)
 

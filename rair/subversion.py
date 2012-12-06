@@ -45,3 +45,11 @@ class Subversion(object):
             raise MultipleMatchException('more than one branch matches "{}"')
 
         return branch[0]
+
+    def make_branch(self, name, commit_msg):
+
+        src = self.config['trunk_url']
+        dest = '{}/{}'.format(self.config['branch_url'], name)
+
+        process = svn.copy(src, dest, m=commit_msg)
+        return process

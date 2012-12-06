@@ -157,11 +157,31 @@ class TestSvn(unittest.TestCase):
         actual = self.cmd.svn.get_branches()
         self.assertEqual(expected, actual)
 
+class TestRefresh(unittest.TestCase):
+
+    def setUp(self):
+        self.config = ConfigObj('./tests/config')
+        self.config['jira']['password'] = get_jira_pass()
+        self.repo_url, self.repo_file = setup_svn()
+        self.arger = argparse.ArgumentParser()
+        self.cmd = air.Commands(self.config)
+
+        # use new values for SVN url:
+        self.config['svn']['root_url'] = self.repo_url
+        self.config['svn']['branch_url'] = self.repo_url + '/branches'
+        self.config['svn']['trunk_url'] = self.repo_url + '/trunk'
+
+        self.summary = "test refresh"
+        self.jira = air.Jira(self.config['jira'])
+        self.svn = air.Subversion(self.config['svn'])
+        self.bug = self.jira.create_issue(self.summary, self.summary)
+        self.svn.make_branch(self.bug, "test commit message")
+
     def test_refresh(self):
         out = StringIO()
-        self.cmd.refresh(self.arger, ['-t', 'new-branch'], out=out)
+        self.cmd.refresh(self.arger, ['-t', self.bug], out=out)
         output = out.getvalue().strip()
-        self.assertRegexpMatches(output, 'Committed revision 7')
+        self.assertRegexpMatches(output, 'Committed revision 8')
 
     def test_refresh_exception(self):
         create_conflict(self.repo_url, self.repo_file)
