@@ -100,6 +100,8 @@ class Commands(object):
             out.write(commit.stdout)
         finally:
             shutil.rmtree(working_dir)
+        self.jira.add_comment(opts.ticket,
+            'Branch has been refreshed from trunk')
 
     def make_branch(self, arger, args, out=sys.stdout):
         '''
