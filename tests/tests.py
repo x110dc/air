@@ -245,6 +245,30 @@ class TestAddComment(unittest.TestCase):
         # TODO: check ticket for comment
 
 
+class TestConfig(unittest.TestCase):
+
+    def setUp(self):
+        # mock the configuration file:
+        self.config = ConfigObj('./tests/config')
+        self.config['jira']['password'] = get_jira_pass()
+
+        self.summary = "test bug for start of work"
+        self.jira = air.Jira(self.config['jira'])
+        self.bug = self.jira.create_issue(self.summary, self.summary)
+        self.cmd = air.Commands(self.config)
+
+        self.repo_url, self.repo_file = setup_svn()
+        self.config['svn']['root_url'] = self.repo_url
+        self.config['svn']['branch_url'] = self.repo_url + '/branches'
+        self.config['svn']['trunk_url'] = self.repo_url + '/trunk'
+
+    def test_svn_config(self):
+        # for this test, remove the svn section of the config file and make
+        # sure the code handles it
+        del self.config['svn']
+        self.cmd = air.Commands(self.config)
+
+
 class TestStartWork(unittest.TestCase):
 
     def setUp(self):
