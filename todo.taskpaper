@@ -1,45 +1,51 @@
 user stories:
-- self-assign: assign a ticket to me
-- given a brief description, create a task in Jira
+
 - finish a ticket - mark ticket as ready for review, update CHANGES
+- given a brief description, create a task in Jira
 - start a review - mark ticket as 'in review', create Crucible review
 - review: reject ticket
 - finish review - mark it as closed, reintegrate it, delete branch
-- add a comment to a ticket
+- list tickets ready for review
 
 completed user stories:
-- list tickets assigned to me @done
+
+- list tickets @done
 - given a brief description, create a bug in Jira @done
 - given a ticket, create a branch in svn for it @done
 - refresh a branch from trunk @done
 - start an issue: create branch, start progress, add Svn URL to Jira @done
+- self-assign: assign a ticket to me @done
+- add a comment to a ticket @done
 
 TODO:
 
-- self-assign (take)
-- finish a ticket
-- post a comment to the Jira issue when doing a refresh on a branch
+- on 'start_work' if issue isn't assigned to me, assign it to me
+- a task to run tests and post the names of any failing tests to Jira?
+- check task: do a clean checkout and run tests?
 - tests for getting ticket from "svn info" or "git svn info"
+- task: log time spent on issue?
+- task: log time on issue automatically?
+- task: delete a branch: both Svn and Jira?
+- command to create sample (commented) config 
 - pull parts of Commands into Subversion library (too much direct SVN access)
-- cache completions?
-- better completions for tickets
-- use tearDown to close bugs I've created through testing?
 - tests for exceptional conditions (bad Svn, etc)
 - create tasks in Jira (not just bugs)
-- start a review
-- reject ticket
-- finish review
 - construct branch and trunk URLs from root url if not specified?
-- use filters already in Jira account too or instead of hardcoded one?
-- put JQL filters in config file?
 - Crucible integration
 - logging?
-- list tickets ready for review
 - use git-flow for inspiration?
 - what to do if config file doesn't exist?
 - check that aliases are valid
 - do more formal doc strings with params and return values
-- why aren't MMSANDBOX issues assigned to me showing up in the list?
+- allow use of favorite filters and tab-complete their names
+- write a README
+- create Sphinx (or similar) docs
+- support for Git
+- use default Component for creating issues
+- install tab completions as part of setup.py?
+- cache completions?
+- better completions for tickets
+- use Google SSO token instead of plaintext password?
 
 caveats: 
 - doesn't work with multiple SVN repos at the same time
@@ -64,3 +70,10 @@ Done:
 - do completion on -t (tickets) @done
 - allow 'refresh' (and others?) to deduce ticket from PWD (Svn or Git?) @done
 - zsh/bash completions @done
+- post a comment to the Jira issue when doing a refresh on a branch @done
+- self-assign (take) @done
+- use tearDown to close bugs I've created through testing? @done
+- why aren't MMSANDBOX issues assigned to me showing up in the list? @done
+- use filters already in Jira account too or instead of hardcoded one? @done
+- put JQL filters in config file? @done
+- require that at least one .air.cfg file be present @done
