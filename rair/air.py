@@ -69,6 +69,14 @@ class Commands(object):
         self.jira.add_comment(issue.key, comment)
         out.write('Branch created and issue marked as "In Progress"')
 
+    def take(self, arger, args, out=sys.stdout):
+
+        assignee = self.config['jira']['username']
+        arger.add_argument('-t', '--ticket')
+        opts = arger.parse_args(args)
+        self.jira.assign_issue(opts.ticket, assignee)
+        out.write('{} assigned to {}.\n'.format(opts.ticket, assignee))
+
     def refresh(self, arger, args, out=sys.stdout):
         '''
         Given a Jira ticket, refresh the associated branch from trunk.  If
