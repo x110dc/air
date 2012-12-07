@@ -13,5 +13,9 @@ config = ConfigObj(expanduser('~/.air.cfg'))
 # a file in the current directory will override $HOME settings
 config.merge(ConfigObj('./.air.cfg'))
 
+if not config:
+    print "At least one configuration file must be present to use this program."
+    sys.exit(1)
+
 air.Dispatcher(config).go()
 sys.exit(0)
