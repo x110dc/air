@@ -118,6 +118,9 @@ class TestMakeBranch(unittest.TestCase):
         self.config['svn']['branch_url'] = self.repo_url + '/branches'
         self.config['svn']['trunk_url'] = self.repo_url + '/trunk'
 
+    def tearDown(self):
+        self.jira.transition_issue(self.bug, status='Resolve Issue')
+
     def test_make_branch(self):
         sys.argv = ['bogus', 'make_branch', '-t', self.bug]
         d = air.Dispatcher(self.config)
@@ -126,9 +129,6 @@ class TestMakeBranch(unittest.TestCase):
         # now that branch should exist in the list of branches:
         branch_name = '{}_{}'.format(self.bug, self.summary.replace(' ', '_'))
         self.assertIn(branch_name, self.cmd.svn.get_branches())
-
-    def tearDown(self):
-        self.jira.transition_issue(self.bug, status='Resolve Issue')
 
 
 class TestSvn(unittest.TestCase):
@@ -158,6 +158,7 @@ class TestSvn(unittest.TestCase):
         actual = self.cmd.svn.get_branches()
         self.assertEqual(expected, actual)
 
+
 class TestRefresh(unittest.TestCase):
 
     def setUp(self):
@@ -177,6 +178,9 @@ class TestRefresh(unittest.TestCase):
         self.svn = air.Subversion(self.config['svn'])
         self.bug = self.jira.create_issue(self.summary, self.summary)
         self.svn.make_branch(self.bug, "test commit message")
+
+    def tearDown(self):
+        self.jira.transition_issue(self.bug, status='Resolve Issue')
 
     def test_refresh(self):
         out = StringIO()
@@ -267,6 +271,9 @@ class TestConfig(unittest.TestCase):
         self.config['svn']['root_url'] = self.repo_url
         self.config['svn']['branch_url'] = self.repo_url + '/branches'
         self.config['svn']['trunk_url'] = self.repo_url + '/trunk'
+
+    def tearDown(self):
+        self.jira.transition_issue(self.bug, status='Resolve Issue')
 
     def test_svn_config(self):
         # for this test, remove the svn section of the config file and make
