@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
-
 # installed:
 from jira.client import JIRA
 
@@ -61,24 +59,24 @@ class Jira(object):
         return new_issue.key
 
     def transition_issue(self, ticket, status='Resolve Issue'):
+
         # find ID for status:
         issue = self.get_issue(ticket)
         transitions = self.server.transitions(issue)
-        # TODO: what if status isn't in list of transitions?
         transition_names = [x['name'] for x in transitions]
         if status not in transition_names:
             raise InvalidJiraStatusException(
             '\'{}\' is not a valid status for this Jira issue. \
             Valid transitions: {}'.format(status, ', '.join(transition_names)))
         _id = [x['id'] for x in transitions if x['name'] == status][0]
-        # close it:
+        # transition it:
         self.server.transition_issue(issue, _id)
         return self.get_issue(ticket)
 
     def list_issues(self):
         '''
         if a JQL query is defined in the config use it.  If not:
-            if a named filter is defined in the config user it.  If not:
+            if a named filter is defined in the config use it.  If not:
                 use the predefined filter.
         '''
 
@@ -97,13 +95,17 @@ class Jira(object):
         return self.query(jql)
 
     def assign_issue(self, ticket, assignee):
-
+        '''
+        Given an issue and an assignee, assigns the issue to the assignee.
+        '''
         issue = self.get_issue(ticket)
         self.server.assign_issue(assignee)
         return issue
 
     def add_comment(self, ticket, comment):
-
+        '''
+        Given an issue and a comment, adds the comment to the issue.
+        '''
         issue = self.get_issue(ticket)
         self.server.add_comment(issue, comment)
         return issue
