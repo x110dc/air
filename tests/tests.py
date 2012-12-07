@@ -323,8 +323,9 @@ class TestStartWork(unittest.TestCase):
         expected = 'In Progress'
         actual = self.jira.get_issue(self.bug).fields.status.name
         self.assertEqual(expected, actual)
-
-        #TODO: test that the SVN URL is added
+        issue = self.jira.get_issue(self.bug)
+        actual = issue.fields.comment.comments[0].body
+        self.assertRegexpMatches(actual, 'SVN URL')
 
 
 @contextlib.contextmanager
