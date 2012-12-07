@@ -10,6 +10,7 @@ import argparse
 from os.path import basename
 from StringIO import StringIO
 import contextlib
+import re
 
 # installed libraries:
 from sh import svnadmin
@@ -196,13 +197,18 @@ class TestJira(unittest.TestCase):
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
 
+    def tearDown(self):
+        self.jira = air.Jira(self.config['jira'])
+        self.jira.transition_issue(self.bug, status='Resolve Issue')
+
     def test_create_bug(self):
         sys.argv = ['bogus', 'create_bug', "this is a test bug"]
         d = air.Dispatcher(self.config)
         out = StringIO()
         d.go(out=out)
         actual = out.getvalue().strip()
-#TODO: close this bug via tearDown()
+        match = re.search('MMSANDBOX-\d*', actual)
+        self.bug = match.group()
         self.assertRegexpMatches(actual, 'ticket created: MMSANDBOX-\d*')
 
 
