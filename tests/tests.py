@@ -252,7 +252,13 @@ class TestAddComment(unittest.TestCase):
         out = StringIO()
         d.go(out=out)
         output = out.getvalue().strip()
-        # TODO: check ticket for comment
+        self.assertRegexpMatches(output, 'Comment added to')
+
+        # check ticket for comment
+        issue = self.jira.get_issue(self.bug)
+        actual = issue.fields.comment.comments[0].body
+        expected = 'this is a test comment'
+        self.assertEqual(expected, actual)
 
 
 class TestConfig(unittest.TestCase):
