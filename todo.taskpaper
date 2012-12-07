@@ -19,21 +19,16 @@ completed user stories:
 
 TODO:
 
-- on 'start_work' if issue isn't assigned to me, assign it to me
-- a task to run tests and post the names of any failing tests to Jira?
-- check task: do a clean checkout and run tests?
-- tests for getting ticket from "svn info" or "git svn info"
-- task: log time spent on issue?
-- task: log time on issue automatically?
-- task: delete a branch: both Svn and Jira?
 - command to create sample (commented) config 
 - pull parts of Commands into Subversion library (too much direct SVN access)
+- on 'start_work' if issue isn't assigned to me, assign it to me
+- tests for getting ticket from "svn info" or "git svn info"
+- task: delete a branch: both Svn and Git?
 - tests for exceptional conditions (bad Svn, etc)
 - create tasks in Jira (not just bugs)
 - construct branch and trunk URLs from root url if not specified?
 - Crucible integration
 - logging?
-- use git-flow for inspiration?
 - what to do if config file doesn't exist?
 - check that aliases are valid
 - do more formal doc strings with params and return values
@@ -46,6 +41,11 @@ TODO:
 - cache completions?
 - better completions for tickets
 - use Google SSO token instead of plaintext password?
+- a task to run tests and post the names of any failing tests to Jira?
+- check task: do a clean checkout and run tests?
+- task: log time spent on issue?
+- task: log time on issue automatically?
+- use git-flow for inspiration? 
 
 caveats: 
 - doesn't work with multiple SVN repos at the same time
