@@ -75,6 +75,33 @@ class Jira(object):
         self.server.transition_issue(issue, _id)
         return self.get_issue(ticket)
 
+    def list_issues(self):
+        '''
+        if a JQL query is defined in the config use it.  If not:
+            if a named filter is defined in the config user it.  If not:
+                use the predefined filter.
+        '''
+
+        if 'jql' in self.config:
+            return self.query(self.config['jql'])
+
+        if 'filter' in self.config:
+            name = self.config['filter']
+            filters = self.server.favourite_filters()
+            jql = [x.jql for x in filters if x.name == name][0]
+            return self.query(jql)
+
+        jql = 'assignee=currentUser() \
+                AND status != Closed AND status != Resolved'
+
+        return self.query(jql)
+
+    def assign_issue(self, ticket, assignee):
+
+        issue = self.get_issue(ticket)
+        self.server.assign_issue(assignee)
+        return issue
+
     def add_comment(self, ticket, comment):
 
         issue = self.get_issue(ticket)

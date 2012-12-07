@@ -155,12 +155,10 @@ class Commands(object):
 
     def list_tickets(self, arger, args, out=sys.stdout):
         '''
-        Lists all Jira tickets assigned to me.
+        List Jira tickets
         '''
+        tickets = self.jira.list_issues()
 
-        tickets = self.jira.query('assignee=currentUser() \
-                AND status != Closed AND status != Resolved \
-                AND fixVersion != "Post-GA Release"')
         for key, summary in [(x.key, x.fields.summary) for x in tickets]:
             out.write('{}:\t{}\n'.format(key, summary))
 
