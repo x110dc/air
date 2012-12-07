@@ -97,7 +97,9 @@ class Commands(object):
         src = '{}/{}'.format(self.config['svn']['branch_url'], branch)
         try:
             working_dir = tempfile.mkdtemp()
+            out.write('Checking out src...')
             svn.co(src, working_dir)
+            out.write('Merging from trunk into src...')
             merge = svn.merge(self.config['svn']['trunk_url'],
                     _cwd=working_dir, accept='postpone')
             out.write(merge.stdout)
