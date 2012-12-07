@@ -19,6 +19,7 @@ from configobj import ConfigObj
 
 #
 from rair.subversion import MultipleMatchException
+from rair.atlassian_jira import InvalidJiraStatusException
 
 
 def overwrite(file_object, text):
@@ -226,9 +227,53 @@ class TestCloseJiraIssue(unittest.TestCase):
         self.bug = self.jira.create_issue(self.summary, self.summary)
 
     def test_transition_issue(self):
+        '''
+        Check that attempting to close an issue actually closes it.
+        '''
         issue = self.jira.transition_issue(self.bug, status='Resolve Issue')
         expected = 'Resolved'
         self.assertEqual(expected, issue.fields.status.name)
+
+    def test_bad_transition(self):
+        '''
+        Check that trying an invalid status transition throws the right
+        exception.
+        '''
+        with self.assertRaises(InvalidJiraStatusException):
+            self.jira.transition_issue(self.bug, status='Gobbldygook')
+
+
+class TestListIssues(unittest.TestCase):
+
+    def setUp(self):
+        # the test config has both a JQL string and a filter name
+        self.config = ConfigObj('./tests/config')
+        self.config['jira']['password'] = get_jira_pass()
+        self.summary = "test bug for listing issues"
+        self.jira = air.Jira(self.config['jira'])
+        self.bug = self.jira.create_issue(self.summary, self.summary)
+
+    def tearDown(self):
+        self.jira.transition_issue(self.bug, status='Resolve Issue')
+
+    def test_jql(self):
+        # create a bug (in setUp) and then make the JQL query just search for
+        # that bug; then we're relatively confident we're using the JQL
+        self.jira.config['jql'] = \
+                'assignee=currentUser() AND issue={}'.format(self.bug)
+        issues = self.jira.list_issues()
+        # there should only be one issue:
+        self.assertEqual(1, len(issues))
+        issue = issues[0]
+        expected = self.bug
+        actual = issue.key
+        # and it should be the one we just created:
+        self.assertEqual(expected, actual)
+
+    @unittest.skip('I do not know of a way to create a filter \
+        programmatically so this test would only work for me')
+    def test_filter(self):
+        pass
 
 
 class TestAddComment(unittest.TestCase):
