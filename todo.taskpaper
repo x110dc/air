@@ -1,11 +1,12 @@
 user stories:
 
+- add watcher to ticket
+- list tickets ready for review
+- close ticket
+- assign a ticket
 - start a review - mark ticket as 'in review', create Crucible review
 - review: reject ticket
 - finish review - mark it as closed, reintegrate it, delete branch
-- list tickets ready for review
-- add watcher to ticket
-- close ticket
 
 completed user stories:
 
@@ -21,6 +22,14 @@ completed user stories:
 
 TODO:
 
+- test lack of [jira] section in config
+- test finishing work by getting ticket from dir
+- test taking ticket
+- test refreshing by getting ticket from dir
+- test closing ticket by getting ticket from dir
+- test _complete methods
+- test lack of jql in config
+- test jira assign_issue method
 - should finish do something to/with CHANGES?
 - tests for closing issues that are in different states
 - clean up SVN test repos via tearDown?
