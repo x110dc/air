@@ -105,9 +105,20 @@ class Commands(object):
         out.write('Marking issue {} as "Ready for Review"'.format(issue))
         self.jira.transition_issue(opts.ticket, status='Ready for Review')
 
+    def assign(self, arger, args, out=sys.stdout):
+        '''
+        assign ticket to someone
+        '''
+        arger.add_argument('-p', '--person')
+        arger.add_argument('-t', '--ticket')
+        opts = arger.parse_args(args)
+        assignee = opts.person
+        self.jira.assign_issue(opts.ticket, assignee)
+        out.write('{} assigned to {}.\n'.format(opts.ticket, assignee))
+
     def take(self, arger, args, out=sys.stdout):
         '''
-        Assign ticket to myself.
+        assign ticket to myself
         '''
         assignee = self.config['jira']['username']
         arger.add_argument('-t', '--ticket')
