@@ -170,19 +170,35 @@ class Commands(object):
 
     def list_tickets(self, arger, args, out=sys.stdout):
         '''
-        List Jira tickets
+        List Jira tickets.
         '''
         tickets = self.jira.list_issues()
 
         for key, summary in [(x.key, x.fields.summary) for x in tickets]:
             out.write('{}:\t{}\n'.format(key, summary))
 
-    def ticket_completion(self, arger, args, out=sys.stdout):
-        tickets = self.jira.query('assignee=currentUser() \
-                AND status != Closed AND status != Resolved \
-                AND fixVersion != "Post-GA Release"')
-        for key in [x.key for x in tickets]:
-            out.write('{}\n'.format(key))
+    def _complete_tickets(self, arger, args, out=sys.stdout):
+        '''
+        '''
+        tickets = self.jira.list_issues()
+        for key, summary in [(x.key, x.fields.summary) for x in tickets]:
+            out.write('{}:{}\n'.format(key, summary))
+
+    def _complete_subcommands(self, arger, args, out=sys.stdout):
+
+        def _cleanup(docs):
+            if not docs:
+                return 'No description given'
+            docs = docs.split('\n')
+            return docs[1].strip()
+
+        methods = [(x[0],_cleanup(x[1].__doc__)) for x in inspect.getmembers(self) if
+                inspect.ismethod(x[1])]
+
+        # remove private methods:
+        names = [x for x in methods if not x[0].startswith('_')]
+        for x, y in names:
+            out.write('{}:{}\n'.format(x, y))
 
 
 def _get_ticket_from_dir():
