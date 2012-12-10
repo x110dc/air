@@ -166,7 +166,36 @@ class Commands(object):
 
         bug = self.jira.create_issue(summary, summary)
 
-        out.write('ticket created: {}\n'.format(bug))
+        out.write('bug created: {}\n'.format(bug))
+
+    def create_task(self, arger, args, out=sys.stdout):
+        '''
+        Create task in Jira.
+        Given a brief description a Jira task will be created. This uses options
+        specified in the config file to create the ticket.
+        '''
+
+        arger.add_argument('text')
+        summary = arger.parse_args(args).text
+
+        bug = self.jira.create_issue(summary, summary, kind="Task")
+
+        out.write('task created: {}\n'.format(bug))
+
+    def close_ticket(self, arger, args, out=sys.stdout):
+        '''
+        Close issue.
+        '''
+
+        arger.add_argument('-t', '--ticket')
+        opts = arger.parse_args(args)
+        if not opts.ticket:
+            opts.ticket = _get_ticket_from_dir()
+            if not opts.ticket:
+                raise TicketSpecificationException("ticket number required")
+
+        self.jira.transition_issue(opts.ticket, status='Resolve Issue')
+        out.write('Ticket {} closed.\n'.format(opts.ticket))
 
     def add_comment(self, arger, args, out=sys.stdout):
         '''

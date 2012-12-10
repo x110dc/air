@@ -195,6 +195,49 @@ class TestRefresh(unittest.TestCase):
             self.cmd.refresh(self.arger, ['-t', 'new-branch'])
 
 
+class TestCloseBug(unittest.TestCase):
+
+    def setUp(self):
+        # mock the configuration file:
+        self.config = ConfigObj('./tests/config')
+        self.config['jira']['password'] = get_jira_pass()
+        self.summary = "test bug to close"
+        self.jira = air.Jira(self.config['jira'])
+        self.bug = self.jira.create_issue(self.summary, self.summary)
+
+    def test_close_bug(self):
+        sys.argv = ['bogus', 'close_ticket', '-t', self.bug]
+        d = air.Dispatcher(self.config)
+        out = StringIO()
+        d.go(out=out)
+        actual = out.getvalue().strip()
+        match = re.search('MMSANDBOX-\d*', actual)
+        self.issue = match.group()
+        self.assertRegexpMatches(actual, 'MMSANDBOX-\d* closed.')
+
+
+class TestCloseTask(unittest.TestCase):
+
+    def setUp(self):
+        # mock the configuration file:
+        self.config = ConfigObj('./tests/config')
+        self.config['jira']['password'] = get_jira_pass()
+        self.summary = "test bug to close"
+        self.jira = air.Jira(self.config['jira'])
+        self.issue = self.jira.create_issue(self.summary, self.summary,
+                kind="Task")
+
+    def test_close_task(self):
+        sys.argv = ['bogus', 'close_ticket', '-t', self.issue]
+        d = air.Dispatcher(self.config)
+        out = StringIO()
+        d.go(out=out)
+        actual = out.getvalue().strip()
+        match = re.search('MMSANDBOX-\d*', actual)
+        self.issue = match.group()
+        self.assertRegexpMatches(actual, 'MMSANDBOX-\d* closed.')
+
+
 class TestJira(unittest.TestCase):
 
     def setUp(self):
