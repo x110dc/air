@@ -4,6 +4,7 @@ saveIFS=$IFS
 IFS=$'\n'
 ticket_array=($(air _complete_tickets)) 
 subcommands=($(air _complete_subcommands)) 
+person_array=($(air _complete_persons)) 
 IFS=$saveIFS 
 
 _air() { 
@@ -21,11 +22,20 @@ _air() {
         (options)
             case $line[1] in
                 (refresh|start_work|make_branch|take|add_comment|close_ticket)
-                    _arguments  "(-t --ticket)"{-t,--ticket}"[ticket number]":thing:__tickets \
+                    _arguments  "(-t --ticket)"{-t,--ticket}"[ticket number]":ticket:__tickets \
                     && ret=0
+                ;;
+                (add_watcher)
+                    _arguments  "(-t --ticket)"{-t,--ticket}"[ticket number]":ticket:__tickets \
+                    "(-p --person)"{-p,--person}"[user name]":person:__persons && ret=0
                 ;;
             esac
     esac
+}
+
+__persons ()
+{
+    _describe 'person' person_array
 }
 
 __tickets ()

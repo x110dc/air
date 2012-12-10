@@ -260,6 +260,13 @@ class Commands(object):
         for x, y in names:
             out.write('{}:{}\n'.format(x, y))
 
+    def _complete_persons(self, arger, args, out=sys.stdout):
+         project = self.config['jira']['project']
+
+         users = self.jira.server.search_assignable_users_for_issues(
+                 '', project=project, maxResults=500)
+         out.write('\n'.join([user.name for user in users]))
+
 
 def _get_ticket_from_dir():
 
