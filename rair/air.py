@@ -185,8 +185,8 @@ class Commands(object):
     def create_task(self, arger, args, out=sys.stdout):
         '''
         Create task in Jira.
-        Given a brief description a Jira task will be created. This uses options
-        specified in the config file to create the ticket.
+        Given a brief description a Jira task will be created. This uses
+        options specified in the config file to create the ticket.
         '''
 
         arger.add_argument('text')
@@ -251,7 +251,8 @@ class Commands(object):
             docs = docs.split('\n')
             return docs[1].strip()
 
-        methods = [(x[0],_cleanup(x[1].__doc__)) for x in inspect.getmembers(self) if
+        methods = [(x[0], _cleanup(x[1].__doc__))
+                for x in inspect.getmembers(self) if
                 inspect.ismethod(x[1])]
 
         # remove private methods:
