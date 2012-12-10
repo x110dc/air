@@ -76,7 +76,7 @@ class Commands(object):
     def add_watcher(self, arger, args, out=sys.stdout):
 
         """
-        add watcher to ticket.
+        add watcher to ticket
         """
         arger.add_argument('-t', '--ticket')
         arger.add_argument('-p', '--person')
@@ -86,6 +86,8 @@ class Commands(object):
             if not opts.ticket:
                 raise TicketSpecificationException("ticket number required")
         self.jira.add_watcher(opts.ticket, opts.person)
+        out.write('Added {} as a watcher on {}\n'.format(opts.person,
+            opts.ticket))
 
     def finish_work(self, arger, args, out=sys.stdout):
 
@@ -115,7 +117,7 @@ class Commands(object):
 
     def refresh(self, arger, args, out=sys.stdout):
         '''
-        Refresh branch from trunk.
+        refresh branch from trunk
 
         Given a Jira ticket, refresh the associated branch from trunk.  If
         conflicts are found during the merge process an exception is raised
@@ -153,7 +155,7 @@ class Commands(object):
 
     def make_branch(self, arger, args, out=sys.stdout):
         '''
-        Create branch based on ticket.
+        create branch based on ticket
         Given a Jira ticket number an Svn branch is created for it.
         '''
 
@@ -170,7 +172,7 @@ class Commands(object):
 
     def create_bug(self, arger, args, out=sys.stdout):
         '''
-        Create bug in Jira.
+        create bug in Jira
         Given a brief description a Jira bug will be created. This uses options
         specified in the config file to create the ticket.
         '''
@@ -184,7 +186,7 @@ class Commands(object):
 
     def create_task(self, arger, args, out=sys.stdout):
         '''
-        Create task in Jira.
+        create task in Jira
         Given a brief description a Jira task will be created. This uses
         options specified in the config file to create the ticket.
         '''
@@ -198,7 +200,7 @@ class Commands(object):
 
     def close_ticket(self, arger, args, out=sys.stdout):
         '''
-        Close issue.
+        close issue
         '''
 
         arger.add_argument('-t', '--ticket')
@@ -213,7 +215,7 @@ class Commands(object):
 
     def add_comment(self, arger, args, out=sys.stdout):
         '''
-        Add comment to Jira ticket.
+        add comment to Jira ticket
         '''
 
         arger.add_argument('-t', '--ticket')
@@ -227,9 +229,18 @@ class Commands(object):
         self.jira.add_comment(opts.ticket, ' '.join(opts.comment))
         out.write('Comment added to {}.\n'.format(opts.ticket))
 
+    def list_reviews(self, arger, args, out=sys.stdout):
+        '''
+        list tickets that are ready for review
+        '''
+        tickets = self.jira.list_reviewable()
+
+        for key, summary in [(x.key, x.fields.summary) for x in tickets]:
+            out.write('{}:\t{}\n'.format(key, summary))
+
     def list_tickets(self, arger, args, out=sys.stdout):
         '''
-        List Jira tickets.
+        list Jira tickets assigned to me
         '''
         tickets = self.jira.list_issues()
 
@@ -238,13 +249,16 @@ class Commands(object):
 
     def _complete_tickets(self, arger, args, out=sys.stdout):
         '''
+        this method is only intended for use by the shell completion mechanism
         '''
         tickets = self.jira.list_issues()
         for key, summary in [(x.key, x.fields.summary) for x in tickets]:
             out.write('{}:{}\n'.format(key, summary))
 
     def _complete_subcommands(self, arger, args, out=sys.stdout):
-
+        '''
+        this method is only intended for use by the shell completion mechanism
+        '''
         def _cleanup(docs):
             if not docs:
                 return 'No description given'
@@ -327,7 +341,6 @@ class Dispatcher(object):
         subcommand = opts[0].command
         # get the subparser for the particular subcommand:
         arger = subparser_dict[subcommand]
-#        from ipdb import set_trace; set_trace()
 
         # substitute the real command:
         if subcommand in self.aliases:
