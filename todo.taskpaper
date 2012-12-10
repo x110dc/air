@@ -6,6 +6,8 @@ user stories:
 - review: reject ticket
 - finish review - mark it as closed, reintegrate it, delete branch
 - list tickets ready for review
+- add watcher to ticket
+- close ticket
 
 completed user stories:
 
@@ -19,6 +21,9 @@ completed user stories:
 
 TODO:
 
+- urllib2 quote the URL before posting to Jira
+- having an alias that points to something non-existent fails to produce an error
+- clean up SVN test repos via tearDown?
 - command to create sample (commented) config 
 - pull parts of Commands into Subversion library (too much direct SVN access)
 - on 'start_work' if issue isn't assigned to me, assign it to me
