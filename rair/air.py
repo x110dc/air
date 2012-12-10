@@ -58,6 +58,10 @@ class Commands(object):
 
     def start_work(self, arger, args, out=sys.stdout):
 
+        """
+        start work on ticket (start progress and create branch)
+        """
+
         self.make_branch(arger, args)
         opts = arger.parse_args(args)
         issue = self.jira.get_issue(opts.ticket)
@@ -70,7 +74,9 @@ class Commands(object):
         out.write('Branch created and issue marked as "In Progress"')
 
     def take(self, arger, args, out=sys.stdout):
-
+        '''
+        Assign ticket to myself.
+        '''
         assignee = self.config['jira']['username']
         arger.add_argument('-t', '--ticket')
         opts = arger.parse_args(args)
@@ -79,6 +85,8 @@ class Commands(object):
 
     def refresh(self, arger, args, out=sys.stdout):
         '''
+        Refresh branch from trunk.
+
         Given a Jira ticket, refresh the associated branch from trunk.  If
         conflicts are found during the merge process an exception is raised
         and the merge process will need to be completed manually.
@@ -115,6 +123,7 @@ class Commands(object):
 
     def make_branch(self, arger, args, out=sys.stdout):
         '''
+        Create branch based on ticket.
         Given a Jira ticket number an Svn branch is created for it.
         '''
 
@@ -131,6 +140,7 @@ class Commands(object):
 
     def create_bug(self, arger, args, out=sys.stdout):
         '''
+        Create bug in Jira.
         Given a brief description a Jira bug will be created. This uses options
         specified in the config file to screate the ticket.
         '''
@@ -143,6 +153,9 @@ class Commands(object):
         out.write('ticket created: {}\n'.format(bug))
 
     def add_comment(self, arger, args, out=sys.stdout):
+        '''
+        Add comment to Jira ticket.
+        '''
 
         arger.add_argument('-t', '--ticket')
         arger.add_argument('comment', nargs='*')
