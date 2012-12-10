@@ -1,5 +1,11 @@
 #compdef air
 
+saveIFS=$IFS
+IFS=$'\n'
+ticket_array=($(air _complete_tickets)) 
+subcommands=($(air _complete_subcommands)) 
+IFS=$saveIFS 
+
 _air() { 
     local curcontext="$curcontext" state line
     typeset -A opt_args
@@ -10,18 +16,11 @@ _air() {
 
     case $state in
         (command)
-            local -a subcommands
-            subcommands=(
-                'refresh:refresh a ticket'
-                'start_work:start a ticket'
-                'create_bug:create a bug'
-            )
             _describe -t commands 'air' subcommands
         ;;
         (options)
             case $line[1] in
-                (refresh)
-#                    _arguments  ':ticket:__tickets'
+                (refresh|start_work|create_bug|make_branch|take|add_comment)
                     _arguments  "(-t --ticket)"{-t,--ticket}"[ticket number]":thing:__tickets \
                     && ret=0
                 ;;
@@ -31,7 +30,7 @@ _air() {
 
 __tickets ()
 {
-    _wanted application expl 'command' compadd $(command /Users/danielc/Git/mine/air/air ticket_completion 2> /dev/null)
+    _describe 'ticket' ticket_array
 }
 
 _air "$@"
