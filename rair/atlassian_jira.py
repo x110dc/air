@@ -82,6 +82,33 @@ class Jira(object):
         self.server.add_watcher(issue, person)
         return issue
 
+    def list_reviewable(self):
+        '''
+        if a JQL query is defined in the config use it.  If not:
+            if a named filter is defined in the config use it.  If not:
+                use the predefined filter.
+        '''
+
+        section = self.config.get('review', None)
+        jql = 'status IN ("Ready for Review", "In Review") \
+            ORDER BY priority, updatedDate ASC'
+
+        if not section:
+            return self.query(jql)
+
+        jql_config = section.get('jql', None)
+        if jql_config:
+            return self.query(jql_config)
+
+        filter_name = section.get('filter', None)
+
+        if filter_name:
+            filters = self.server.favourite_filters()
+            jql = [x.jql for x in filters if x.name == filter_name][0]
+            return self.query(jql)
+
+        return self.query(jql)
+
     def list_issues(self):
         '''
         if a JQL query is defined in the config use it.  If not:
@@ -89,26 +116,33 @@ class Jira(object):
                 use the predefined filter.
         '''
 
-        if 'jql' in self.config:
-            return self.query(self.config['jql'])
-
-        if 'filter' in self.config:
-            name = self.config['filter']
-            filters = self.server.favourite_filters()
-            jql = [x.jql for x in filters if x.name == name][0]
-            return self.query(jql)
-
+        section = self.config.get('list', None)
         jql = 'assignee=currentUser() \
                 AND status != Closed AND status != Resolved'
 
+        if not section:
+            return self.query(jql)
+
+        jql_config = section.get('jql', None)
+        if jql_config:
+            return self.query(jql_config)
+
+        filter_name = section.get('filter', None)
+
+        if filter_name:
+            filters = self.server.favourite_filters()
+            jql = [x.jql for x in filters if x.name == filter_name][0]
+            return self.query(jql)
+
         return self.query(jql)
+
 
     def assign_issue(self, ticket, assignee):
         '''
         Given an issue and an assignee, assigns the issue to the assignee.
         '''
         issue = self.get_issue(ticket)
-        self.server.assign_issue(assignee)
+        self.server.assign_issue(issue, assignee)
         return issue
 
     def add_comment(self, ticket, comment):

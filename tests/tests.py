@@ -312,7 +312,7 @@ class TestListIssues(unittest.TestCase):
     def test_jql(self):
         # create a bug (in setUp) and then make the JQL query just search for
         # that bug; then we're relatively confident we're using the JQL
-        self.jira.config['jql'] = \
+        self.jira.config['list']['jql'] = \
                 'assignee=currentUser() AND issue={}'.format(self.bug)
         issues = self.jira.list_issues()
         # there should only be one issue:
