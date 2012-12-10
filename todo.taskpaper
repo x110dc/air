@@ -1,7 +1,5 @@
 user stories:
 
-- finish a ticket - mark ticket as ready for review, update CHANGES
-- given a brief description, create a task in Jira
 - start a review - mark ticket as 'in review', create Crucible review
 - review: reject ticket
 - finish review - mark it as closed, reintegrate it, delete branch
@@ -18,13 +16,17 @@ completed user stories:
 - start an issue: create branch, start progress, add Svn URL to Jira @done
 - self-assign: assign a ticket to me @done
 - add a comment to a ticket @done
+- finish a ticket - mark ticket as ready for review, update CHANGES @done
+- given a brief description, create a task in Jira @done
 
 TODO:
 
-- urllib2 quote the URL before posting to Jira
-- having an alias that points to something non-existent fails to produce an error
+- should finish do something to/with CHANGES?
+- tests for closing issues that are in different states
 - clean up SVN test repos via tearDown?
 - command to create sample (commented) config 
+- urllib2 quote the URL before posting to Jira
+- having an alias that points to something non-existent fails to produce an error
 - pull parts of Commands into Subversion library (too much direct SVN access)
 - on 'start_work' if issue isn't assigned to me, assign it to me
 - tests for getting ticket from "svn info" or "git svn info"
