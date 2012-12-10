@@ -247,7 +247,7 @@ class TestJira(unittest.TestCase):
 
     def tearDown(self):
         self.jira = air.Jira(self.config['jira'])
-        self.jira.transition_issue(self.bug, status='Resolve Issue')
+        self.jira.transition_issue(self.issue, status='Resolve Issue')
 
     def test_create_bug(self):
         sys.argv = ['bogus', 'create_bug', "this is a test bug"]
@@ -256,8 +256,18 @@ class TestJira(unittest.TestCase):
         d.go(out=out)
         actual = out.getvalue().strip()
         match = re.search('MMSANDBOX-\d*', actual)
-        self.bug = match.group()
-        self.assertRegexpMatches(actual, 'ticket created: MMSANDBOX-\d*')
+        self.issue = match.group()
+        self.assertRegexpMatches(actual, 'bug created: MMSANDBOX-\d*')
+
+    def test_create_task(self):
+        sys.argv = ['bogus', 'create_task', "this is a test task"]
+        d = air.Dispatcher(self.config)
+        out = StringIO()
+        d.go(out=out)
+        actual = out.getvalue().strip()
+        match = re.search('MMSANDBOX-\d*', actual)
+        self.issue = match.group()
+        self.assertRegexpMatches(actual, 'task created: MMSANDBOX-\d*')
 
 
 class TestCloseJiraIssue(unittest.TestCase):
@@ -374,6 +384,37 @@ class TestConfig(unittest.TestCase):
         # sure the code handles it
         del self.config['svn']
         self.cmd = air.Commands(self.config)
+
+
+class TestFinishWork(unittest.TestCase):
+
+    def setUp(self):
+        # mock the configuration file:
+        self.config = ConfigObj('./tests/config')
+        self.config['jira']['password'] = get_jira_pass()
+
+        self.summary = "test bug for finish work"
+        self.jira = air.Jira(self.config['jira'])
+        self.bug = self.jira.create_issue(self.summary, self.summary)
+        self.cmd = air.Commands(self.config)
+        self.jira.transition_issue(self.bug, status='Start Progress')
+
+    def tearDown(self):
+        pass
+        # MMSANDBOX doesn't have the same workflow defined so I can't
+        # transition it the same way
+        #self.jira.transition_issue(self.bug, status='Review Passed')
+        #self.jira.transition_issue(self.bug, status='Resolve Issue')
+
+    def test_finish_work(self):
+        sys.argv = ['bogus', 'finish_work', '-t', self.bug]
+        d = air.Dispatcher(self.config)
+        out = StringIO()
+        actual = d.go(out=out)
+        # the issue should now be "Ready for Review":
+        expected = 'Ready for Review'
+        actual = self.jira.get_issue(self.bug).fields.status.name
+        self.assertEqual(expected, actual)
 
 
 class TestStartWork(unittest.TestCase):
