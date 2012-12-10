@@ -20,7 +20,7 @@ _air() {
         ;;
         (options)
             case $line[1] in
-                (refresh|start_work|create_bug|make_branch|take|add_comment)
+                (refresh|start_work|make_branch|take|add_comment)
                     _arguments  "(-t --ticket)"{-t,--ticket}"[ticket number]":thing:__tickets \
                     && ret=0
                 ;;
