@@ -1,9 +1,5 @@
 user stories:
 
-- add watcher to ticket
-- list tickets ready for review
-- close ticket
-- assign a ticket
 - start a review - mark ticket as 'in review', create Crucible review
 - review: reject ticket
 - finish review - mark it as closed, reintegrate it, delete branch
@@ -19,9 +15,15 @@ completed user stories:
 - add a comment to a ticket @done
 - finish a ticket - mark ticket as ready for review, update CHANGES @done
 - given a brief description, create a task in Jira @done
+- add watcher to ticket @done
+- list tickets ready for review @done
+- close ticket @done
+- assign a ticket @done
 
 TODO:
 
+- command to create sample (commented) config 
+- task: delete a branch: both Svn and Git?
 - test lack of [jira] section in config
 - test finishing work by getting ticket from dir
 - test taking ticket
@@ -33,15 +35,12 @@ TODO:
 - should finish do something to/with CHANGES?
 - tests for closing issues that are in different states
 - clean up SVN test repos via tearDown?
-- command to create sample (commented) config 
 - urllib2 quote the URL before posting to Jira
 - having an alias that points to something non-existent fails to produce an error
 - pull parts of Commands into Subversion library (too much direct SVN access)
 - on 'start_work' if issue isn't assigned to me, assign it to me
 - tests for getting ticket from "svn info" or "git svn info"
-- task: delete a branch: both Svn and Git?
 - tests for exceptional conditions (bad Svn, etc)
-- create tasks in Jira (not just bugs)
 - construct branch and trunk URLs from root url if not specified?
 - Crucible integration
 - logging?
@@ -50,6 +49,7 @@ TODO:
 - do more formal doc strings with params and return values
 - allow use of favorite filters and tab-complete their names
 - write a README
+- check config file
 - create Sphinx (or similar) docs
 - support for Git
 - use default Component for creating issues
@@ -61,11 +61,8 @@ TODO:
 - check task: do a clean checkout and run tests?
 - task: log time spent on issue?
 - task: log time on issue automatically?
-- use git-flow for inspiration? 
 
 caveats: 
-- doesn't work with multiple SVN repos at the same time
-- doesn't work with multiple Jira projects or users at the same time
 - uses same text for summary and description of new Jira issues
 
 Done:
@@ -93,3 +90,8 @@ Done:
 - use filters already in Jira account too or instead of hardcoded one? @done
 - put JQL filters in config file? @done
 - require that at least one .air.cfg file be present @done
+- add completion for Jira person assignments and watchers @done
+- doesn't work with multiple SVN repos at the same time [now it does] @done
+- doesn't work with multiple Jira projects or users at the same time [now it does] @done
+- create tasks in Jira (not just bugs) @done
+- use git-flow for inspiration? @done
