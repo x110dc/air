@@ -2,8 +2,16 @@
     username = daniel.craigmile
     project = MMSANDBOX
     server = https://mutualmobile.jira.com
-    filter = 'assigned to me'
-    jql = 'assignee=currentUser()  AND status != Closed'
+    [[list]]
+        filter = 'assigned to me'
+        jql = 'assignee=currentUser()  AND status != Closed'
+    [[review]]
+        filter = 'ready for review'
+        jql = '''project = CIGNAINC AND
+                 status IN ("Ready for Review", "In Review") 
+                 AND (Platform = Server OR Platform is EMPTY 
+                 AND (component = "Server Engineering" OR component is EMPTY)) 
+                 ORDER BY priority, updatedDate ASC'''
 [svn]
     root_url=https://cignasvn.r.mutualmobile.com/mycigna/
     trunk_url=https://cignasvn.r.mutualmobile.com/mycigna/trunk/Server/
