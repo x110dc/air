@@ -21,11 +21,11 @@ _air() {
         ;;
         (options)
             case $line[1] in
-                (refresh|start_work|make_branch|take|add_comment|close_ticket)
+                (refresh|start_work|make_branch|take|add_comment|close_ticket|finish_work)
                     _arguments  "(-t --ticket)"{-t,--ticket}"[ticket number]":ticket:__tickets \
                     && ret=0
                 ;;
-                (add_watcher)
+                (add_watcher|assign)
                     _arguments  "(-t --ticket)"{-t,--ticket}"[ticket number]":ticket:__tickets \
                     "(-p --person)"{-p,--person}"[user name]":person:__persons && ret=0
                 ;;
