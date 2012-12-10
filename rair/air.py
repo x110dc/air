@@ -73,6 +73,22 @@ class Commands(object):
         self.jira.add_comment(issue.key, comment)
         out.write('Branch created and issue marked as "In Progress"')
 
+    def finish_work(self, arger, args, out=sys.stdout):
+
+        """
+        finish work on ticket (mark it as 'Ready for Review')
+        """
+
+        arger.add_argument('-t', '--ticket')
+        opts = arger.parse_args(args)
+        issue = self.jira.get_issue(opts.ticket)
+        if not opts.ticket:
+            opts.ticket = _get_ticket_from_dir()
+            if not opts.ticket:
+                raise TicketSpecificationException("ticket number required")
+        out.write('Marking issue {} as "Ready for Review"'.format(issue))
+        self.jira.transition_issue(opts.ticket, status='Ready for Review')
+
     def take(self, arger, args, out=sys.stdout):
         '''
         Assign ticket to myself.
