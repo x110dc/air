@@ -73,6 +73,20 @@ class Commands(object):
         self.jira.add_comment(issue.key, comment)
         out.write('Branch created and issue marked as "In Progress"')
 
+    def add_watcher(self, arger, args, out=sys.stdout):
+
+        """
+        add watcher to ticket.
+        """
+        arger.add_argument('-t', '--ticket')
+        arger.add_argument('-p', '--person')
+        opts = arger.parse_args(args)
+        if not opts.ticket:
+            opts.ticket = _get_ticket_from_dir()
+            if not opts.ticket:
+                raise TicketSpecificationException("ticket number required")
+        self.jira.add_watcher(opts.ticket, opts.person)
+
     def finish_work(self, arger, args, out=sys.stdout):
 
         """

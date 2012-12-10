@@ -73,6 +73,15 @@ class Jira(object):
         self.server.transition_issue(issue, _id)
         return self.get_issue(ticket)
 
+#users = self.jira.server.search_assignable_users_for_issues('',
+#        project='CIGNAINC', maxResults=500)
+
+    def add_watcher(self, ticket, person):
+
+        issue = self.get_issue(ticket)
+        self.server.add_watcher(issue, person)
+        return issue
+
     def list_issues(self):
         '''
         if a JQL query is defined in the config use it.  If not:
