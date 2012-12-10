@@ -158,7 +158,7 @@ class Commands(object):
         '''
         Create bug in Jira.
         Given a brief description a Jira bug will be created. This uses options
-        specified in the config file to screate the ticket.
+        specified in the config file to create the ticket.
         '''
 
         arger.add_argument('text')
