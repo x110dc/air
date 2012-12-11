@@ -6,22 +6,65 @@ class SendRequestException(Exception):
     pass
 
 
+class Review(object):
+
+    def __init__(self, crucible, review_id):
+        self.crucible = crucible
+        self.review_id = review_id
+
+    @property
+    def uri_patch(self):
+        return '/'.join([self.crucible.uri_api_base, 'reviews-v1',
+            self.review_id, 'patch'])
+
+    @property
+    def uri_abandon(self):
+        return '/'.join([self.crucible.uri_api_base, 'reviews-v1',
+            self.review_id, 'transition?action=action:abandonReview'])
+
+    @property
+    def uri_frontend(self):
+        return '/'.join([self.crucible.config['server'], 'source/cru',
+            self.review_id])
+
+    def abandon(self):
+        auth, headers = self.crucible._setup_auth_n_headers()
+        response_data = self.crucible._send_request('post', self.uri_abandon,
+                auth=auth, headers=headers, data={},
+                expected_status_code=200)
+        return self
+
+    def add_patch(self, data):
+        """
+        **Parameters**
+            ``file_name``
+
+        **Returns**
+
+        **Raises**
+        """
+        auth, headers = self.crucible._setup_auth_n_headers()
+        patch_data = {'patch': data}
+        response_data = self.crucible._send_request('post',
+                self.crucible.uri_patch, auth=auth,
+                headers=headers, data=patch_data)
+        return response_data
+
+
 class Crucible(object):
 
     def __init__(self, config):
         self.config = config
         self.user_name = config['username']
         self.password = config['password']
+        self.uri_server = config['server']
         self.crucible_key = config['crucible_key']
-        self.uri_api_base = config['server'] + '/source/rest-service'
-
-    def uri_patch(self, review_id):
-        return '/'.join([self.uri_api_base, 'reviews-v1', review_id, 'patch'])
+        self.uri_api_base = self.uri_server + '/source/rest-service'
 
     def uri_review(self):
         return '/'.join([self.uri_api_base, 'reviews-v1'])
 
-    def setup_auth_n_headers(self):
+    def _setup_auth_n_headers(self):
         """
         **Parameters**
 
@@ -58,22 +101,6 @@ class Crucible(object):
         """
         return review_data['permaId']['id']
 
-    def add_patch(self, review_id, file_name):
-        """
-        **Parameters**
-            ``review_id``
-            ``file_name``
-
-        **Returns**
-
-        **Raises**
-        """
-        auth, headers = self.setup_auth_n_headers()
-        patch_data = {'patch': self.read_data_from_file(file_name)}
-        response_data = self.send_request('post', self.uri_patch(), auth=auth,
-                headers=headers, data=patch_data)
-        return response_data
-
     def create_review(self, participants, allow_others=True, jira_ticket=None):
         """
         This function creates a Crucible review.
@@ -90,7 +117,7 @@ class Crucible(object):
         **Raises**
             ReviewSetupException
         """
-        auth, headers = self.setup_auth_n_headers()
+        auth, headers = self._setup_auth_n_headers()
         creator_data = {'userName': self.user_name}
         reviewers = []
         if not participants:
@@ -122,11 +149,14 @@ class Crucible(object):
         }
         if jira_ticket:
             payload['reviewData']['jiraIssueKey'] = jira_ticket
-        response_data = self.send_request('post', self.uri_review(), auth=auth,
-                headers=headers, data=payload, expected_status_code=201)
-        return response_data
+        response_data = self._send_request('post', self.uri_review(),
+                auth=auth, headers=headers, data=payload,
+                expected_status_code=201)
+        review_id = self.get_review_id(response_data)
+        review = Review(self, review_id)
+        return review
 
-    def send_request(self, method, url, auth=None, headers=None, data=None,
+    def _send_request(self, method, url, auth=None, headers=None, data=None,
             expected_status_code=200):
         """
         **Parameters**

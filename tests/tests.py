@@ -109,9 +109,14 @@ class TestCrucible(unittest.TestCase):
         self.config['jira']['password'] = get_jira_pass()
         self.crucible = air.Crucible(self.config['jira'])
 
+    def tearDown(self):
+        if self.review:
+            self.review.abandon()
+
     def test_create_review(self):
-        self.crucible.create_review(['ethan.sherman'])
-        from ipdb import set_trace; set_trace()
+        self.review = self.crucible.create_review(['jon.oelfke'])
+        print self.review.uri_frontend
+
 
 
 class TestMakeBranch(unittest.TestCase):
