@@ -1,0 +1,2115 @@
+Index: docs/client_api.rst
+===================================================================
+--- docs/client_api.rst	(.../trunk/Server)	(revision 17147)
++++ docs/client_api.rst	(.../branches/Server/CIGNAINC-3793_simulate_claims_warnings)	(revision 17147)
+@@ -8114,670 +8114,713 @@
+ 
+   {
+     "contact": "/secure/0.2/wallet/v1/contact/1/",
+     "country": "US",
+     "state": "TX",
+     "street1": "206 E",
+     "street2": "Lavaca St",
+     "zip_code": "78701"
+   }
+ 
+ To delete multiple resources with one method call send a PATCH over POST request to
+ the list resource URI::
+ 
+   TBD
+ 
+ To synchronize a Contact with the HCP Directory::
+ 
+   POST /secure/0.3/sync_contact/1/
+ 
+ Where '1' above is the Contact ID. Note that this URL does not include a
+ 'wallet' component.
+ 
+ To delete multiple resources with one method call send a PATCH over POST request to
+ the list resource URI::
+ 
+   POST /secure/0.2/wallet/v1/address/
+ 
+ With data like this::
+ 
+   {
+     "deleted_objects": [
+       "/secure/0.3/wallet/v1/address/1/",
+       "/secure/0.3/wallet/v1/address/2/"
+     ],
+     "objects": []
+   }
+ 
+ And the following header::
+ 
+   X-HTTP-Method-Override: PATCH
+ 
+ Using the header is required because WebSEAL doesn't support proxying PATCH
+ requests. Note that the "objects" list must be specified even if empty.
+ 
+ Health Info Examples
+ --------------------
+ 
+ Subscribers have full access to their dependants' health info entries.
+ 
+ When the subscriber requests entries without filtering for a specific family
+ member, all entries are returned.  Each entry identifies which family members'
+ URI the entry belongs to, specified by the ``individual`` field.
+ 
+ A subscriber can Create, Read, Update and Delete Health Wallet Info entries for
+ their dependants.
+ 
+ Create example URL and POST data::
+ 
+   POST /secure/0.3/wallet/v1/medication/
+ 
+   {
+       "individual": "/secure/0.3/wallet/v1/individual/4/",
+       "doctor": "Dr. Nick",
+       "dosage": "hourly",
+       "name": "aspirin",
+       "reason": "stress"
+   }
+ 
+ Or alternate example URL and POST data that demonstrates another way to format
+ the ``individual`` value::
+ 
+   POST /secure/0.3/wallet/v1/medication/
+ 
+   {
+       "individual": {"id": 4},
+       "doctor": "Dr. Nick",
+       "dosage": "hourly",
+       "name": "aspirin",
+       "reason": "stress"
+   }
+ 
+ To filter entries by a specific family member, make a GET request and provide
+ an ``individual`` filter.  The value is the unique individual id (provided by
+ the profile response).
+ 
+ Read example URL::
+ 
+   GET /secure/0.2/wallet/v1/medication/?individual=4
+ 
+ Update example URL and POST data::
+ 
+   POST /secure/0.3/wallet/v1/medication/1337/
+ 
+   {
+       "individual": "/secure/0.3/wallet/v1/individual/4/",
+       "doctor": "Dr. Nick",
+       "dosage": "hourly",
+       "name": "advil",
+       "reason": "stress"
+   }
+ 
+ Delete example URL::
+ 
+   DELETE /secure/0.3/wallet/v1/medication/1337/
+ 
+ 
+ Notes
+ -----
+ 
+   * always include a trailing slash in URIs
+   * by default queries are limited to 100 results, specify a GET parameter of
+     'limit' to set your own
+ 
+ Errors
+ ------
+ 
+   * TBD
+ 
+ 
+ .. _opinionlab:
+ 
+ Opinion Lab API
+ ===============
+ 
+ .. index:: API calls; opinion lab create uri, opinion lab create uri (API calls)
+ 
+ Opinion Lab Create URI
+ ----------------------
+ 
+ GET /secure/0.2/opinionlab_uri/create
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+ Returns::
+ 
+   This API returns the URI for the opinionlab call. It includes the
+   groupNumber, FirstName, LastName, role (subscriber|dependent) of
+   the logged in individual and the sso id.
+ 
+   In case of error the base class will catch and throw an exception
+   so any error means the view has failed.  It is not important what
+   the exception was only that an exception has occurred.  The base class
+   will have all the details.
+ 
+   URI = custom_var=8100341%7CFrank%7CWhitecoat%7CSubscriber%7Credjpmc01
+   where %7C = pipe |
+ 
+ GET Parameters::
+ 
+   None
+ 
+ Errors::
+ 
+   * : Error object is populated whenever there are issues with services calls
+     and missing data
+ 
+ Example Request::
+ 
+   /secure/0.2/opinionlab_uri/create
+ 
+ Example JSON Response::
+ 
+   {
+     "meta": {
+       "warnings": [],
+       "run_time": "0.01502"
+     },
+     "result": {
+       "opinionlab_uri": "custom_var=8100341%7CFrank%7CWhitecoat%7CSubscriber%7Credjpmc01"
+     },
+     "error": {}
+   }
+ 
+ Example Error Response::
+ 
+   {
+     "meta": {
+       "warnings": [],
+       "description": "Contains an error message describing the top level exception",
+       "run_time": "0.25337"
+     },
+     "result": {},
+     "error": {
+       "domain": "API",
+       "code": Code related to server level exception,
+       "details": {},
+       "description": "Contains an error message describing the top level exception"
+     }
+   }
+ 
+ 
+ User Agreement API
+ ==================
+ 
+ Provider Details
+ ----------------
+ 
+ GET /secure/0.2/user_agreement/
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+ GET Parameters:
+ 
+   * none
+ 
+ 
+ Errors:
+ 
+ 
+ Example Request:
+ 
+   GET /secure/0.2/user_agreement/
+ 
+ Example JSON Response::
+ 
+   {
+    "meta": {
+       "warnings": [],
+     },
+    "result": {"update_success": true},
+    "error": {}
+   }
+ 
+ .. _error_translations:
+ 
+ Error Translations API
+ ======================
+ 
+ Error Translations
+ ------------------
+ 
+ GET /public/0.2/errors/
+ ^^^^^^^^^^^^^^^^^^^^^^^
+ 
+ GET Parameters::
+ 
+   The GET parameters
+ 
+   TAM_OP
+ 
+ Errors::
+ 
+   * TBD
+ 
+ Example Request::
+ 
+   /public/0.2/errors/?TAM_OP=error
+ 
+ Example JSON Response::
+ 
+   {
+     "result": {
+       "user_message": "There was an error"
+      },
+     "meta": {
+       "warnings": []
+     },
+      error": {}
+   }
+ 
+ .. _debug_internal_error:
+ 
+ Debug Services
+ ==============
+ 
+ Debug Internal Service Error
+ ----------------------------
+ 
+ GET /secure/0.2/_debug/internal_error/
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+ GET Parameters::
+ 
+   None
+ 
+ Errors::
+ 
+   * 0: Server Error: Internal error!  Oh noes!
+ 
+   Always returns an HTTP status code 500.
+ 
+ Example Request::
+ 
+   /secure/0.2/_debug/internal_error/
+ 
+ Example JSON Response::
+ 
+   {
+     'meta': {
+       'warnings': [],
+       'run_time': '0.00073',
+       'description': 'Server Error: Internal error!  Oh noes!'
+       },
+     'result': None,
+     'error': {
+       'domain': 'INT',
+       'code': 0,
+       'details': {},
+       'description': 'Server Error: Internal error!  Oh noes!'
+     }
+   }
+ 
++Debug MSP Warnings
++------------------
++
++GET /secure/0.2/_debug/warning/?<warning_code>=warning_code
++^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++
++GET Parameters::
++
++  * warning_code - Three-digit code for the warning to return
++
++Example Request::
++
++  /secure/0.2/_debug/warning/?warning_code=011
++
++.. only:: html
++
++  Example JSON Response::
++
++    {
++      "meta": {
++        "run_time": "0.00025",
++        "warnings": [
++          {
++            "code": "012",
++            "description": "At least a partial Dental Claims Summary backend service failure occurred."
++          }
++        ]
++      },
++      "result": {
++        "claims": [ ]
++      },
++      "error": { }
++    }
++
++.. only:: latex
++
++  Example JSON Response::
++
++    {
++      "meta": {
++        "run_time": "0.00025",
++        "warnings": [
++          {
++            "code": "012",
++            "description": "At least a partial Dental Claims Summary \
++              backend service failure occurred."
++          }
++        ]
++      },
++      "result": {
++        "claims": [ ]
++      },
++      "error": { }
++    }
++
+ .. _meta_values:
+ 
+ API Metas
+ =========
+ 
+ .. index:: API; Meta values, meta; values (API)
+ 
+ The meta key of the `Response Format`_ will always be a dictionary that
+ includes the required field and any combination of the optional fields, as
+ defined below.
+ 
+ ==========  ========  =====================================================================================================
+ Field       Required  Definition
+ ==========  ========  =====================================================================================================
+ warnings    True      Contains a list of warning dictionaries as defined below, or an empty list when no warnings occurred.
+ messages    False     Set for exceptions.
+ traceback   False     Python traceback / debug stuff, usually only present on error with Debug mode set
+ pagination  False     Pagination dict. See Pagination_ for more information
+ ==========  ========  =====================================================================================================
+ 
+ Warning Dictionaries
+ --------------------
+ 
+ ===========  ============================================================================================  ====================================
+ Field        Definition                                                                                    Possible Values
+ ===========  ============================================================================================  ====================================
+ code         Code representing a specific type of error, as defined in the `Warning Codes`_ section below  String containing a positive integer
+ description  Text description of the error to be presented to the user                                     Any string
+ ===========  ============================================================================================  ====================================
+ 
+ Warning Codes
+ -------------
+ 
+ Claims Summary Failure
+ ^^^^^^^^^^^^^^^^^^^^^^
+ 
+-Claims Summary Failure - General
+-********************************
+-:code: "010"
+-:description: "At least a partial Claims Summary backend service failure
+-              occurred.
+-
+ Claims Summary Failure - Medical Claims
+ ***************************************
+ :code: "011"
+ :description: "At least a partial Medical Claims Summary backend service
+               failure occurred."
+ 
+ Claims Summary Failure - Dental Claims
+ **************************************
+ :code: "012"
+ :description: "At least a partial Dental Claims Summary backend service
+               failure occurred."
+ 
+ Claims Summary Failure - Pharmacy Claims
+ ****************************************
+ :code: "013"
+ :description: "At least a partial Pharmacy Claims Summary backend service
+               failure occurred."
+ 
+ 
+ Claims Summary Maximum Results Exceeded
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+-Claims Summary Maximum Results Exceeded - General
+-*************************************************
+-:code: "020"
+-:description: "More claims were found than the backend service is allowed to
+-              return."
+-
+ Claims Summary Maximum Results Exceeded - Medical
+ *************************************************
+ :code: "021"
+ :description: "More Medical claims were found than the backend service is
+               allowed to return."
+ 
+ Claims Summary Maximum Results Exceeded - Dental
+ ************************************************
+ :code: "022"
+ :description: "More Dental claims were found than the backend service is
+               allowed to return."
+ 
+ Claims Summary Maximum Results Exceeded - Pharmacy
+ **************************************************
+ :code: "023"
+ :description: "More Pharmacy claims were found than the backend service is
+               allowed to return."
+ 
+ 
+ ID Cards Service Failure
+ ^^^^^^^^^^^^^^^^^^^^^^^^
+ :code: "100"
+ :description: "At least a partial ID Cards backend service failure occurred."
+ 
+ 
+ Example Warnings in Response
+ ----------------------------
+ ::
+ 
+   {
+       "meta": {
+           "claims_count": 1,
+           "run_time": "0.02112",
+           "warnings": [
+               {
+                   "code": "021",
+                   "description": "More Medical Claims were found than the backend "
+                       "service is allowed to return for request: "
+                       "{'searchByMemberIdentifiers': {'claimSystemCode': u'PCLM', "
+                       "'searchFromDate': '2012-11-15', 'claimSearchMemberIdentifiers': "
+                       "{'ami': u'911084476', 'pid': u'164993639398321', "
+                       "'ssn': u'911084476', 'idCardExtensionCode': u'01', "
+                       "'accountNumber': u'9040002'}, 'searchToDate': '2012-11-16'}}."
+               }
+           ]
+       },
+       "result": {
+           "claims": [
+               {
+                   "status": "paid",
+                   "bookmarked": false,
+                   "individual_id": 1,
+                   "patient_name": "Bobby Keth",
+                   "claim_type": "medical",
+                   "amount_billed": "645.50",
+                   "date": "2012-08-05",
+                   "provider_name": "Provider Charlie Md",
+                   "claim_id": "0431221540020",
+                   "claim_system_code": "PCLM",
+                   "can_bookmark": true
+               }
+           ]
+       },
+       "error": {}
+   }
+ 
+ 
+ .. _api_errors:
+ 
+ API Errors
+ ==========
+ 
+ .. index:: API; Errors, errors; API
+ 
+ Standard Error Format
+ ---------------------
+ The error key of the `Response Format`_ will always be a dictionary. Either
+ empty '{}' or with these key/values:
+ 
+   * domain: Three letter string, see `Error Domains`_.
+   * code: Integer between 0-9999, see `Error Codes`_.
+   * description: Text string.
+ 
+ Example error JSON::
+ 
+   {
+   "result": '',
+   "meta": {
+       "warnings": [],
+       "traceback": "Lots of python traceback debug stuff here"
+       },
+   "error": {
+       "domain": "USR",
+       "code": 2000,
+       "description": "Something usefull."
+       },
+   }
+ 
+ Example error JSON with display message::
+ 
+   {
+   "result": '',
+   "meta": {
+       "warnings": [],
+       "traceback": "Lots of python traceback debug stuff here"
+       },
+   "error": {
+       "domain": "API",
+       "code": 1321,
+       "description": "Something usefull."
+       "details": {
+         "display_message": "display this message"
+         }
+       },
+   }
+ 
+ 
+ .. _error_domains:
+ 
+ Error Domains
+ -------------
+ 
+ .. index:: API; Error domains, errors; domains (API)
+ 
+ INT
+ ^^^
+ HTTP Status will be 5xx.
+ 
+ Error code range 0-999
+ 
+ "Internal" errors.  Problems with server, nothing caller can do except wait/retry.
+ Error description
+ 
+ API
+ ^^^
+ HTTP Status will generally be 4xx.
+ 
+ Error code range 1000-1999.
+ 
+ "API" errors.  Problem with request, caller should be able to fix and retry.
+ Error description shall be suitable for display to enduser, although perhaps, not eloquent.
+ 
+ USR
+ ^^^
+ HTTP Status will generally be 2xx.
+ 
+ Error code range 2000-9999.
+ 
+ "Account" error. End user of device can correct or informational to them.
+ Error description shall be suitable for display to enduser, although perhaps, not eloquent.
+ 
+ 
+ Error Codes
+ -----------
+ 
+ .. index:: API; Error codes, errors; codes (API)
+ 
+ InternalError
+ ^^^^^^^^^^^^^
+ :description: "Undefined Server/Internal Error."
+ :code: 1
+ :http_status: 500
+ 
+ 
+ ProxyError
+ ^^^^^^^^^^
+ :description: "Error with upstream HTTP Server/Connection."
+ :code: 100
+ :http_status: 503
+ 
+ 
+ ApiError
+ ^^^^^^^^
+ :description: "Undefined Api Error."
+ :code: 1000
+ :http_status: 400
+ 
+ 
+ LoginRequired
+ ^^^^^^^^^^^^^
+ :description: "Need to authenticate."
+ :code: 1010
+ :http_status: 200
+ 
+ 
+ FailedCert
+ ^^^^^^^^^^
+ :description: "Login failed."
+ :code: 1011
+ :http_status: 200
+ 
+ 
+ PasswordExpired
+ ^^^^^^^^^^^^^^^
+ :description: "Password expired."
+ :code: 1012
+ :http_status: 200
+ 
+ 
+ AuthError
+ ^^^^^^^^^
+ :description: "There was an error."
+ :code: 1013
+ :http_status: 200
+ 
+ 
+ StrangeError
+ ^^^^^^^^^^^^
+ :description: "Action makes no sense."
+ :code: 1014
+ :http_status: 200
+ 
+ 
+ MissingOrInvalidParameters
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ :description: "Missing or Invalid Parameters."
+ :code: 1015
+ :http_status: 404
+ 
+ 
+ LoginRequired
+ ^^^^^^^^^^^^^
+ :description: "Need to authenticate."
+ :code: 1016
+ :http_status: 200
+ 
+ 
+ MaxLoginAttemptsExceeded
+ ^^^^^^^^^^^^^^^^^^^^^^^^
+ :description: "Maximum number of login attempts exceeded.  The account is locked."
+ :code: 1017
+ :http_status: 200
+ 
+ 
+ NotFoundError
+ ^^^^^^^^^^^^^
+ :description: "404 error."
+ :code: 1100
+ :http_status: 404
+ 
+ 
+ NoProfileFound
+ ^^^^^^^^^^^^^^
+ :description: "No profile found."
+ :code: 1101: No profile found.
+ :http_status: 200
+ :details: Could not find a valid profile with a matching identifier.
+ 
+ 
+ AuthorizationFailure
+ ^^^^^^^^^^^^^^^^^^^^
+ :code: 1102
+ :http_status: 200
+ :details: Received insufficient HTTP headers from WebSeal to authenticate the requesting user.
+ 
+ 
+ PreEffectiveProfile
+ ^^^^^^^^^^^^^^^^^^^
+ :code: 1103
+ :http_status: 200
+ :details: This user's coverage is not yet effective.  The user can register, and log in, but cannot use the application yet.
+ :client display message: "We’ve noticed your coverage has not yet started. You can use your User ID and Password to access features on myCigna.com today, and on this app once your coverage begins."
+ 
+ Response JSON::
+ 
+   {
+     "result": {},
+     "error": {
+       "domain": "API",
+       "code": 1103,
+       "details": {},
+       "description": "PreEffectiveProfile"
+     },
+     "meta": {
+       "warnings": [],
+       "description": "PreEffectiveProfile",
+       "run_time": "3.87792"
+     }
+   }
+ 
+ 
+ IdCardFailure
+ ^^^^^^^^^^^^^
+ :code: 1104
+ :http_status: 200
+ :details: No id cards found. (Occurs if all ESB requests fail for a given sso_id)
+ 
+ 
+ LimitedAccessProfile
+ ^^^^^^^^^^^^^^^^^^^^
+ :code: 1105
+ :http_status: 200
+ :details: Limited Access Profile.
+ 
+ 
+ JsonError
+ ^^^^^^^^^
+ :description: "Malformed JSON."
+ :code: 1200
+ 
+Index: apps/mycigna/api/tests/internal_error_test_urls.py
+===================================================================
+--- apps/mycigna/api/tests/internal_error_test_urls.py	(.../trunk/Server)	(revision 17147)
++++ apps/mycigna/api/tests/internal_error_test_urls.py	(.../branches/Server/CIGNAINC-3793_simulate_claims_warnings)	(revision 17147)
+@@ -1,7 +0,0 @@
+-from django.conf.urls import patterns, url
+-
+-from mycigna.api.views.internal_error_view import InternalErrorView
+-
+-urlpatterns = patterns('mycigna.api.views',
+-        url(r'^/_debug/internal_error/?$', InternalErrorView.as_view(),
+-            name='api_internal_error'))
+Index: apps/mycigna/api/tests/internal_error_view.py
+===================================================================
+--- apps/mycigna/api/tests/internal_error_view.py	(.../trunk/Server)	(revision 17147)
++++ apps/mycigna/api/tests/internal_error_view.py	(.../branches/Server/CIGNAINC-3793_simulate_claims_warnings)	(revision 17147)
+@@ -1,20 +0,0 @@
+-from django.core.urlresolvers import reverse
+-from django.test.client import Client
+-from django.test import TestCase
+-
+-
+-class TestInternalErrorView(TestCase):
+-    """
+-    Test the view that always returns an internal server error.
+-    """
+-    urls = 'mycigna.api.tests.internal_error_test_urls'
+-
+-    def test_internal_error_view(self):
+-        """
+-        Hit the url and verify that an HTTP 500 Internal Server Error is
+-        returned if DEBUG is True in the current Django settings.
+-        """
+-        response = Client().get(reverse('api_internal_error'))
+-        self.assertTrue(response.status_code, 500)
+-        self.assertTrue('A server error occurred.  Please contact the '
+-                    'administrator.', response.content)
+Index: apps/mycigna/api/tests/debug_test_urls.py
+===================================================================
+--- apps/mycigna/api/tests/debug_test_urls.py	(.../trunk/Server)	(revision 0)
++++ apps/mycigna/api/tests/debug_test_urls.py	(.../branches/Server/CIGNAINC-3793_simulate_claims_warnings)	(revision 17147)
+@@ -0,0 +1,9 @@
++from django.conf.urls import patterns, url
++
++from mycigna.api.views.debug import InternalErrorView, WarningView
++
++urlpatterns = patterns('mycigna.api.views',
++    url(r'^/_debug/internal_error/?$', InternalErrorView.as_view(),
++        name='api_internal_error'),
++    url(r'^_debug/warning/?$', WarningView.as_view(), name='api_warning'),
++)
+Index: apps/mycigna/api/tests/__init__.py
+===================================================================
+--- apps/mycigna/api/tests/__init__.py	(.../trunk/Server)	(revision 17147)
++++ apps/mycigna/api/tests/__init__.py	(.../branches/Server/CIGNAINC-3793_simulate_claims_warnings)	(revision 17147)
+@@ -1,15 +1,15 @@
+ from django.conf import settings
+ 
+ from forms import *
+ from tests import *
+ from hcp import *
+ from wallet import *
+ from profile import *
+ from drugs import *
+-from internal_error_view import *
++from debug import *
+ 
+ 
+ if hasattr(settings, 'TEST_INTEGRATION') and settings.TEST_INTEGRATION:
+     from integration import *
+     from integration_taxonomy import *
+     from integration_hcp import *
+Index: apps/mycigna/api/tests/debug.py
+===================================================================
+--- apps/mycigna/api/tests/debug.py	(.../trunk/Server)	(revision 0)
++++ apps/mycigna/api/tests/debug.py	(.../branches/Server/CIGNAINC-3793_simulate_claims_warnings)	(revision 17147)
+@@ -0,0 +1,109 @@
++import json as simplejson
++from django.core.urlresolvers import reverse
++from django.test.client import Client
++from django.test import TestCase
++
++
++class TestInternalErrorView(TestCase):
++    """
++    Test the view that always returns an internal server error.
++    """
++    urls = 'mycigna.api.tests.debug_test_urls'
++
++    def test_internal_error_view(self):
++        """
++        Hit the url and verify that an HTTP 500 Internal Server Error is
++        returned if DEBUG is True in the current Django settings.
++        """
++        response = Client().get(reverse('api_internal_error'))
++        self.assertTrue(response.status_code, 500)
++        self.assertTrue('A server error occurred.  Please contact the '
++                    'administrator.', response.content)
++
++
++class TestClaimsSummaryWarningView(TestCase):
++    """
++    Test the view that always returns ``cigna.api.MyCignaWarnings``.
++    """
++    urls = 'mycigna.api.tests.debug_test_urls'
++
++    def setUp(self):
++        self.warning_url = reverse('api_warning')
++
++    def test_medical_claims_summary_failure_warning_view(self):
++        """
++        Hit the url and verify that a Medical Claims Summary Failure Warning
++        is returned.
++        """
++        response = Client().get(self.warning_url, data={'warning_code': '011'})
++        warnings = simplejson.loads(response.content)['meta']['warnings']
++        self.assertEqual(warnings, [{
++            'code': '011',
++            'description': 'At least a partial Medical Claims Summary backend '
++                'service failure occurred.',
++        }])
++
++    def test_dental_claims_summary_failure_warning_view(self):
++        """
++        Hit the url and verify that a Dental Claims Summary Failure Warning
++        is returned.
++        """
++        response = Client().get(self.warning_url, data={'warning_code': '012'})
++        warnings = simplejson.loads(response.content)['meta']['warnings']
++        self.assertEqual(warnings, [{
++            'code': '012',
++            'description': 'At least a partial Dental Claims Summary backend '
++                'service failure occurred.',
++        }])
++
++    def test_pharmacy_claims_summary_failure_warning_view(self):
++        """
++        Hit the url and verify that a Pharmacy Claims Summary Failure Warning
++        is returned.
++        """
++        response = Client().get(self.warning_url, data={'warning_code': '013'})
++        warnings = simplejson.loads(response.content)['meta']['warnings']
++        self.assertEqual(warnings, [{
++            'code': '013',
++            'description': 'At least a partial Pharmacy Claims Summary '
++                'backend service failure occurred.',
++        }])
++
++    def test_medical_claims_summary_max_results_warning_view(self):
++        """
++        Hit the url and verify that a Medical Claims Summary Maximum Results
++        Exceeded Warning is returned.
++        """
++        response = Client().get(self.warning_url, data={'warning_code': '021'})
++        warnings = simplejson.loads(response.content)['meta']['warnings']
++        self.assertEqual(warnings, [{
++            'code': '021',
++            'description': 'More Medical claims were found than the backend '
++                'service is allowed to return.',
++        }])
++
++    def test_dental_claims_summary_max_results_warning_view(self):
++        """
++        Hit the url and verify that a Dental Claims Summary Maximum Results
++        Exceeded Warning is returned.
++        """
++        response = Client().get(self.warning_url, data={'warning_code': '022'})
++        warnings = simplejson.loads(response.content)['meta']['warnings']
++        self.assertEqual(warnings, [{
++            'code': '022',
++            'description': 'More Dental claims were found than the backend '
++                'service is allowed to return.',
++        }])
++
++    def test_pharmacy_claims_summary_max_results_warning_view(self):
++        """
++        Hit the url and verify that a Pharmacy Claims Summary Maximum Results
++        Exceeded Warning is returned.
++        """
++        response = Client().get(self.warning_url, data={'warning_code': '023'})
++        warnings = simplejson.loads(response.content)['meta']['warnings']
++        self.assertEqual(warnings, [{
++            'code': '023',
++            'description': 'More Pharmacy claims were found than the backend '
++                'service is allowed to return.',
++        }])
+Index: apps/mycigna/api/urls.py
+===================================================================
+--- apps/mycigna/api/urls.py	(.../trunk/Server)	(revision 17147)
++++ apps/mycigna/api/urls.py	(.../branches/Server/CIGNAINC-3793_simulate_claims_warnings)	(revision 17147)
+@@ -1,219 +1,222 @@
+ from django.conf import settings
+ from django.conf.urls import include, patterns, url
+ from django.views.decorators.csrf import csrf_exempt
+ 
+ from tastypie.api import Api
+ 
+ from mycigna.api.resources import AddressResource
+ from mycigna.api.resources import AllergyNoteResource
+ from mycigna.api.resources import AllergyResource
+ from mycigna.api.resources import ContactNoteResource
+ from mycigna.api.resources import ContactResource
+ from mycigna.api.resources import EmailAddressResource
+ from mycigna.api.resources import HealthRiskHistoryResource
+ from mycigna.api.resources import HealthRiskNoteResource
+ from mycigna.api.resources import HealthRiskResource
+ from mycigna.api.resources import ImmunizationDateResource
+ from mycigna.api.resources import ImmunizationNoteResource
+ from mycigna.api.resources import ImmunizationResource
+ from mycigna.api.resources import MedicationNoteResource
+ from mycigna.api.resources import MedicationResource
+ from mycigna.api.resources import OtherHealthInfoNoteResource
+ from mycigna.api.resources import OtherHealthInfoResource
+ from mycigna.api.resources import PhoneResource
+ from mycigna.api.resources import PrescriptionNoteResource
+ from mycigna.api.resources import PrescriptionResource
+ from mycigna.api.resources import UniqueIndividualResource
+ from mycigna.api.views import DashboardView
+ from mycigna.api.views import AccumulatorsView
+ from mycigna.api.views import AddClaimBookmarkView, AddClaimBookmarkGroupView
+ from mycigna.api.views import ClaimBookmarkView, ClaimBookmarkGroupView
+ from mycigna.api.views import ClaimBookmarkCountView, RemoveClaimBookmarkView
+ 
+ from mycigna.api.views import RemoveClaimBookmarkGroupView, IdCardsView
+ from mycigna.api.views import ClaimsView, ClaimDetailView, ClaimsOverviewView
+ from mycigna.api.views import ProfileView, UserAgreementView
+ from mycigna.api.views import ProviderSearchByGeocodeForMemberView
+ from mycigna.api.views import ProviderSearchResultView, RetrieveRadiusRangeView
+ from mycigna.api.views import CreateOpinionLabUriView
+ from mycigna.api.views.accounts import AccountsView, AccountsDashboardView
+ from mycigna.api.views.accounts import AccountsTransactionDetailsView
+ from mycigna.api.views.hcp import TaxonomyDataView, ProviderDetailsView
+ from mycigna.api.views.hcp import ProviderFacetsForProviderSearchView
+ from mycigna.api.views.tracker import TrackerPeriodsView
+ from mycigna.api.views.tracker import MedicalTrackersView
+ from mycigna.api.views.tracker import DentalTrackersView
+ from mycigna.api.views.tracker import MedicalTrackersViewV2
+ from mycigna.api.views.accounts import AccountsMultiView
+ from mycigna.api.views.accounts import AccountsClientFilteredView
+ from mycigna.api.views.accounts import AccountsMultiDashboardView
+ from mycigna.api.views.accounts import AccountsDashboardClientFilteredView
+ from mycigna.api.views.drugs import PharmacySearchByLocationView
+ from mycigna.api.views.drugs import DrugAlternativePricesView
+ from mycigna.api.views.drugs import MyDrugsView
+ from mycigna.api.views.drugs import DefaultFrequencyView
+ from mycigna.api.views.wallet import SyncContactView
+ from mycigna.api.views.drugs import DrugsListView, DrugsSearchView
+ from mycigna.api.views.drugs import DrugsListUpdateAllView, DrugDosagesView
+ from mycigna.api.views.drugs import DependentListView
+ 
+-from mycigna.api.views.internal_error_view import InternalErrorView
++from mycigna.api.views.debug import InternalErrorView, WarningView
+ 
+ 
+ wallet_api = Api(api_name='v1')
+ # Health Wallet Contact Resources
+ wallet_api.register(ContactResource())
+ wallet_api.register(AddressResource())
+ wallet_api.register(EmailAddressResource())
+ wallet_api.register(PhoneResource())
+ wallet_api.register(UniqueIndividualResource())
+ # Health Info Wallet Resources
+ wallet_api.register(AllergyResource())
+ wallet_api.register(HealthRiskResource())
+ wallet_api.register(HealthRiskHistoryResource())
+ wallet_api.register(ImmunizationResource())
+ wallet_api.register(ImmunizationDateResource())
+ wallet_api.register(MedicationResource())
+ wallet_api.register(OtherHealthInfoResource())
+ wallet_api.register(PrescriptionResource())
+ # Health Wallet Note Resources
+ wallet_api.register(ContactNoteResource())
+ wallet_api.register(AllergyNoteResource())
+ wallet_api.register(HealthRiskNoteResource())
+ wallet_api.register(ImmunizationNoteResource())
+ wallet_api.register(MedicationNoteResource())
+ wallet_api.register(OtherHealthInfoNoteResource())
+ wallet_api.register(PrescriptionNoteResource())
+ 
+ if settings.DEBUG is True:
+     api_debug = patterns('mycigna.api.views',
+             url(r'^internal_error/?$', InternalErrorView.as_view(),
+-                name='api_internal_error'))
++                name='api_internal_error'),
++            url(r'^warning/?$', WarningView.as_view(),
++                name='api_warning'),
++    )
+ else:
+     api_debug = patterns('',)
+ 
+ api_claims = patterns('mycigna.api.views',
+         url(r'^$', ClaimsView.as_view(), name='api_claims'),
+         url(r'^bookmark_groups/add/?$', AddClaimBookmarkGroupView.as_view(),
+                 name='api_add_claim_bookmark_group'),
+         url(r'^bookmark_groups/remove/?$',
+                 RemoveClaimBookmarkGroupView.as_view(),
+                 name='api_remove_claim_bookmark_group'),
+         url(r'^bookmark_groups/?$', ClaimBookmarkGroupView.as_view(),
+                 name='api_claim_bookmark_group'),
+         url(r'^bookmarks/add/?$', AddClaimBookmarkView.as_view(),
+                 name='api_add_claim_bookmark'),
+         url(r'^bookmarks/remove/?$', RemoveClaimBookmarkView.as_view(),
+                 name='api_remove_claim_bookmark'),
+         url(r'^bookmarks/?$', ClaimBookmarkView.as_view(),
+                 name='api_claim_bookmark'),
+         url(r'^bookmarks/count/?$', ClaimBookmarkCountView.as_view(),
+                 name='api_claim_bookmark_count'),
+         url(r'^overview/?$', ClaimsOverviewView.as_view(),
+                 name='api_claims_overview'),
+         url(r'^detail/?$', ClaimDetailView.as_view(), name='api_claim_detail'),
+     )
+ 
+ api_accounts = patterns('mycigna.api.views',
+     url(r'^$', AccountsView.as_view(), name='api_accounts'),
+     url(r'^multi/dashboard/?$', AccountsMultiDashboardView.as_view(),
+         name='api_accounts_multi_dashboard'),
+     url(r'^multi', AccountsMultiView.as_view(),
+         name='api_accounts_multi'),
+     url(r'^client_filter/dashboard?$',
+         AccountsDashboardClientFilteredView.as_view(),
+         name='api_accounts_client_dashboard_filter'),
+     url(r'^client_filter', AccountsClientFilteredView.as_view(),
+         name='api_accounts_client_filter'),
+     url(r'^dashboard/?$', AccountsDashboardView.as_view(),
+             name='api_accounts_dashboard'),
+     url(r'^transaction/?$', AccountsTransactionDetailsView.as_view(),
+             name='api_accounts_transaction_details'),
+ 
+ # commenting until we have resolution on how to handle claim payments
+ #        url(r'^claim/?$', 'accounts_claim_detail',
+ #                name='api_accounts_claim_detail'),
+     )
+ 
+ 
+ # TODO: Move the rest of the hcp_search urls here.
+ api_hcp_search = patterns('mycigna.api.hcp_search',
+     url(r'^taxonomies/?$', TaxonomyDataView.as_view(),
+             name='api_taxonomy_data'),
+     url(r'^provider/?$', ProviderDetailsView.as_view(),
+             name='api_provider_details'),
+     )
+ 
+ 
+ # Pre-Production versions 0.x
+ api_v_base = patterns('mycigna.api.views',
+         url(r'^_debug/', include(api_debug)),
+         url(r'^sync_contact/(?P<identity>\d*)/$',
+             csrf_exempt(SyncContactView.as_view()), name='api_sync_contact'),
+         url(r'^wallet/', include(wallet_api.urls)),
+         url(r'^accounts/', include(api_accounts)),
+         url(r'^claims/', include(api_claims)),
+         url(r'^id_cards/?$', IdCardsView.as_view(), name='api_id_cards'),
+         url(r'^_drugs_list_update_all/?$', DrugsListUpdateAllView.as_view(),
+         name='api_drugs_list_update_all'),
+         url(r'^drugs_list/?$', DrugsListView.as_view(), name='api_drugs_list'),
+         url(r'^drugs_search/?$', DrugsSearchView.as_view(),
+                 name='api_drugs_search'),
+         url(r'^drug_dosages/?$', DrugDosagesView.as_view(),
+                 name='api_drug_dosages'),
+         url(r'^pharmacy_dependents/?$', DependentListView.as_view(),
+                 name='api_dependent_list'),
+ 
+         url(r'^dashboard/?$', DashboardView.as_view(), name='api_dashboard'),
+         url(r'^my_drugs/?$', MyDrugsView.as_view(),
+                 name='api_my_drugs'),
+         url(r'^default_frequency/?$', DefaultFrequencyView.as_view(),
+                 name='api_default_frequency'),
+         url(r'^search_pharmacy_by_location/?$',
+             PharmacySearchByLocationView.as_view(),
+                 name='api_search_pharmacy_by_location'),
+         url(r'^drug_alternative_prices/?$',
+             DrugAlternativePricesView.as_view(),
+                 name='api_drug_alternative_prices'),
+         url(r'^user_agreement/?$', UserAgreementView.as_view(),
+                 name='api_user_agreement'),
+         url(r'^opinionlab_uri/create/?$', CreateOpinionLabUriView.as_view(),
+                 name='api_opinionlab'),
+         url(r'^provider_facets_for_provider_search/?$',
+                 ProviderFacetsForProviderSearchView.as_view(),
+                 name='api_provider_facets_for_provider_search'),
+         url(r'^providers/search_by_geocode_for_member/?$',
+                 ProviderSearchByGeocodeForMemberView.as_view(),
+                 name='api_provider_search_by_geocode_for_member'),
+         url(r'^providers/search_result/?$', ProviderSearchResultView.as_view(),
+                 name='api_provider_search_result'),
+         url(r'^trackers/dental/?$', DentalTrackersView.as_view(),
+                 name='api_dental_trackers'),
+         url(r'^accumulators/?$', AccumulatorsView.as_view(),
+                 name='api_accumulators'),
+         url(r'^tracker_periods/?$', TrackerPeriodsView.as_view(),
+                 name='api_tracker_periods'),
+         url(r'^radius_range/?$', RetrieveRadiusRangeView.as_view(),
+                 name='api_retrieve_radius_range'),
+         url(r'^profile/?$', ProfileView.as_view(), name='api_profile'),
+     ) + patterns('mycigna.api.hcp_search',
+             url(r'^providers/', include(api_hcp_search)))
+ 
+ api_v_2 = api_v_base + patterns('mycigna.api.views',
+         url(r'^trackers/medical/?$', MedicalTrackersView.as_view(),
+                 name='api_medical_accumulators'),
+    )
+ 
+ api_v_3 = api_v_base + patterns('mycigna.api.views',
+         url(r'^trackers/medical/?$', MedicalTrackersViewV2.as_view(),
+                 name='api_medical_trackers'),
+    )
+ 
+ urlpatterns = patterns('',
+ # Default / most recent API == major/minor of app version.
+ # Minor is fwd compatiple, therefor api 0.3 handles 0.1, 0.2, 0.3
+ # and we only need one (the latest) version of that API.
+ # Old major versions may be kept to support existing clients.
+         url(r'^0\.[2]/', include(api_v_2)),
+         url(r'^0\.[3]/', include(api_v_3)),
+     )
+Index: apps/mycigna/api/views/internal_error_view.py
+===================================================================
+--- apps/mycigna/api/views/internal_error_view.py	(.../trunk/Server)	(revision 17147)
++++ apps/mycigna/api/views/internal_error_view.py	(.../branches/Server/CIGNAINC-3793_simulate_claims_warnings)	(revision 17147)
+@@ -1,13 +0,0 @@
+-from django.http import HttpResponseServerError
+-
+-from mycigna.api.views import MyCignaView
+-
+-
+-class InternalErrorView(MyCignaView):
+-    """
+-    A view that always returns an actual HTTP 500 Internal Server Error to
+-    simulate a catastrophic failure of the MSP.
+-    """
+-    def dispatch(self, request, *args, **kwargs):
+-        return HttpResponseServerError(content='A server error occurred.  '
+-                'Please contact the administrator.', content_type='text/plain')
+Index: apps/mycigna/api/views/views.py
+===================================================================
+--- apps/mycigna/api/views/views.py	(.../trunk/Server)	(revision 17147)
++++ apps/mycigna/api/views/views.py	(.../branches/Server/CIGNAINC-3793_simulate_claims_warnings)	(revision 17147)
+@@ -19,527 +19,528 @@
+ from mycigna.api.forms import ClaimForm, ClaimOverviewForm
+ from mycigna.api.forms import ClaimByIdentifiersForm
+ from mycigna.http import HttpNotFound
+ from mycigna.models.profile import Profile
+ from mycigna.models.tracker import Tracker
+ from mycigna.models import Dashboard
+ from mycigna.models import ProfileManager, IdCardsManager
+ from mycigna.models.claim import Claim
+ from mycigna.utils import cigna_dn_by_sso_id
+ from mycigna.utils import metrics_log, string_to_boolean
+ mycigna_logger = logging.getLogger('mycigna.errors')
+ 
+ 
+ def _as_money(value):
+     """Convert a Decimal or float to a string formatted like currency.
+ 
+     :param decimal_value: Decimal
+     :return: a unicode string value formatted like %0.2f.
+     """
+     return u'%0.2f' % value
+ 
+ 
+ def _total_owed(claims):
+     """Returns a Decimal total of all money owed for a list of claim
+         objects."""
+     total_owed = Decimal('0')
+     for claim in claims:
+         if type(claim) == dict:
+             total_owed += Decimal(claim['owed'])
+         else:
+             total_owed += claim.owed
+     return total_owed
+ 
+ 
+ class MyCignaView(View):
+     """
+     Base view class for all mycigna app views.
+ 
+     This view is a subclass of ``django.view.generic.base.View`` that provides
+     four extra items of common functionality:
+ 
+     1.  Acquiring the requesting user's SSO ID and Profile from the HTTP
+         request headers received from WebSeal and provides them to subclasses
+         as properties of the view instance.
+     2.  Returning the same object type for the ``result`` field of a response
+         for both success and error responses to the same request.
+     3.  Traps all exceptions before reaching callers.
+     4.  Adds run time for API performance analytics.
+ 
+     **Class Attributes**
+ 
+     ``cigna_api_connector``
+         A ``callable`` that returns an instance of an object capable of
+         handling ESB requests.
+ 
+         Default: ``cigna.api.Metapocalypse``
+             See the ``cigna.api.Metapocalypse`` docstring for more information.
+ 
+     ``api``
+         The instance of the ``cigna_api_connector`` used to connect the given
+         ``MyCignaView`` instance to Cigna's backend API.  Should be set by
+         views that need it.
+ 
+         Default: ``None``
+ 
+     ``http_method_names``
+         A ``list`` of the HTTP methods the view supports.  Defaults to all
+         standard HTTP methods; override as needed per view.
+ 
+         Default: ``['get', 'post']``
+ 
+     ``profile_required``
+         A ``list`` of the HTTP method handlers provided by the view that
+         require a valid Cigna Profile, designated by lowercase HTTP method
+         name, similar to the ``http_method_names`` attribute.
+ 
+         Default: An empty ``list``
+ 
+     ``error_result``
+         The value for the result key of the MM Standard Response Format when
+         the response to the given request is an error response.  The type of
+         this value should match the type of object expected for success
+         responses, and should provide a reasonable representation of None for
+         that object type.  Examples: empty lists or dictionaries, 0, ''
+ 
+         Default: ``None``
+ 
+     To use this base class, views should override http_method_names and
+     error_result and implement handlers for each supported HTTP method (get for
+     GET, post for POST, etc).
+ 
+     Like any standard Django function or class-based view, the method handlers
+     should accept the request, *args, and **kwargs.  However, unlike typical
+     Django views, the method handlers should return a ``MyCignaResponse``
+     instead of a ``django.http.HttpResponse``, which will be serialized by
+     the view class's ``dispatch`` method.
+     """
+     cigna_api_connector = Metapocalypse
+     http_method_names = ['get', 'post']
+     profile_required = []
+     error_result = None
+     api = None
+ 
+     @property
+     def sso_id(self):
+         """
+         Returns the requesting user's SSO ID on the view instance, either from
+         headers provided by WebSeal, or from development debugging mechanisms.
+ 
+         The sso_id is cached on the view instance after the first access.
+ 
+         :raises ``cigna.api.CignaApi.AuthorizationFailure``
+         """
+         sso_id = getattr(self, '_sso_id', None)
+         if sso_id:
+             return sso_id
+         http_iv_user = self.request.META.get('HTTP_IV_USER_L', None)
+         if http_iv_user is None and getattr(
+                 settings, 'CIGNA_API_DEBUG', False):
+             http_iv_user = self.request.GET.get('HTTP_IV_USER_L', None)
+             if not http_iv_user:
+                 http_iv_user = cigna_dn_by_sso_id(
+                         self.request.REQUEST.get('SSO_ID', http_iv_user))
+         if not http_iv_user:
+             raise CignaApi.AuthorizationFailure('Authorization failure.')
+         self._sso_id = http_iv_user.lower()  # sso_id is case insensitive
+         return self._sso_id
+ 
+     @property
+     def profile(self):
+         """
+         Returns the requesting user's profile on the view instance, either via
+         the DB cache, or failing that, from Cigna's backend services. When
+         using this property if the profile data is loaded in cache it will
+         not be refreshed.  If you need to refresh the profile use the
+         get_profile function.
+ 
+         The Profile is cached on the view instance after the first access.
+ 
+         :raises ``mycigna.models.ProfileManager.NoProfileFound``
+         """
+         return self.get_profile(allow_cache_culling=False)
+ 
+     def get_profile(self, allow_cache_culling=False):
+         """
+         Returns the requesting user's profile on the view instance, either via
+         the DB cache, or failing that, from Cigna's backend services.
+ 
+         The Profile is cached on the view instance after the first access.
+ 
+         :param allow_cache_culling: Boolean [False]:  This will override if the
+         data in the profile is stale and will not refresh the profile cache.
+         This is needed because a child view (a view that depends on the
+         profile) should not be allowed to refresh the profile in the cache
+         unless it is specifically needed.  This protects against a user being
+         in mid session and a cache refresh of the profile taking place. Be
+         careful when you are using this function as the client may have keys
+         cached from the previous profile response and when it's refreshed new
+         keys will be assigned.  Currently the only view that should be able to
+         clear the cache is the ProfileView itself.
+ 
+         :raises ``mycigna.models.ProfileManager.NoProfileFound``
+         """
+         profile = getattr(self, '_profile', None)
+         if profile:
+             """
+             Even though profile is cached update the date_updated to signify
+             that it's currently in use.
+             """
+             profile.date_updated = datetime.datetime.now()
+             profile.save()
+             return profile
+ 
+         self._profile = Profile.manager.fetch(dn=self.sso_id,
+                 allow_cache_culling=allow_cache_culling)
+         if not self.debug:
+             self._profile.data.pop('debug_cigna_profile', None)
+         return self._profile
+ 
+     @property
+     def elapsed_time(self):
+         """
+         Returns the amount of time elapsed since the view was dispatched,
+         as a string.
+ 
+         Amount of time will be a string representation of zero if this
+         property is accessed outside of an HTTP method handler.
+         """
+         now = time.time()
+         start_time = getattr(self, 'start_time', now)
+         return u'%0.5f' % (now - start_time)
+ 
+     def get(self, request, *args, **kwargs):
+         """
+         Base handler for the HTTP GET method.
+ 
+         Since by default, most views inheriting from ``MyCignaView`` will
+         support both GET and POST, providing GET and POST handlers that call
+         each other means that most methods will only have to define one
+         HTTP method handler.
+ 
+         To require a child view to only accept either GET or POST, instead
+         of allowing both, the ``http_method_names`` mechanism should be used.
+         """
+         return self.post(request, *args, **kwargs)
+ 
+     def post(self, request, *args, **kwargs):
+         """
+         Base handler for the HTTP POST method.
+ 
+         Since by default, most views inheriting from ``MyCignaView`` will
+         support both GET and POST, providing GET and POST handlers that call
+         each other means that most methods will only have to define one
+         HTTP method handler.
+ 
+         To require a child view to only accept either GET or POST, instead
+         of allowing both, the ``http_method_names`` mechanism should be used.
+         """
+         return self.get(request, *args, **kwargs)
+ 
+     @method_decorator(csrf_exempt)
+     def dispatch(self, request, *args, **kwargs):
+         """
+         Override the standard ``django.view.generic.base.View.dispatch``
+         behavior to do the following:
+ 
+         1.  Attempt to retrieve any POST data as JSON, otherwise fall back to
+             deserializing POST data as urlformencoded data.
+         2.  Store extra state on the view instance.
+         3.  Trap all errors and return the appropriate ``MyCignaResponse``
+             to clients.
+ 
+         :param request: ``django.http.HttpRequest``
+         :param args: Arguments passed to the view through the urlconf
+         :param kwargs: Keyword arguments passed to the view through the urlconf
+         :returns: ``mycigna.MyCignaResponse``
+         """
+         self.start_time = time.time()
+         self.request = request
+         self.args = args
+         self.kwargs = kwargs
+ 
+         # Default to JSON POST data, but allow urlformencoded data unless the
+         # data is explicitly designated as JSON via an HTTP Content-type header
+         if request.method == 'PUT' or request.method == 'POST':
+             try:
+                 request.POST = simplejson.loads(request.body)
+             except JSONDecodeError:
+                 if 'application/json' in request.META.get('CONTENT_TYPE', ''):
+                     response = MyCignaResponse(result=self.error_result,
+                             error='Invalid JSON format.', code=1301,
+                             meta={'run_time': self.elapsed_time})
+                     return response.render_to_http_response()
+ 
+         self.fetch = string_to_boolean(request.REQUEST.get('fetch', ''))
+         self.debug = request.REQUEST.get('_debug', False)
+ 
+         http_method = request.method.lower()
+         try:
+             if http_method in self.profile_required:
+                 self.profile
+             if http_method in self.http_method_names:
+                 handler = getattr(self, http_method,
+                         self.http_method_not_allowed)
+             else:
+                 handler = self.http_method_not_allowed
+             response = handler(request, *args, **kwargs)
+         except CignaApi.AuthorizationFailure as e:
+             response = MyCignaResponse(result=self.error_result, error=e)
+         except ProfileManager.NoProfileFound as e:
+             metrics_log('profile_lookup_failure', request=request)
+             response = MyCignaResponse(result=self.error_result, error=e)
+         except CignaApi.ServiceFailure as e:
+             mycigna_logger.exception(e)
+             if isinstance(e.result, type(self.error_result)):
+                 response = e.as_mycignaresponse()
+             else:
+                 response = e.as_mycignaresponse(error_result=self.error_result)
+         except HttpNotFound as e:
+             response = MyCignaResponse(result=self.error_result, error=e)
+         except django_http.Http404 as e:
+             e.code = getattr(e, 'code', 1200)
+             e.status = getattr(e, 'status', 200)  # 404 Lame!!!
+             e.error = getattr(e, 'message', 'Not Found:  %s' % (
+                 str(e) or e.__class__.__name__,))
+             response = MyCignaResponse(result=self.error_result, error=e)
+         except (httplib.HTTPException, urllib2.URLError,
+                 urllib2.HTTPError) as e:
+             mycigna_logger.exception(e)
+             response = MyCignaResponse(result=self.error_result,
+                     code=100, status=200, error='Bad Gateway %s: %s' % (
+                         e.__class__.__name__, str(e)))
+         except Exception as e:
+             mycigna_logger.exception(e)
+             error = str(e)
+             if error.strip() == '':
+                 error = e.__class__.__name__
+             response = MyCignaResponse(result=self.error_result, error=error,
+                     description='Server Error: %s' % (error,))
+         response.meta['run_time'] = self.elapsed_time
+-        response.meta['warnings'] = list(getattr(self.api, 'warnings', set()))
++        response.meta['warnings'] = response.meta.get('warnings') or list(
++                getattr(self.api, 'warnings', set()))
+         return response.render_to_http_response()
+ 
+     def http_method_not_allowed(self, request, *args, **kwargs):
+         """
+         Override the ``django.views.generic.base.View.http_method_not_allowed``
+         behavior to return a ``MyCignaResponse`` instead of a
+         ``django.http.HttpResonseNotAllowed``.
+         """
+         allowed_methods = [m for m in self.http_method_names
+-                                                        if hasattr(self, m)]
++                if hasattr(self, m)]
+         error = 'Method Not Allowed (%s): %s.  Must be one of: %s.' % (
+                 request.method, request.path, allowed_methods)
+         return MyCignaResponse(result=self.error_result, error=error,
+                 code=1300, status=405)
+ 
+ 
+ class ProfileView(MyCignaView):
+     """
+     Profile API call.  This view returns the MyCignaResponse data in the
+     following structure
+     :result: a dict containing the profile data
+     :meta: A dict containing the following:
+         :last_update: indicates the last time the profile was updated.
+         :date_created: indicates the last time the profile was originally
+         created.
+     """
+     error_result = dict()
+     http_method_names = ['get']
+ 
+     def get(self, request, *args, **kwargs):
+         return MyCignaResponse(
+         result={
+                 'profile': self.get_profile(allow_cache_culling=True).data
+                 },
+         meta={
+               'last_update': format(self.profile.date_updated, 'U'),
+               'date_created': self.profile.date_created
+               }
+                                )
+ 
+ 
+ class UserAgreementView(MyCignaView):
+     """User Agreement API Call"""
+     error_result = dict()
+     profile_required = MyCignaView.http_method_names
+ 
+     def get(self, request, *args, **kwargs):
+         update_data = self.profile.update_user_agreement()
+         return MyCignaResponse(update_data)
+ 
+ 
+ class CreateOpinionLabUriView(MyCignaView):
+     """
+     OpinionLab API Call
+     This view returns the URI for the opinionlab call. It includes the
+     groupNumber, FirstName, LastName and role (subscriber|dependent) of
+     the logged in individual.
+     In case of error the base class will catch and throw an exception
+     so any error means the view has failed.  It is not important what
+     the exception was only that an exception has occurred.  The base class
+     will have all the details.
+     URI = custom_var=groupNumber%7CfirstName%7ClastName%7Crole
+     where %7C = pipe |
+     """
+     error_result = dict()
+     profile_required = MyCignaView.http_method_names
+ 
+     def get(self, request, *args, **kwargs):
+ 
+         #For the person who is logged in, get the groupNumber from
+         #the most recent active coverage.
+         individual = self.profile.individual
+         member_filters = {'source_system_location_code': 'CED'}
+ 
+         active_coverages = individual._get_most_recent_active_coverages(
+                                 member_filters=member_filters)
+ 
+         if active_coverages:
+             group_number = active_coverages[0].group_number
+         else:
+             group_number = ''
+ 
+         if individual.subscriber_detected:
+             role = "Subscriber"
+         else:
+             role = "Dependent"
+ 
+         ol_uri = "custom_var=" + group_number + "%7C" + \
+                     individual.first_name + "%7C" + \
+                     individual.last_name + "%7C" + \
+                     role + "%7C" + self.profile.sso_id
+         response = {'opinionlab_uri': ol_uri}
+ 
+         return MyCignaResponse(response)
+ 
+ 
+ class AccumulatorsView(MyCignaView):
+     http_method_names = ['get']
+     profile_required = http_method_names
+     error_result = dict()
+ 
+     def get(self, request, *args, **kwargs):
+         accumulator_data = Tracker.manager.get_medical_accumulator(
+                                                     self.profile, None, None)
+         return MyCignaResponse(accumulator_data)
+ 
+ 
+ class ClaimsView(MyCignaView):
+     """
+     API for claims summary of all stored claims for the current user's
+     Profile.
+     """
+     error_result = dict()
+     profile_required = MyCignaView.http_method_names
+ 
+     def get(self, request, *args, **kwargs):
+         metrics_log('claims_summary', request=request)
+         #TODO: 'debug' not implemented in Profile.search_claims
+         form = ClaimForm(request.GET)
+         if not form.is_valid():
+             metrics_log('claims_profile_form_failure', request=request)
+             return MyCignaResponse(result=self.error_result,
+                     error='Invalid Claims Query.', code=1103,
+                     status=200, meta=dict(errors=form.errors))
+         self.api = self.cigna_api_connector(default_response=dict,
+                 debug=self.debug, fetch=self.fetch, profile=self.profile)
+         claims = [claim.summary for claim in Claim.objects.search(
+                     self.profile, form.cleaned_data, fetch=self.fetch,
+                     api=self.api)]
+         results = {
+             'claims': claims,
+         }
+         meta = {
+             'claims_count': len(claims),
+         }
+         if request.GET.get('count_only', False):
+             del(results['claims'])
+         return MyCignaResponse(results, meta=meta)
+ 
+ 
+ class ClaimsOverviewView(MyCignaView):
+     """Provide claim overview using cached claims if available."""
+     error_result = dict()
+     profile_required = MyCignaView.http_method_names
+ 
+     def get(self, request, *args, **kwargs):
+         metrics_log('claim_overview', request=request)
+         form = ClaimOverviewForm(request.REQUEST)
+         if not form.is_valid():
+             return MyCignaResponse(result=self.error_result,
+                     error='Invalid claim overview interval.',
+                     code=1211, status=404, details=form.errors)
+         self.api = self.cigna_api_connector(default_response=dict,
+                 debug=self.debug, fetch=self.fetch, profile=self.profile)
+         return MyCignaResponse(Claim.objects.claim_overview(self.profile,
+             interval=form.cleaned_data['interval'], fetch=self.fetch,
+                 api=self.api))
+ 
+ 
+ class ClaimDetailView(MyCignaView):
+     """Claim detail lookup."""
+     error_result = dict()
+     profile_required = MyCignaView.http_method_names
+ 
+     def get(self, request, *args, **kwargs):
+         metrics_log('claim_detail_attempt', request=request)
+         data = {
+             'profile': self.profile.pk,
+             'claim_id': request.REQUEST.get('claim_id'),
+             'claim_system_code': request.REQUEST.get('claim_system_code'),
+             'subordinate_claim_number':
+                     request.REQUEST.get('subordinate_claim_number'),
+             'payment_number': request.REQUEST.get('payment_number'),
+         }
+         form = ClaimByIdentifiersForm(data)
+         if not form.is_valid():
+             metrics_log('claim_detail_form_failure', request=request)
+             return MyCignaResponse(result=self.error_result,
+                     error='Invalid Claim Detail Query.', code=1103,
+                     status=404, meta=dict(errors=form.errors))
+         try:
+             claim_details = form.cleaned_data['instance'].details
+         except Claim.InvalidClaimDetailFormat:
+             metrics_log('claim_detail_internal_error', request=request)
+             return MyCignaResponse(result=self.error_result,
+                     error='Unexpected Response from CIGNA Service',
+                     code=1400, status=200)
+         if not self.debug and '_debug' in claim_details:
+             del claim_details['_debug']
+         return MyCignaResponse(claim_details)
+ 
+ 
+ class DashboardView(MyCignaView):
+     """
+     Return a dashboard profile, if there is one.  If not, create a default.
+     Also, update all claims data.
+     """
+     error_result = dict()
+     profile_required = MyCignaView.http_method_names
+ 
+     def get(self, request, *args, **kwargs):
+         metrics_log('dashboard', request=request)
+         dashboard, created = Dashboard.objects.get_or_create(
+                 profile=self.profile)
+         return MyCignaResponse(dashboard.json_config)
+ 
+ 
+ class IdCardsView(MyCignaView):
+     """
+     View to get data for all available ID Cards that are viewable for the
+     logged in user/profile.  This includes all cards for all dependent family
+     members.
+     """
+     error_result = list()
+     profile_required = MyCignaView.http_method_names
+ 
+     def get(self, request, *args, **kwargs):
+         self.api = self.cigna_api_connector(default_response=list,
+                 debug=self.debug, fetch=self.fetch, profile=self.profile)
+         try:
+             self.api.wrap(self.profile.all_id_cards)
+             return self.api.as_mycignaresponse(error_result=self.error_result)
+         except IdCardsManager.NoIdCardFound:
+             metrics_log('id_cards_not_found', request=request)
+             return MyCignaResponse(result=self.error_result,
+                     error='No id cards found.', code=1104, status=200)
+Index: apps/mycigna/api/views/debug.py
+===================================================================
+--- apps/mycigna/api/views/debug.py	(.../trunk/Server)	(revision 0)
++++ apps/mycigna/api/views/debug.py	(.../branches/Server/CIGNAINC-3793_simulate_claims_warnings)	(revision 17147)
+@@ -0,0 +1,97 @@
++from collections import namedtuple
++
++from django.http import HttpResponseServerError
++
++from mycigna import MyCignaResponse
++from mycigna.api.views import MyCignaView
++
++
++class InternalErrorView(MyCignaView):
++    """
++    A view that always returns an actual HTTP 500 Internal Server Error to
++    simulate a catastrophic failure of the MSP.
++    """
++    def dispatch(self, request, *args, **kwargs):
++        return HttpResponseServerError(content='A server error occurred.  '
++                'Please contact the administrator.', content_type='text/plain')
++
++
++# WarningResponse is a ``namedtuple`` that provides convenient creation of a
++# set of values that form a simulated Warning response from the MSP.
++#
++# ``code``
++#   The Warning code to return in the response
++#   Type: ``str`` containing a postive, three-digit integer
++#
++# ``description``
++#   The Warning description to return in the response
++#   Type: ``str``
++#
++# ``result``
++#   What to return in the 'result' key of the response.
++#   Type: Any
++WarningResponse = namedtuple('WarningResponse', ['code', 'description',
++        'result'])
++
++
++class WarningView(MyCignaView):
++    """
++    A view that always returns a ``cigna.api.MyCignaWarning`` based on the
++    warning code it receives.
++
++    **Class Attributes:**
++
++    ``response_by_warning_code``
++        A ``dict`` of ``WarningResponse`` namedtuples keyed on the warning code
++        for the desired warning response sent in the request.
++
++        New keys and corresponding ``WarningResponse`` tuples can be added to
++        extend this view to return any desired warning.
++
++        Type: ``dict`` of ``WarningResponse`` ``namedtuples``
++    """
++    response_by_warning_code = {
++        '011': WarningResponse(
++            code='011',
++            description='At least a partial Medical Claims Summary backend '
++                'service failure occurred.',
++            result={'claims': []},
++        ),
++        '012': WarningResponse(
++            code='012',
++            description='At least a partial Dental Claims Summary backend '
++                'service failure occurred.',
++            result={'claims': []},
++        ),
++        '013': WarningResponse(
++            code='013',
++            description='At least a partial Pharmacy Claims Summary backend '
++                'service failure occurred.',
++            result={'claims': []},
++        ),
++        '021': WarningResponse(
++            code='021',
++            description='More Medical claims were found than the backend '
++                'service is allowed to return.',
++            result={'claims': []},
++        ),
++        '022': WarningResponse(
++            code='022',
++            description='More Dental claims were found than the backend '
++                'service is allowed to return.',
++            result={'claims': []},
++        ),
++        '023': WarningResponse(
++            code='023',
++            description='More Pharmacy claims were found than the backend '
++                'service is allowed to return.',
++            result={'claims': []},
++        ),
++    }
++    http_method_names = ['get']
++
++    def get(self, request, *args, **kwargs):
++        code, description, result = self.response_by_warning_code[request.GET[
++            'warning_code']]
++        return MyCignaResponse(result=result, meta={'warnings': [{
++            'code': code, 'description': description}]})
+Index: CHANGES
+===================================================================
+--- CHANGES	(.../trunk/Server)	(revision 17147)
++++ CHANGES	(.../branches/Server/CIGNAINC-3793_simulate_claims_warnings)	(revision 17147)
+@@ -1,303 +1,304 @@
+ 0.3.8 (2012/12/DD)
+ ------------------
+ Tasks-
++- CIGNAINC-3793 - Simulate all the Claims Warnings responses under the _debug URI heirarchy
+ 
+ Cigna Bugs-
+ 
+ MM Bugs-
+ 
+ 
+ 0.3.7 (2012/12/10)
+ ------------------
+ Tasks-
+ - CIGNAINC-3810 - Temporarily add other_insurance_paid to dental claim amounts for each claim service line
+ - CIGNAINC-3809 - Temporarily add other_insurance_paid to medical claim service
+ amounts for each claim service line
+ 
+ Cigna Bugs-
+ - MCM-1478 - Prod DCA account not displaying on devices
+ - MCM-1480 - Stop caching on transaction fail.
+ - MCM-1480 - Issue with account passing the correct account information when someone has multiple source system identifiers.
+ - MCM-1480 - Fixed issue where is_subscriber flage on the reimbursement coverage wasn't being checked.
+ 
+ MM Bugs-
+ - CIGNAINC-3808 - Dental Claim Summary ESB Search Coverage Dates
+ - CIGNAINC-3796 - Fix the default Claims Summary from_date
+ 
+ COG Bugs-
+ 
+ 0.3.6 (2012/12/06)
+ ------------------
+ Tasks-
+ - CIGNAINC-3777 - Improve docs and tests that prove subscribers can create Health Info entries for dependants.
+ 
+ Cigna Bugs-
+ - MCM-807  - New service that implements facet functionality to determine provider search tabs to display.
+ - MCM-1425 - Support for PharmacyByName search_type in the provider search service.
+ - MCM-1462 - Remove PMT OVER transactions from starting balance calculation
+ 
+ MM Bugs-
+ - CIGNAINC-3797 - <MCM-1465> Claims search displaying Incorrect or No claims
+ - CIGNAINC-3759 - <MCM-1379> Claims - Amount(s) Paid in Full by Plan displayed as Not Covered
+ 
+ COG Bugs-
+ 
+ 
+ 0.3.5 (2012/12/01)
+ ------------------
+ Tasks-
+ - CIGNAINC-3771 - Temporarily (?) change Dental Claim status field from customerFacingStatusDescription to externalClaimStatus, and convert "not_paid" status values to "denied"
+ - CIGNAINC-3685 - Improved ``cigna.api.Metapocalypse`` documentation in its class dostring and in methods that use it
+ - CIGNAINC-3752 - Removed sensitive information from warnings sent to device clients, and started logging that sensitive information on the server instead.
+ 
+ Cigna Bugs-
+ - MCM-1419 - adding procedures to the provider search response.
+ - MCM-1372_Add_error_message_to_response - added Data not founds instead of returning empty dicts
+ - MCM-1418_HSA_warning - add different messages for failure, DNF and account not setup
+ - MCM-1428_HSA_message refactor - changed to use existing InvocationOutcome class
+ 
+ MM Bugs-
+ - CIGNAINC-3756 - Provider Credentials Not Showing in Upper Case
+ - CIGNAINC-3747 - fix service descriptions for PMHS claims
+ - CIGNAINC-3594 - added a test that confirms this bug is invalid and added a framework for testing issues that arise in environments for which Mutual Mobile does not have access
+ - CIGNAINC-3544 - convert all undocumented Claim status values from ESB responses, including the former "Received" status, into "In-Progress"
+ - CIGNAINC-3782 - fixed a known and an unknown bug and added tests to Profile.all_id_cards
+ 
+ COG Bugs-
+ - MCM-1098 - Dependent Results does Not Display
+ 
+ 
+ 0.3.4 (2012/11/20)
+ ------------------
+ Tasks-
+ 
+ Cigna Bugs-
+ - MCM-1281_Add_LoginId_To_OL_Uri - Added sso id to the opinion lab uri.
+ 
+ MM Bugs-
+ - CIGNAINC-3613_family_order - profile family order should match FS
+ 
+ COG Bugs-
+ - MCM - 1210 - Check for duplicate removal implemented and added sorting for alternatives.
+ - MCM - 1125 - Added dosage and quantity elements to drug prices response.
+ - MCM-1132 Generic drug, lower cost alternatives and other alternatives sorted in to separate arrays
+ - MCM-1083 Order of you selected , generic , lower cost alternatives will be updated along with this changes
+ 
+ 0.3.3 (2012/11/16)
+ ------------------
+ Tasks-
+ - CIGNAINC-2395 - Decorator for tests that integrate with ESB.
+ - CIGNAINC-3697 - Create debug view that always returns an internal server error.
+ 
+ Cigna Bugs-
+ - MCM-50 - Changing the sort order for O/N types.
+ - MCM-1271 - Change CMS URI to use only client number
+ - MCM-1250 - Client Account Number not returning from latest MSP build
+ 
+ MM Bugs-
+ 
+ COG Bugs-
+ 
+ 0.3.2 (2012/11/15)
+ ------------------
+ Tasks-
+ - CIGNAINC-3587 - return warnings to distinguish ESB failure from data not found
+ 
+ Cigna Bugs-
+ - MCM-698 - For medical embedded with pharmacy, card name should be displayed as 'Medical/Rx' but it is displaying as Medical
+ - MCM-699 - For medical embedded with pharmacy, card name should be displayed as 'Medical/Rx' but it is displaying as Medical
+ - MCM-627 - Dental - First Name under mini card should be displayed in Camel case but it is displaying in Upper case
+ - MCM-1102 - ID Card parsing error removed id card extension attribute as it was causing an error characters being parsed to an int
+ - MCM-1179 - Group number not matching HSA coverage - saving bad account responses
+ - MCM-1033 - ftrmbl-mobile entitlement drives access to app.  if absent, means access to app is blocked. 1107 returned.
+ - MCM-1174 - cms_uri attribute formatting changed.
+ - MCM-1215 - fixed get most active recent coverage date selection logic to sort by the cancel date before the effective date and added the policy source system identifier as a tie breaker.
+ 
+ MM Bugs-
+ - CIGNAINC-3179 - return individual_id instead of pid
+ - CIGNAINC-3652 - don't cache when maximum results exceeded ESB warning occurs
+ - CIGNAINC-3644 - restrict claims by feature entitlements
+ - CIGNAINC-3606 - parse Medical and Dental Claim Details ESB responses without received dates
+ - CIGNAINC-3630 - replace "PHMS" with "PMHS" for all code and documentation
+ 
+ COG Bugs-
+ - MCM-1082 - 90 Days supply cost is added to the alternative price response.
+ - MCM-1126 - plan pays and I save values are slightly different from portal values.
+ - MCM-1133 - Removed the lower cost alternatives limit of 5
+ - MCM-1170 - phoneNumber is not a required key in search pharmacy response
+ - MCM-1169 - phoneNumber is not a required key in search pharmacy response
+ 
+ 0.3.1 (2012/11/09)
+ ------------------
+ Tasks-
+ - CIGNAINC-3463 - sort out ESB specialty taxonomy dental parsing tests
+ - CIGNAINC-3579 - fix for contact sync CSRF issue
+ - CIGNAINC-3565 - allow searching by individual of Health Wallet items besides Contacts
+ - CIGNAINC-3525 - reimplementation of Contact synchronization
+ - CIGNAINC-3507 - UniqueIndividual Resource
+ - CIGNAINC-3548 - allow wallet searches by unique individual id
+ 
+ Cigna Bugs-
+ - MCM-821 - Hook email preferences to create profile
+ - MCM-831 - Total of withdrawals not matching portal
+ - MCM-863 - client_account_number no longer coming back
+ - MCM-795 - IOS and Android balances incorrect
+ - MCM-1008 - Use Transactions to calculate starting balance for dashboard
+ - MCM-787 - IOS and Android credits not getting added
+ - MCM-1085 - Total Accounts balance incorrect with when HSA present.
+ - MCM-918 - Fixed the sorting order for the family in trackers
+ 
+ MM Bugs-
+ - CIGNAINC-3571 - reintroduce support for personName provider names
+ - CIGNAINC-3584 - duplicate of CIGNAINC-3571
+ - CIGNAINC-3463 - sort out ESB specialty taxonomy dental parsing tests
+ - CIGNAINC-3582 - fix more edge cases when linking pharmacy coverages to the memberId field of Pharmacy Claims ESB responses.
+ - CIGNAINC-3559 - return dental claim details currency values as strings
+ - CIGNAINC-3563 - fix pharmacy claim summary parsing when the associated subscriber and dependent coverage for the same period have different cancellation dates
+ 
+ COG Bugs-
+ - MCM-1019 - DRX prices Home Delivery options for 90 days as opposed to 30 days.
+ 
+ 0.3.0 (2012/11/02)
+ ------------------
+ Tasks-
+ - CIGNAINC-3489 - pharmacy claims need better test coverage
+ 
+ Cigna Bugs-
+ 
+ MM Bugs-
+ - CIGNAINC-3551 - fix broken Pharmacy Claims caching and improve Claims invocation outcome handling
+ - CIGNAINC-3502 - fix pharmacy claims ESB invocation logic
+ - CIGNAINC-3497 - fix pharmacy claims bugs
+ - CIGNAINC-3550 - filter overview claims by profile
+ - CIGNAINC-3514 - remove nullable CharFields
+ - CIGNAINC-3546 - add HIPAA restrictions to medical claims
+ - MCM-772 - accounts multiple src sys id
+ 
+ COG Bugs-
+ - MCM-931 - Drug Quote Tool pharmacy field is not required to get alternative prices
+ - MCM-966 - Couple of MSP bugs made it in there.  Par for course - Shove it, dig deeper, cover it up good.
+ 
+ 
+ 0.2.9 (2012/10/31)
+ ------------------
+ Tasks-
+ - MCM-891 - Drug quote tool, added single form to validate alternative price form, organized the functions inside drug_quote_tool
+ - MCM-839 - Fixed Data not found condition for termed members in the call to LocateCoverageDetails.
+ - CIGNAINC-3539 - add UniqueIndividual ids to the profile response
+ - CIGNAINC-3538 - additional tests and documentation for Health Wallet
+ 
+ Cigna Bugs-
+ 
+ MM Bugs-
+ 
+ 
+ 0.2.8 (2012/10/26)
+ ------------------
+ Tasks-
+ - CIGNAINC-1499 - improve middleware tests
+ - CIGNAINC-3535 - fix bleeding tests
+ - CIGNAINC-3403 - added ability to update Contact from HCP Directory
+ - CIGNAINC-3522 - separated Individual, Member, Coverage, and ClientGroup class into files to resolve circular dependencies
+ - CIGNAINC-3530 - add email address list to Contact Resource
+ - CIGNAINC-2985 - Update Dental Claims support
+ - CIGNAINC-2988 - Dental Claims Summary
+ - CIGNAINC-2989 - Dental Claim Details
+ - CIGNAINC-3499 - Use a Django form to validate input to the Claim Details view
+ - CIGNAINC-2987 - Update Dental Claim Details documentation
+ - CIGNAINC-3496 - Unify the external and internal APIs for all Claim types
+ - CIGNAINC-3358 - Implement changes to existing dental functionality
+ - CIGNAINC-3400 - Add Notes to Wallet Entries
+ 
+ Cigna Bugs-
+ - MCM-885 - Initial integration of drug quote tool api's phase 1
+ - MCM-868 - MSP CMS profile Integration
+ - MCM-763 - In trackers screen last name is displaying instead of first name under individual family member photo icon
+ - MCM-631 - Fixed temporary id card keys request to the ESB to take in a new field ssoid.
+ - MCM-821 - Add in call to update email preferences for email optin on registration.
+ - MCM-879 - Added client metadata service api.
+ - MCM-839 - Fixed Data not found condition for termed members in the call to LocateCoverageDetails.
+ 
+ MM Bugs-
+ 
+ 
+ 0.2.7 (2012/10/19)
+ ------------------
+ Tasks-
+ - CIGNAINC-2969 - Health Wallet Info models and API
+ - CIGNAINC-2986 - Update client API documentation for Claims Summary
+ - CIGNAINC-3398 - Initial Wallet Copy on Dismemberment Detection
+ - MCM-720 HSA accounts -- added the transactions
+ 
+ Cigna Bugs-
+ - MCM-720 HSA accounts -- defect to handle account/dashboard call when there are no reimbursement coverages for the user
+ 
+ MM Bugs-
+ 
+ 
+ 0.2.6 (2012/10/15)
+ ------------------
+ Tasks-
+ - CIGNAINC-3484 - subscriber's view of dependent's wallet
+ - CIGNAINC-3505 - plan_cost is not getting returned in Pharmacy Claim Summary
+ responses
+ - CIGNAINC-3500 - Remove obsolete features of Claims Summary API
+ - CIGNAINC-3498 - Make PharmacyClaimManager.retrieve_claims_for_date_range return True
+ when no claims exist for the given coverage
+ - CIGNAINC-3491 - Claim Bookmarks API doesn't work with Pharmacy Claims
+ - MCM-761 - Fixed bug with fetch=True for development on child views was inserting
+ 			the profile into db before removing it first.
+ 
+ Cigna Bugs-
+ 
+ MM Bugs-
+ 
+ 
+ 0.2.5 (2012/10/12)
+ ------------------
+ Tasks-
+ - CIGNAINC-3399 - View of the unique family individuals
+ - CIGNAINC-2975 - added views for Health Wallet Contacts
+ 
+ *** NOTE: the tastypie package included in the repository must be installed
+ before deploying this release.  It's installed the same way as the other
+ included packages (mm_core and mm_django).  The build scripts have been updated
+ with his package. ***
+ 
+ - CIGNAINC-2973 - added models for Health Wallet Contacts
+ - CIGNAINC-2995 - Implement pharmacy claims.
+ - MCM-728 - Fixed dental trackers request to the ESB and re-organized trackers code.
+ - MCM-697 - HSA accounts - balances only at this point - reorganized profile code ( moved account stuff )
+ Cigna Bugs-
+ 
+ MM Bugs-
+ - CIGNAINC-3461 - Fix exclude efficiency rating for HCP search
+ 
+ 
+ 0.2.4 (2012/10/10)
+ ------------------
+ Tasks-
+ - MCM-700 - Logging_updates
+ 
+ Cigna Bugs-
+ - MCM-701 - Dental_id_cards_office_name_phone
+ - MCM-505 - Specialty Taxonomy Dental
+ - MCM-719 - Fixed id cards to call a new intermediary service and modified the ESB request because of
+             changes to Cigna's services.
+ - MCM-685 - Fixed an issue where parent views could potentially refresh the cache of the profile which
+ 			could cause keys to change.
+ - MCM-496/MCM-499 - Added Dental trackers, Medical trackers and tracker periods service.
+ 
+ MM Bugs-
+ 
+ 
+ 0.2.3 (2012/10/05) (not delivered, reverted out of svn)
+ -------------------------------------------------------
+ Tasks-
+ - CIGNAINC-2990 - Convert Profile and Individual to m2m
+ 
+ Cigna Bugs-
+ 
+ MM Bugs-
+ 
+ 
+
+Property changes on: .
+___________________________________________________________________
+Modified: svn:mergeinfo
+   Merged /trunk/Server:r16877-17143
+
