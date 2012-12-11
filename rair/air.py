@@ -18,6 +18,7 @@ from sh import git
 #
 from subversion import Subversion
 from atlassian_jira import Jira
+from crucible import Crucible
 
 
 class MergeException(Exception):

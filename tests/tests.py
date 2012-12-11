@@ -101,6 +101,18 @@ def get_jira_pass():
     with open('./.pass', 'r') as pfile:
         return pfile.readline().rstrip()
 
+class TestCrucible(unittest.TestCase):
+
+    def setUp(self):
+        # mock the configuration file:
+        self.config = ConfigObj('./tests/config')
+        self.config['jira']['password'] = get_jira_pass()
+        self.crucible = air.Crucible(self.config['jira'])
+
+    def test_create_review(self):
+        self.crucible.create_review(['ethan.sherman'])
+        from ipdb import set_trace; set_trace()
+
 
 class TestMakeBranch(unittest.TestCase):
 

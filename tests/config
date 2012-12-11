@@ -1,6 +1,7 @@
 [jira]
     username = daniel.craigmile
     project = MMSANDBOX
+    crucible_key = CR-MYCIGNA
     server = https://mutualmobile.jira.com
     [[list]]
         filter = 'assigned to me'
