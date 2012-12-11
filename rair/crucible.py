@@ -7,6 +7,10 @@ class SendRequestException(Exception):
 
 
 class Review(object):
+    '''
+    Represents a crucible review -- an object of this class is returned by the
+    'create_review' method from the Crucible class.
+    '''
 
     def __init__(self, crucible, review_id):
         self.crucible = crucible
@@ -46,7 +50,7 @@ class Review(object):
         auth, headers = self.crucible._setup_auth_n_headers()
         patch_data = {'patch': data}
         response_data = self.crucible._send_request('post',
-                self.crucible.uri_patch, auth=auth,
+                self.uri_patch, auth=auth,
                 headers=headers, data=patch_data)
         return response_data
 

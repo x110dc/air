@@ -101,6 +101,7 @@ def get_jira_pass():
     with open('./.pass', 'r') as pfile:
         return pfile.readline().rstrip()
 
+
 class TestCrucible(unittest.TestCase):
 
     def setUp(self):
@@ -108,6 +109,7 @@ class TestCrucible(unittest.TestCase):
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
         self.crucible = air.Crucible(self.config['jira'])
+        self.diff = open('./tests/diff.txt').read()
 
     def tearDown(self):
         if self.review:
@@ -115,9 +117,12 @@ class TestCrucible(unittest.TestCase):
 
     def test_create_review(self):
         self.review = self.crucible.create_review(['jon.oelfke'])
-        print self.review.uri_frontend
+        self.assertTrue(self.review)
+        response = self.review.add_patch(self.diff)
+        self.assertTrue(response)
 
-
+# import webbrowser
+# webbrowser.open_new_tab(self.review.uri_frontend)
 
 class TestMakeBranch(unittest.TestCase):
 
