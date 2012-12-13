@@ -228,7 +228,7 @@ class TestCloseBug(unittest.TestCase):
         self.bug = self.jira.create_issue(self.summary, self.summary)
 
     def test_close_bug(self):
-        sys.argv = ['bogus', 'close_ticket', '-t', self.bug]
+        sys.argv = ['bogus', 'close_ticket', '-t', self.bug.key]
         d = air.Dispatcher(self.config)
         out = StringIO()
         d.go(out=out)
@@ -244,13 +244,13 @@ class TestCloseTask(unittest.TestCase):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
-        self.summary = "test bug to close"
+        self.summary = "test issue to close"
         self.jira = air.Jira(self.config['jira'])
         self.issue = self.jira.create_issue(self.summary, self.summary,
                 kind="Task")
 
     def test_close_task(self):
-        sys.argv = ['bogus', 'close_ticket', '-t', self.issue]
+        sys.argv = ['bogus', 'close_ticket', '-t', self.issue.key]
         d = air.Dispatcher(self.config)
         out = StringIO()
         d.go(out=out)
@@ -266,10 +266,14 @@ class TestJira(unittest.TestCase):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
+        self.bug = None
+        self.task = None
 
     def tearDown(self):
         self.jira = air.Jira(self.config['jira'])
-        self.jira.transition_issue(self.issue, status='Resolve Issue')
+        for x in [self.bug, self.task]:
+            if x is not None:
+                self.jira.delete_issue(x)
 
     def test_create_bug(self):
         sys.argv = ['bogus', 'create_bug', "this is a test bug"]
@@ -278,7 +282,7 @@ class TestJira(unittest.TestCase):
         d.go(out=out)
         actual = out.getvalue().strip()
         match = re.search('MMSANDBOX-\d*', actual)
-        self.issue = match.group()
+        self.bug = match.group()
         self.assertRegexpMatches(actual, 'bug created: MMSANDBOX-\d*')
 
     def test_create_task(self):
@@ -288,7 +292,7 @@ class TestJira(unittest.TestCase):
         d.go(out=out)
         actual = out.getvalue().strip()
         match = re.search('MMSANDBOX-\d*', actual)
-        self.issue = match.group()
+        self.task = match.group()
         self.assertRegexpMatches(actual, 'task created: MMSANDBOX-\d*')
 
 
@@ -297,9 +301,12 @@ class TestCloseJiraIssue(unittest.TestCase):
     def setUp(self):
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
-        self.summary = "test bug"
+        self.summary = "test bug for closing issue"
         self.jira = air.Jira(self.config['jira'])
         self.bug = self.jira.create_issue(self.summary, self.summary)
+
+    def tearDown(self):
+        self.bug.delete()
 
     def test_transition_issue(self):
         '''
@@ -335,12 +342,12 @@ class TestListIssues(unittest.TestCase):
         # create a bug (in setUp) and then make the JQL query just search for
         # that bug; then we're relatively confident we're using the JQL
         self.jira.config['list']['jql'] = \
-                'assignee=currentUser() AND issue={}'.format(self.bug)
+                'assignee=currentUser() AND issue={}'.format(self.bug.key)
         issues = self.jira.list_issues()
         # there should only be one issue:
         self.assertEqual(1, len(issues))
         issue = issues[0]
-        expected = self.bug
+        expected = self.bug.key
         actual = issue.key
         # and it should be the one we just created:
         self.assertEqual(expected, actual)
@@ -366,7 +373,7 @@ class TestAddComment(unittest.TestCase):
         self.jira.transition_issue(self.bug, status='Resolve Issue')
 
     def test_add_comment(self):
-        sys.argv = ['bogus', 'add_comment', '-t', self.bug, "this", "is", "a",
+        sys.argv = ['bogus', 'add_comment', '-t', self.bug.key, "this", "is", "a",
                 "test", "comment"]
         d = air.Dispatcher(self.config)
         out = StringIO()
@@ -422,14 +429,10 @@ class TestFinishWork(unittest.TestCase):
         self.jira.transition_issue(self.bug, status='Start Progress')
 
     def tearDown(self):
-        pass
-        # MMSANDBOX doesn't have the same workflow defined so I can't
-        # transition it the same way
-        #self.jira.transition_issue(self.bug, status='Review Passed')
-        #self.jira.transition_issue(self.bug, status='Resolve Issue')
+        self.bug.delete()
 
     def test_finish_work(self):
-        sys.argv = ['bogus', 'finish_work', '-t', self.bug]
+        sys.argv = ['bogus', 'finish_work', '-t', self.bug.key]
         d = air.Dispatcher(self.config)
         out = StringIO()
         actual = d.go(out=out)
@@ -457,11 +460,10 @@ class TestStartWork(unittest.TestCase):
         self.config['svn']['trunk_url'] = self.repo_url + '/trunk'
 
     def tearDown(self):
-        self.jira.transition_issue(self.bug, status='Stop Progress')
-        self.jira.transition_issue(self.bug, status='Resolve Issue')
+        self.bug.delete()
 
     def test_start_work(self):
-        sys.argv = ['bogus', 'start_work', '-t', self.bug]
+        sys.argv = ['bogus', 'start_work', '-t', self.bug.key]
         d = air.Dispatcher(self.config)
         out = StringIO()
         actual = d.go(out=out)

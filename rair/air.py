@@ -223,7 +223,7 @@ class Commands(object):
 
         bug = self.jira.create_issue(summary, summary)
 
-        out.write('bug created: {}\n'.format(bug))
+        out.write('bug created: {}\n'.format(bug.key))
 
     def create_task(self, arger, args, out=sys.stdout):
         '''
@@ -237,7 +237,7 @@ class Commands(object):
 
         bug = self.jira.create_issue(summary, summary, kind="Task")
 
-        out.write('task created: {}\n'.format(bug))
+        out.write('task created: {}\n'.format(bug.key))
 
     def close_ticket(self, arger, args, out=sys.stdout):
         '''

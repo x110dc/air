@@ -2,6 +2,7 @@
 
 # installed:
 from jira.client import JIRA
+from jira.resources import Issue
 
 
 class InvalidJiraStatusException(Exception):
@@ -56,18 +57,17 @@ class Jira(object):
             assignee={'name': self.config['username']},
             issuetype={'name': kind})
 
-        return new_issue.key
+        return new_issue
 
     def transition_issue(self, ticket, status='Resolve Issue'):
 
-        # find ID for status:
         issue = self.get_issue(ticket)
         transitions = self.server.transitions(issue)
         transition_names = [x['name'] for x in transitions]
         if status not in transition_names:
             raise InvalidJiraStatusException(
-            '\'{}\' is not a valid status for this Jira issue. \
-            Valid transitions: {}'.format(status, ', '.join(transition_names)))
+            '\n\'{}\' is not a valid status for this Jira issue. \
+            \nValid transitions: {}'.format(status, ', '.join(transition_names)))
         _id = [x['id'] for x in transitions if x['name'] == status][0]
         # transition it:
         self.server.transition_issue(issue, _id)
@@ -157,4 +157,7 @@ class Jira(object):
         '''
         Given an issue name, returns a Jira instance of that issue.
         '''
+        if isinstance(ticket, Issue):
+            ticket = ticket.key
+
         return self.server.issue('{}'.format(ticket))
