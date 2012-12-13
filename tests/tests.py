@@ -153,7 +153,7 @@ class TestMakeBranch(unittest.TestCase):
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
 
-        self.summary = "test bug"
+        self.summary = "test bug for making branch"
         self.jira = air.Jira(self.config['jira'])
         self.bug = self.jira.create_issue(self.summary, self.summary)
         self.cmd = air.Commands(self.config)
@@ -164,15 +164,15 @@ class TestMakeBranch(unittest.TestCase):
         self.config['svn']['trunk_url'] = self.repo_url + '/trunk'
 
     def tearDown(self):
-        self.jira.transition_issue(self.bug, status='Resolve Issue')
+        self.bug.delete()
 
     def test_make_branch(self):
-        sys.argv = ['bogus', 'make_branch', '-t', self.bug]
+        sys.argv = ['bogus', 'make_branch', '-t', self.bug.key]
         d = air.Dispatcher(self.config)
         out = StringIO()
         d.go(out=out)
         # now that branch should exist in the list of branches:
-        branch_name = '{}_{}'.format(self.bug, self.summary.replace(' ', '_'))
+        branch_name = '{}_{}'.format(self.bug.key, self.summary.replace(' ', '_'))
         self.assertIn(branch_name, self.cmd.svn.get_branches())
 
 
@@ -202,6 +202,10 @@ class TestSvn(unittest.TestCase):
         expected = [u'foo-branch', u'new-branch']
         actual = self.cmd.svn.get_branches()
         self.assertEqual(expected, actual)
+
+    def test_diff(self):
+        diff = self.cmd.svn.diff('new-branch')
+        self.assertRegexpMatches(diff, '-123')
 
 
 class TestRefresh(unittest.TestCase):
