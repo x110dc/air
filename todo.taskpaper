@@ -33,6 +33,7 @@ TODO:
 - test lack of jql in config
 - test jira assign_issue method
 - should finish do something to/with CHANGES?
+- test lack of filterdiff (diff output has info about properties)
 - tests for closing issues that are in different states
 - clean up SVN test repos via tearDown?
 - urllib2 quote the URL before posting to Jira
@@ -61,6 +62,11 @@ TODO:
 - check task: do a clean checkout and run tests?
 - task: log time spent on issue?
 - task: log time on issue automatically?
+
+Known Issues:
+- completion values are cached only once and then reused so they can become out
+  of date -- this likely is only a minor problem for persons and commands, but
+  a bigger issue for tickets
 
 caveats: 
 - uses same text for summary and description of new Jira issues
