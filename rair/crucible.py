@@ -27,9 +27,27 @@ class Review(object):
             self.review_id, 'transition?action=action:abandonReview'])
 
     @property
+    def uri_start(self):
+        return '/'.join([self.crucible.uri_api_base, 'reviews-v1',
+            self.review_id, 'transition?action=action:approveReview'])
+
+    @property
+    def uri_get(self):
+        return '/'.join([self.crucible.uri_api_base, 'reviews-v1',
+            self.review_id])
+
+    @property
     def uri_frontend(self):
         return '/'.join([self.crucible.config['server'], 'source/cru',
             self.review_id])
+
+
+    def start(self):
+        auth, headers = self.crucible._setup_auth_n_headers()
+        response_data = self.crucible._send_request('post', self.uri_start,
+                auth=auth, headers=headers, data={},
+                expected_status_code=200)
+        return self
 
     def abandon(self):
         auth, headers = self.crucible._setup_auth_n_headers()
@@ -38,10 +56,19 @@ class Review(object):
                 expected_status_code=200)
         return self
 
+    def get(self):
+        auth, headers = self.crucible._setup_auth_n_headers()
+        self.data = self.crucible._send_request('GET', self.uri_get,
+                auth=auth, headers=headers, data={},
+                expected_status_code=200)
+
+        return self
+
+
     def add_patch(self, data):
         """
         **Parameters**
-            ``file_name``
+            ``data``
 
         **Returns**
 
@@ -176,8 +203,8 @@ class Crucible(object):
         **Raises**
         """
         payload_json = json.dumps(data)
-        print ('**REQUEST**\nMETHOD: {}\nURL: {}\nREQUEST DATA: {}'.format(
-                method, url, data))
+        print ('**REQUEST**\nMETHOD: {}\nURL: {}\nHEADERS: {}\nREQUEST DATA: {}'.format(
+                method, url, headers, data))
         response = requests.request(method, url, auth=auth,
                 headers=headers, data=payload_json)
         print ('**RESPONSE**\nSTATUS CODE: {}\nHEADERS: {}'
