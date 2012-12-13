@@ -136,6 +136,10 @@ class Jira(object):
 
         return self.query(jql)
 
+    def delete_issue(self, ticket):
+
+        issue = self.get_issue(ticket)
+        issue.delete()
 
     def assign_issue(self, ticket, assignee):
         '''
