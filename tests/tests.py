@@ -222,18 +222,18 @@ class TestRefresh(unittest.TestCase):
         self.config['svn']['branch_url'] = self.repo_url + '/branches'
         self.config['svn']['trunk_url'] = self.repo_url + '/trunk'
 
-        self.summary = "test refresh"
+        self.summary = "test bug for refresh"
         self.jira = air.Jira(self.config['jira'])
         self.svn = air.Subversion(self.config['svn'])
         self.bug = self.jira.create_issue(self.summary, self.summary)
-        self.svn.make_branch(self.bug, "test commit message")
+        self.svn.make_branch(self.bug.key, "test commit message")
 
     def tearDown(self):
-        self.jira.transition_issue(self.bug, status='Resolve Issue')
+        self.bug.delete()
 
     def test_refresh(self):
         out = StringIO()
-        self.cmd.refresh(self.arger, ['-t', self.bug], out=out)
+        self.cmd.refresh(self.arger, ['-t', self.bug.key], out=out)
         output = out.getvalue().strip()
         self.assertRegexpMatches(output, 'Committed revision 8')
 
@@ -420,19 +420,6 @@ class TestConfig(unittest.TestCase):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
-
-        self.summary = "test bug for start of work"
-        self.jira = air.Jira(self.config['jira'])
-        self.bug = self.jira.create_issue(self.summary, self.summary)
-        self.cmd = air.Commands(self.config)
-
-        self.repo_url, self.repo_file = setup_svn()
-        self.config['svn']['root_url'] = self.repo_url
-        self.config['svn']['branch_url'] = self.repo_url + '/branches'
-        self.config['svn']['trunk_url'] = self.repo_url + '/trunk'
-
-    def tearDown(self):
-        self.jira.transition_issue(self.bug, status='Resolve Issue')
 
     def test_svn_config(self):
         # for this test, remove the svn section of the config file and make
