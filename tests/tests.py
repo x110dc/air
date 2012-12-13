@@ -108,21 +108,43 @@ class TestCrucible(unittest.TestCase):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
+        self.jira = air.Jira(self.config['jira'])
+        self.summary = "test bug for Crucible"
         self.crucible = air.Crucible(self.config['jira'])
         self.diff = open('./tests/diff.txt').read()
+        self.bug = self.jira.create_issue(self.summary, self.summary)
+
+    def tearDown(self):
+        self.bug.delete()
+        if self.review:
+            self.review.abandon()
+
+    def test_create_review(self):
+        self.review = self.crucible.create_review(['jon.oelfke'],
+                jira_ticket=self.bug.key)
+        self.assertTrue(self.review)
+        response = self.review.add_patch(self.diff)
+        self.assertTrue(response)
+
+
+class TestCrucibleGet(unittest.TestCase):
+
+    def setUp(self):
+        # mock the configuration file:
+        self.config = ConfigObj('./tests/config')
+        self.config['jira']['password'] = get_jira_pass()
+        self.crucible = air.Crucible(self.config['jira'])
 
     def tearDown(self):
         if self.review:
             self.review.abandon()
 
-    def test_create_review(self):
+    def test_get_review(self):
         self.review = self.crucible.create_review(['jon.oelfke'])
-        self.assertTrue(self.review)
-        response = self.review.add_patch(self.diff)
-        self.assertTrue(response)
+        actual = self.review.get().data['state']
+        expected = 'Draft'
+        self.assertEqual(expected, actual)
 
-# import webbrowser
-# webbrowser.open_new_tab(self.review.uri_frontend)
 
 class TestMakeBranch(unittest.TestCase):
 
