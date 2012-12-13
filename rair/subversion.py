@@ -46,6 +46,22 @@ class Subversion(object):
 
         return branch[0]
 
+    def diff(self, branch):
+
+        trunk = self.config['trunk_url']
+        branch = '/'.join([self.config['branch_url'], branch])
+        # if filterdiff exists, pipe diff through it to clean up parts that
+        # Crucible doesn't like
+        try:
+            from sh import filterdiff
+            proc = filterdiff(svn.diff(trunk, branch, diff_cmd='diff', x='-U 300 -a'), clean=True)
+
+        # if there's no filterdiff then hope for the best:
+        except CommandNotFound:
+            proc = svn.diff(trunk, branch, diff_cmd='diff', x='-U 300 -a')
+
+        return proc.stdout
+
     def make_branch(self, name, commit_msg):
 
         src = self.config['trunk_url']
