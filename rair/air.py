@@ -66,25 +66,30 @@ class Commands(object):
         arger.add_argument('-p', '--person')
         opts = arger.parse_args(args)
 
-        ticket = self.jira.get_issue(opts.ticket)
-        branch = self.svn.get_unique_branch(ticket.key)
-        # mark Jira issue as 'in review'
-        rc = self.jira.transition_issue(opts.ticket, status='In Review')
+        issue = self.jira.get_issue(opts.ticket)
+        branch = self.svn.get_unique_branch(issue.key)
+        # find available transitions for issue:
+        transitions = self.jira.server.transitions(issue)
+        if 'In Review' in [x['name'] for x in transitions]:
+            # mark Jira issue as 'in review'
+            self.jira.transition_issue(opts.ticket, status='In Review')
+
         # create review
         self.review = self.crucible.create_review(['jon.oelfke'],
-                jira_ticket=ticket.key)
-        from ipdb import set_trace; set_trace()
-        # do diff
+                jira_ticket=issue.key)
+        # create diff
         diff = self.svn.diff(branch)
         # add diff to review
-        response = self.review.add_patch(diff)
+        self.review.add_patch(diff)
         # open review in browser
         self.url = self.review.uri_frontend
+        out.write('Opening review {} in browser...'.format(
+            self.review.uri_frontend))
         webbrowser.open_new_tab(self.url)
         # add Crucible URL to Jira ticket
-        #
-        self.jira.add_comment(opts.ticket, 'Crucible: {}'.format(self.url))
-
+        # as long as the Jira URL is associated with Crucible then there's a
+        # link under 'Reviews', so this isn't necessary:
+        #self.jira.add_comment(opts.ticket, 'Crucible: {}'.format(self.url))
 
     def start_work(self, arger, args, out=sys.stdout):
 
