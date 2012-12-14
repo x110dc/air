@@ -59,7 +59,6 @@ class Subversion(object):
         # if there's no filterdiff then hope for the best:
         except CommandNotFound:
             proc = svn.diff(trunk, branch, diff_cmd='diff', x='-U 300 -a')
-
         return proc.stdout
 
     def make_branch(self, name, commit_msg):
