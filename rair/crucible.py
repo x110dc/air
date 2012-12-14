@@ -41,17 +41,25 @@ class Review(object):
         return '/'.join([self.crucible.config['server'], 'source/cru',
             self.review_id])
 
+    def get_reviewers(self):
+        auth, headers = self.crucible._setup_auth_n_headers()
+        uri = '/'.join([self.crucible.uri_api_base, 'reviews-v1',
+            self.review_id, 'reviewers'])
+        response_data = self.crucible._send_request('GET', uri,
+                auth=auth, headers=headers, data={},
+                expected_status_code=200)
+        return [x['userName'] for x in response_data['reviewer']]
 
     def start(self):
         auth, headers = self.crucible._setup_auth_n_headers()
-        response_data = self.crucible._send_request('post', self.uri_start,
+        self.crucible._send_request('post', self.uri_start,
                 auth=auth, headers=headers, data={},
                 expected_status_code=200)
         return self
 
     def abandon(self):
         auth, headers = self.crucible._setup_auth_n_headers()
-        response_data = self.crucible._send_request('post', self.uri_abandon,
+        self.crucible._send_request('post', self.uri_abandon,
                 auth=auth, headers=headers, data={},
                 expected_status_code=200)
         return self
@@ -63,7 +71,6 @@ class Review(object):
                 expected_status_code=200)
 
         return self
-
 
     def add_patch(self, data):
         """
