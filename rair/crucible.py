@@ -129,6 +129,15 @@ class Crucible(object):
         diff_file.close()
         return patch_data
 
+    def get_review(self, review_id):
+        auth, headers = self.crucible._setup_auth_n_headers()
+        uri = '/'.join([self.crucible.uri_api_base, 'reviews-v1',
+            review_id])
+        response_data = self._send_request('GET', uri,
+                auth=auth, headers=headers, data={},
+                expected_status_code=200)
+        return response_data
+
     def get_review_id(self, review_data):
         """
         **Parameters**
