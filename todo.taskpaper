@@ -22,6 +22,7 @@ completed user stories:
 
 TODO:
 
+- option to inhibit opening review in browser
 - command to create sample (commented) config 
 - task: delete a branch: both Svn and Git?
 - test lack of [jira] section in config
