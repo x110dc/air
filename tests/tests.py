@@ -3,6 +3,7 @@
 from rair import air
 
 # stdlib
+import re
 import sys
 import unittest
 import tempfile
@@ -10,7 +11,6 @@ import argparse
 from os.path import basename
 from StringIO import StringIO
 import contextlib
-import re
 
 # installed libraries:
 from sh import svnadmin
@@ -77,6 +77,28 @@ def setup_svn():
     return [repo_url, repo_file]
 
 
+def create_branch(repo_url, branch_name):
+    trunk_url = '{}/trunk'.format(repo_url)
+    branch_url = '{}/branches'.format(repo_url)
+
+    # create a branch
+    new_branch_url = '{}/{}'.format(branch_url, branch_name)
+    svn.cp(trunk_url, new_branch_url,
+            m='creating new branch {}'.format(branch_name))
+
+    # checkout branch
+    working_dir = tempfile.mkdtemp()
+    svn.co(new_branch_url, working_dir)
+    # create a file
+    repo_file = tempfile.NamedTemporaryFile(dir=working_dir, delete=False)
+    overwrite(repo_file, '789\n')
+    # commit it
+    svn.add(repo_file.name, _cwd=working_dir)
+    svn.commit(m='message', _cwd=working_dir)
+
+    return new_branch_url
+
+
 def create_conflict(repo_url, repo_file):
 
     trunk_url = '{}/trunk'.format(repo_url)
@@ -100,50 +122,6 @@ def get_jira_pass():
 
     with open('./.pass', 'r') as pfile:
         return pfile.readline().rstrip()
-
-
-class TestCrucible(unittest.TestCase):
-
-    def setUp(self):
-        # mock the configuration file:
-        self.config = ConfigObj('./tests/config')
-        self.config['jira']['password'] = get_jira_pass()
-        self.jira = air.Jira(self.config['jira'])
-        self.summary = "test bug for Crucible"
-        self.crucible = air.Crucible(self.config['jira'])
-        self.diff = open('./tests/diff.txt').read()
-        self.bug = self.jira.create_issue(self.summary, self.summary)
-
-    def tearDown(self):
-        self.bug.delete()
-        if self.review:
-            self.review.abandon()
-
-    def test_create_review(self):
-        self.review = self.crucible.create_review(['jon.oelfke'],
-                jira_ticket=self.bug.key)
-        self.assertTrue(self.review)
-        response = self.review.add_patch(self.diff)
-        self.assertTrue(response)
-
-
-class TestCrucibleGet(unittest.TestCase):
-
-    def setUp(self):
-        # mock the configuration file:
-        self.config = ConfigObj('./tests/config')
-        self.config['jira']['password'] = get_jira_pass()
-        self.crucible = air.Crucible(self.config['jira'])
-
-    def tearDown(self):
-        if self.review:
-            self.review.abandon()
-
-    def test_get_review(self):
-        self.review = self.crucible.create_review(['jon.oelfke'])
-        actual = self.review.get().data['state']
-        expected = 'Draft'
-        self.assertEqual(expected, actual)
 
 
 class TestMakeBranch(unittest.TestCase):
@@ -172,7 +150,8 @@ class TestMakeBranch(unittest.TestCase):
         out = StringIO()
         d.go(out=out)
         # now that branch should exist in the list of branches:
-        branch_name = '{}_{}'.format(self.bug.key, self.summary.replace(' ', '_'))
+        branch_name = '{}_{}'.format(self.bug.key,
+                self.summary.replace(' ', '_'))
         self.assertIn(branch_name, self.cmd.svn.get_branches())
 
 
@@ -399,8 +378,8 @@ class TestAddComment(unittest.TestCase):
         self.jira.transition_issue(self.bug, status='Resolve Issue')
 
     def test_add_comment(self):
-        sys.argv = ['bogus', 'add_comment', '-t', self.bug.key, "this", "is", "a",
-                "test", "comment"]
+        sys.argv = ['bogus', 'add_comment', '-t',
+                self.bug.key, "this", "is", "a", "test", "comment"]
         d = air.Dispatcher(self.config)
         out = StringIO()
         d.go(out=out)
