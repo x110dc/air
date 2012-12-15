@@ -59,11 +59,86 @@ class TestCrucibleCreateReview(unittest.TestCase):
         out = StringIO()
         actual = d.go(out=out)
         output = out.getvalue().strip()
+        # get the review so we can delete it as part of tearDown()
         match = re.search('CR-MMSANDBOX-\d*', output)
         review_id = match.group()
         self.review = Review(self.crucible, review_id)
         self.assertEqual(0, actual)
         self.assertGreater(len(output), 0)
+        expected = 'Review'
+        self.assertEqual(expected, self.review.get().data['state'])
+
+    def test_multiple_reviewers(self):
+        sys.argv = ['bogus', 'start_review', '--ticket',
+                self.bug.key, '--person', 'jon.oelfke', '--person',
+                'ethan.sherman', '--open']
+        d = air.Dispatcher(self.config)
+        out = StringIO()
+        actual = d.go(out=out)
+        output = out.getvalue().strip()
+        self.assertEqual(0, actual)
+        self.assertGreater(len(output), 0)
+        match = re.search('CR-MMSANDBOX-\d*', output)
+        review_id = match.group()
+        self.review = Review(self.crucible, review_id)
+        reviewers = self.review.reviewers
+        self.assertIn('ethan.sherman', reviewers)
+        self.assertIn('jon.oelfke', reviewers)
+
+    def test_no_reviewers(self):
+        sys.argv = ['bogus', 'start_review', '--ticket', self.bug.key]
+        d = air.Dispatcher(self.config)
+        out = StringIO()
+        actual = d.go(out=out)
+        output = out.getvalue().strip()
+        self.assertEqual(0, actual)
+        self.assertGreater(len(output), 0)
+        match = re.search('CR-MMSANDBOX-\d*', output)
+        review_id = match.group()
+        self.review = Review(self.crucible, review_id)
+        reviewers = self.review.reviewers
+        reviewers = [x for x in reviewers if x != 'norman.harman']
+        self.assertEqual(0, len(reviewers))
+
+
+class TestFinishReview(unittest.TestCase):
+
+    def setUp(self):
+        # mock the configuration file:
+        self.config = ConfigObj('./tests/config')
+        self.config['jira']['password'] = get_jira_pass()
+        self.repo_url, self.repo_file = setup_svn()
+        # use new values for SVN url:
+        self.config['svn']['root_url'] = self.repo_url
+        self.config['svn']['branch_url'] = self.repo_url + '/branches'
+        self.config['svn']['trunk_url'] = self.repo_url + '/trunk'
+
+        self.svn = air.Subversion(self.config['svn'])
+
+        self.jira = air.Jira(self.config['jira'])
+        self.summary = "test bug for Crucible"
+        self.crucible = air.Crucible(self.config['jira'])
+        self.diff = open('./tests/diff.txt').read()
+        self.bug = self.jira.create_issue(self.summary, self.summary)
+        self.jira.transition_issue(self.bug, status='Start Progress')
+        create_branch(self.repo_url, '{}_test_ticket'.format(self.bug.key))
+        self.review = self.crucible.create_review([],
+                jira_ticket=self.bug.key)
+        self.review.start()
+
+    def tearDown(self):
+        self.bug.delete()
+        if self.review:
+            self.review.abandon()
+
+    def test_finish_review(self):
+        sys.argv = ['bogus', 'finish_review', '--ticket', self.bug.key]
+        d = air.Dispatcher(self.config)
+        out = StringIO()
+        actual = d.go(out=out)
+        output = out.getvalue().strip()
+
+#        self.crucible.get_review_from_issue(self.bug.key)
 
 
 class TestCrucibleGet(unittest.TestCase):
