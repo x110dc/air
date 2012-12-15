@@ -145,19 +145,17 @@ class Crucible(object):
                 'Accept': 'application/json'}
         return auth, headers
 
-    def read_data_from_file(self, file_name):
-        """
-        **Parameters**
+    def get_review_from_issue(self, issue):
 
-        **Returns**
-
-        **Raises**
-            ``IOError``
-        """
-        diff_file = open(file_name, 'r')
-        patch_data = diff_file.read()
-        diff_file.close()
-        return patch_data
+        auth, headers = self._setup_auth_n_headers()
+        uri = '/'.join([self.uri_api_base, 'search-v1', 'reviewsForIssue'])
+        params = dict()
+        params['jiraKey'] = issue
+        response_data = self._send_request('GET', uri,
+                auth=auth, headers=headers, params=params, data={},
+                expected_status_code=200)
+        review_id = get_review_id(response_data['reviewData'][0])
+        return Review(self, review_id)
 
     def get_review(self, review_id):
         auth, headers = self.crucible._setup_auth_n_headers()
