@@ -166,23 +166,13 @@ class Crucible(object):
                 expected_status_code=200)
         return response_data
 
-    def get_review_id(self, review_data):
-        """
-        **Parameters**
-
-        **Returns**
-
-        **Raises**
-        """
-        return review_data['permaId']['id']
-
     def create_review(self, participants, allow_others=True, jira_ticket=None):
         """
         This function creates a Crucible review.
 
         **Parameters**
             ``participants``: A list of usernames for the participants for this
-                review (a list of email addresses).
+                review
             ``allow_others``: A boolean value representing whether other
             reviewers will be allowed to add themselves to the review.
 
@@ -227,11 +217,20 @@ class Crucible(object):
         response_data = self._send_request('post', self.uri_review(),
                 auth=auth, headers=headers, data=payload,
                 expected_status_code=201)
-        review_id = self.get_review_id(response_data)
+
+        review_id = get_review_id(response_data)
         review = Review(self, review_id)
+        # remove any reviewers that we didn't add:
+        other_reviewers = list(set(review.reviewers) - set(participants))
+        # this is ridiculous, but the MMSANDBOX Crucible project is set up to
+        # automatically add him, even though it shows him as a deleted user so
+        # the API won't let us remove him from the review:
+        if 'norman.harman' in other_reviewers:
+            other_reviewers.remove('norman.harman')
+        review.remove_reviewers(other_reviewers)
         return review
 
-    def _send_request(self, method, url, auth=None, headers=None, data=None,
+    def _send_request(self, method, url, auth=None, params=None, headers=None, data=None,
             expected_status_code=200):
         """
         **Parameters**
@@ -247,20 +246,22 @@ class Crucible(object):
         **Raises**
         """
         payload_json = json.dumps(data)
-        print ('**REQUEST**\nMETHOD: {}\nURL: {}\nHEADERS: {}\nREQUEST DATA: {}'.format(
-                method, url, headers, data))
+        #print ('**REQUEST**\nMETHOD: {}\nURL: {}\nHEADERS: {}\nREQUEST DATA: {}'.format(
+        #        method, url, headers, data))
         response = requests.request(method, url, auth=auth,
-                headers=headers, data=payload_json)
-        print ('**RESPONSE**\nSTATUS CODE: {}\nHEADERS: {}'
-                '\nCONTENT: {}'.format(response.status_code,
-                    response.headers, response.content))
+                headers=headers, data=payload_json, params=params)
+        #print ('**RESPONSE**\nSTATUS CODE: {}\nHEADERS: {}'
+        #        '\nCONTENT: {}'.format(response.status_code,
+        #            response.headers, response.content))
         if response.status_code != expected_status_code:
             raise SendRequestException('Received an unexpected response.  '
                     'Expected a response with status code, {}.  Received {} '
                     'instead.'.format(expected_status_code,
                         response.status_code))
-        response_data = json.loads(response.content)
-        return response_data
+        if response.content:
+            response_data = json.loads(response.content)
+            return response_data
+        return None
 
 
 #def do_work():
