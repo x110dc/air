@@ -4,6 +4,8 @@ from __future__ import print_function
 
 # stdlib
 import string
+import tempfile
+import shutil
 
 # installed:
 from sh import svn
@@ -60,6 +62,21 @@ class Subversion(object):
         except CommandNotFound:
             proc = svn.diff(trunk, branch, diff_cmd='diff', x='-U 300 -a')
         return proc.stdout
+
+    def reintegrate(self, branch):
+        #TODO: pass commit message as param
+
+        trunk_url = self.config['trunk_url']
+        branch_url = '/'.join([self.config['branch_url'], branch])
+        # checkout trunk
+        working_dir = tempfile.mkdtemp()
+        svn.co(trunk_url, working_dir)
+        # merge
+        svn.merge(branch_url, working_dir, reintegrate=True)
+        # commit
+        svn.commit(m='reintegrating into trunk', _cwd=working_dir)
+
+        #shutil.rmtree(working_dir)
 
     def make_branch(self, name, commit_msg):
 
