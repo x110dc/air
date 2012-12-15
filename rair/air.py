@@ -113,13 +113,12 @@ class Commands(object):
         self.make_branch(arger, args)
         opts = arger.parse_args(args)
         issue = self.jira.get_issue(opts.ticket)
-        out.write('Marking issue {} as "In Progress"'.format(issue))
+        out.write('Marking issue {} as "In Progress"\n'.format(issue.key))
         self.jira.transition_issue(opts.ticket, status='Start Progress')
         branch = self.svn.get_unique_branch(opts.ticket)
         comment = 'SVN URL: ' + self.config['svn']['branch_url'] + '/' + branch
-        out.write('Adding SVN URL for branch to Jira issue')
+        out.write('Adding SVN URL for branch to Jira issue\n')
         self.jira.add_comment(issue.key, comment)
-        out.write('Branch created and issue marked as "In Progress"')
 
     def add_watcher(self, arger, args, out=sys.stdout):
 
@@ -150,8 +149,22 @@ class Commands(object):
             opts.ticket = _get_ticket_from_dir()
             if not opts.ticket:
                 raise TicketSpecificationException("ticket number required")
-        out.write('Marking issue {} as "Ready for Review"'.format(issue))
+        out.write('Marking issue {} as "Ready for Review"\n'.format(issue))
         self.jira.transition_issue(opts.ticket, status='Ready for Review')
+
+    def finish_review(self, arger, args, out=sys.stdout):
+
+        """
+        summarize review, reintegrate branch into trunk, and delete branch
+        """
+        arger.add_argument('-t', '--ticket')
+        opts = arger.parse_args(args)
+        issue = self.jira.get_issue(opts.ticket)
+        branch = self.svn.get_unique_branch(opts.ticket)
+        review = self.crucible.get_review_from_issue(issue.key)
+        review.finish()
+        self.svn.reintegrate(branch)
+
 
     def assign(self, arger, args, out=sys.stdout):
         '''
@@ -196,9 +209,9 @@ class Commands(object):
         src = '{}/{}'.format(self.config['svn']['branch_url'], branch)
         try:
             working_dir = tempfile.mkdtemp()
-            out.write('Checking out src...')
+            out.write('Checking out src...\n')
             svn.co(src, working_dir)
-            out.write('Merging from trunk into src...')
+            out.write('Merging from trunk into src...\n')
             merge = svn.merge(self.config['svn']['trunk_url'],
                     _cwd=working_dir, accept='postpone')
             out.write(merge.stdout)
