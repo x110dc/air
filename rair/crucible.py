@@ -41,7 +41,18 @@ class Review(object):
         return '/'.join([self.crucible.config['server'], 'source/cru',
             self.review_id])
 
-    def get_reviewers(self):
+    def remove_reviewers(self, reviewers):
+        auth, headers = self.crucible._setup_auth_n_headers()
+        for reviewer in reviewers:
+            uri = '/'.join([self.crucible.uri_api_base, 'reviews-v1',
+                self.review_id, 'reviewers', reviewer])
+            self.crucible._send_request('DELETE', uri,
+                auth=auth, headers=headers, data={},
+                expected_status_code=204)
+        return self
+
+    @property
+    def reviewers(self):
         auth, headers = self.crucible._setup_auth_n_headers()
         uri = '/'.join([self.crucible.uri_api_base, 'reviews-v1',
             self.review_id, 'reviewers'])
