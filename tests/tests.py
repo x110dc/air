@@ -433,6 +433,9 @@ class TestFinishWork(unittest.TestCase):
         actual = self.jira.get_issue(self.bug).fields.status.name
         self.assertEqual(expected, actual)
 
+#TODO: it's difficult to test 'reject_ticket' because the MMSANDBOX project
+#doesn't have the same transitions available as CIGNAINC does. Figure something
+#out?
 
 class TestStartWork(unittest.TestCase):
 
