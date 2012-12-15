@@ -80,7 +80,15 @@ class Review(object):
         self.data = self.crucible._send_request('GET', self.uri_get,
                 auth=auth, headers=headers, data={},
                 expected_status_code=200)
+        return self
 
+    def finish(self):
+        auth, headers = self.crucible._setup_auth_n_headers()
+        uri = '/'.join([self.crucible.uri_api_base, 'reviews-v1',
+            self.review_id, 'transition?action=action:summarizeReview'])
+        self.crucible._send_request('post', uri,
+                auth=auth, headers=headers, data={},
+                expected_status_code=200)
         return self
 
     def add_patch(self, data):
