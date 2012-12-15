@@ -63,33 +63,46 @@ class Commands(object):
     def start_review(self, arger, args, out=sys.stdout):
 
         arger.add_argument('-t', '--ticket')
-        arger.add_argument('-p', '--person')
+        arger.add_argument('-p', '--person', action='append')
+        arger.add_argument('-o', '--open', action='store_true')
         opts = arger.parse_args(args)
 
         issue = self.jira.get_issue(opts.ticket)
         branch = self.svn.get_unique_branch(issue.key)
         # find available transitions for issue:
         transitions = self.jira.server.transitions(issue)
+        #TODO: move this functionality into the module?:
         if 'In Review' in [x['name'] for x in transitions]:
             # mark Jira issue as 'in review'
             self.jira.transition_issue(opts.ticket, status='In Review')
-
         # create review
-        self.review = self.crucible.create_review(['jon.oelfke'],
+        self.review = self.crucible.create_review(opts.person,
                 jira_ticket=issue.key)
         # create diff
         diff = self.svn.diff(branch)
         # add diff to review
         self.review.add_patch(diff)
+        # "start" the review:
+        self.review.start()
         # open review in browser
-        self.url = self.review.uri_frontend
-        out.write('Opening review {} in browser...'.format(
-            self.review.uri_frontend))
-        webbrowser.open_new_tab(self.url)
+        if opts.open:
+            self.url = self.review.uri_frontend
+            out.write('Opening review {} in browser...'.format(
+                self.review.uri_frontend))
+            webbrowser.open_new_tab(self.url)
         # add Crucible URL to Jira ticket
-        # as long as the Jira URL is associated with Crucible then there's a
+        # as long as the Jira ticket is associated with Crucible then there's a
         # link under 'Reviews', so this isn't necessary:
         #self.jira.add_comment(opts.ticket, 'Crucible: {}'.format(self.url))
+
+    def reject_ticket(self, arger, args, out=sys.stdout):
+
+        arger.add_argument('-t', '--ticket')
+        opts = arger.parse_args(args)
+        comment = 'Sending issue back for rework.  Please see comments in review.'
+        issue = self.jira.get_issue(opts.ticket)
+        self.jira.add_comment(issue.key, comment)
+        self.jira.transition_issue(issue.key, status='Reopen Issue')
 
     def start_work(self, arger, args, out=sys.stdout):
 
