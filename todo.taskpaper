@@ -1,7 +1,5 @@
 user stories:
 
-- start a review - mark ticket as 'in review', create Crucible review
-- review: reject ticket
 - finish review - mark it as closed, reintegrate it, delete branch
 
 completed user stories:
@@ -19,10 +17,12 @@ completed user stories:
 - list tickets ready for review @done
 - close ticket @done
 - assign a ticket @done
+- start a review - mark ticket as 'in review', create Crucible review @done
+- review: reject ticket @done
 
 TODO:
 
-- option to inhibit opening review in browser
+- allow adding (another) patch/diff to an existing review
 - command to create sample (commented) config 
 - task: delete a branch: both Svn and Git?
 - test lack of [jira] section in config
@@ -63,6 +63,7 @@ TODO:
 - check task: do a clean checkout and run tests?
 - task: log time spent on issue?
 - task: log time on issue automatically?
+- use argh package to simply command line option handling?
 
 Known Issues:
 - completion values are cached only once and then reused so they can become out
@@ -102,3 +103,7 @@ Done:
 - doesn't work with multiple Jira projects or users at the same time [now it does] @done
 - create tasks in Jira (not just bugs) @done
 - use git-flow for inspiration? @done
+- make sure multiple --person opts can be specified for a review @done
+- what happens if no reviewers are specified? @done
+- do the approveReview part  @done
+- option to inhibit opening review in browser @done
