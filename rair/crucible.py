@@ -108,6 +108,17 @@ class Review(object):
         return response_data
 
 
+def get_review_id(review_data):
+        """
+        **Parameters**
+
+        **Returns**
+
+        **Raises**
+        """
+        return review_data['permaId']['id']
+
+
 class Crucible(object):
 
     def __init__(self, config):
