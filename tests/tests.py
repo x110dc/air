@@ -130,7 +130,7 @@ class TestMakeBranch(unittest.TestCase):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
-
+        self.config['crucible']['password'] = get_jira_pass()
         self.summary = "test bug for making branch"
         self.jira = air.Jira(self.config['jira'])
         self.bug = self.jira.create_issue(self.summary, self.summary)
@@ -160,6 +160,7 @@ class TestSvn(unittest.TestCase):
     def setUp(self):
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
+        self.config['crucible']['password'] = get_jira_pass()
         self.repo_url, self.repo_file = setup_svn()
         self.arger = argparse.ArgumentParser()
         self.cmd = air.Commands(self.config)
@@ -192,6 +193,7 @@ class TestRefresh(unittest.TestCase):
     def setUp(self):
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
+        self.config['crucible']['password'] = get_jira_pass()
         self.repo_url, self.repo_file = setup_svn()
         self.arger = argparse.ArgumentParser()
         self.cmd = air.Commands(self.config)
@@ -228,6 +230,7 @@ class TestCloseBug(unittest.TestCase):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
+        self.config['crucible']['password'] = get_jira_pass()
         self.summary = "test bug to close"
         self.jira = air.Jira(self.config['jira'])
         self.bug = self.jira.create_issue(self.summary, self.summary)
@@ -249,6 +252,7 @@ class TestCloseTask(unittest.TestCase):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
+        self.config['crucible']['password'] = get_jira_pass()
         self.summary = "test issue to close"
         self.jira = air.Jira(self.config['jira'])
         self.issue = self.jira.create_issue(self.summary, self.summary,
@@ -271,6 +275,7 @@ class TestJira(unittest.TestCase):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
+        self.config['crucible']['password'] = get_jira_pass()
         self.bug = None
         self.task = None
 
@@ -306,6 +311,7 @@ class TestCloseJiraIssue(unittest.TestCase):
     def setUp(self):
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
+        self.config['crucible']['password'] = get_jira_pass()
         self.summary = "test bug for closing issue"
         self.jira = air.Jira(self.config['jira'])
         self.bug = self.jira.create_issue(self.summary, self.summary)
@@ -336,6 +342,7 @@ class TestListIssues(unittest.TestCase):
         # the test config has both a JQL string and a filter name
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
+        self.config['crucible']['password'] = get_jira_pass()
         self.summary = "test bug for listing issues"
         self.jira = air.Jira(self.config['jira'])
         self.bug = self.jira.create_issue(self.summary, self.summary)
@@ -369,7 +376,7 @@ class TestAddComment(unittest.TestCase):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
-
+        self.config['crucible']['password'] = get_jira_pass()
         self.summary = "test bug for start of work"
         self.jira = air.Jira(self.config['jira'])
         self.bug = self.jira.create_issue(self.summary, self.summary)
@@ -399,6 +406,7 @@ class TestConfig(unittest.TestCase):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
+        self.config['crucible']['password'] = get_jira_pass()
 
     def test_svn_config(self):
         # for this test, remove the svn section of the config file and make
@@ -413,6 +421,7 @@ class TestFinishWork(unittest.TestCase):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
+        self.config['crucible']['password'] = get_jira_pass()
 
         self.summary = "test bug for finish work"
         self.jira = air.Jira(self.config['jira'])
@@ -443,7 +452,7 @@ class TestStartWork(unittest.TestCase):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
-
+        self.config['crucible']['password'] = get_jira_pass()
         self.summary = "test bug for start of work"
         self.jira = air.Jira(self.config['jira'])
         self.bug = self.jira.create_issue(self.summary, self.summary)
@@ -495,6 +504,7 @@ class TestMain(unittest.TestCase):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
         self.config['jira']['password'] = get_jira_pass()
+        self.config['crucible']['password'] = get_jira_pass()
 
     def test_aliases(self):
         '''
