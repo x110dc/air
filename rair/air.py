@@ -57,8 +57,10 @@ class Commands(object):
             self.svn = Subversion(config['svn'])
         else:
             self.svn = None
-
-        self.crucible = Crucible(config['jira'])
+        if 'crucible' in config:
+            self.crucible = Crucible(config['crucible'])
+        else:
+            self.crucible = None
 
     def start_review(self, arger, args, out=sys.stdout):
 

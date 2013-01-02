@@ -1,8 +1,7 @@
 [jira]
     username = daniel.craigmile
     project = MMSANDBOX
-    crucible_key = CR-MMSANDBOX
-    server = https://mutualmobile.jira.com
+    server = https://jira.r.mutualmobile.com
     [[list]]
         filter = 'assigned to me'
         jql = 'assignee=currentUser()  AND status != Closed'
@@ -13,6 +12,10 @@
                  AND (Platform = Server OR Platform is EMPTY 
                  AND (component = "Server Engineering" OR component is EMPTY)) 
                  ORDER BY priority, updatedDate ASC'''
+[crucible]
+    username = daniel.craigmile
+    key = CR-MMSANDBOX
+    server = https://fisheye.r.mutualmobile.com
 [svn]
     root_url=https://cignasvn.r.mutualmobile.com/mycigna/
     trunk_url=https://cignasvn.r.mutualmobile.com/mycigna/trunk/Server/

@@ -21,6 +21,7 @@ class TestCrucibleCreateReview(unittest.TestCase):
     def setUp(self):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
+        self.config['crucible']['password'] = get_jira_pass()
         self.config['jira']['password'] = get_jira_pass()
         self.repo_url, self.repo_file = setup_svn()
         # use new values for SVN url:
@@ -32,7 +33,7 @@ class TestCrucibleCreateReview(unittest.TestCase):
 
         self.jira = air.Jira(self.config['jira'])
         self.summary = "test bug for Crucible"
-        self.crucible = air.Crucible(self.config['jira'])
+        self.crucible = air.Crucible(self.config['crucible'])
         self.diff = open('./tests/diff.txt').read()
         self.bug = self.jira.create_issue(self.summary, self.summary)
         self.jira.transition_issue(self.bug, status='Start Progress')
@@ -106,6 +107,7 @@ class TestFinishReview(unittest.TestCase):
     def setUp(self):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
+        self.config['crucible']['password'] = get_jira_pass()
         self.config['jira']['password'] = get_jira_pass()
         self.repo_url, self.repo_file = setup_svn()
         # use new values for SVN url:
@@ -117,7 +119,7 @@ class TestFinishReview(unittest.TestCase):
 
         self.jira = air.Jira(self.config['jira'])
         self.summary = "test bug for Crucible"
-        self.crucible = air.Crucible(self.config['jira'])
+        self.crucible = air.Crucible(self.config['crucible'])
         self.diff = open('./tests/diff.txt').read()
         self.bug = self.jira.create_issue(self.summary, self.summary)
         self.jira.transition_issue(self.bug, status='Start Progress')
@@ -146,8 +148,8 @@ class TestCrucibleGet(unittest.TestCase):
     def setUp(self):
         # mock the configuration file:
         self.config = ConfigObj('./tests/config')
-        self.config['jira']['password'] = get_jira_pass()
-        self.crucible = air.Crucible(self.config['jira'])
+        self.config['crucible']['password'] = get_jira_pass()
+        self.crucible = air.Crucible(self.config['crucible'])
 
     def tearDown(self):
         if self.review:

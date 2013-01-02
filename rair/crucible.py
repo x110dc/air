@@ -204,7 +204,7 @@ class Crucible(object):
                 'creator': creator_data,
                 'author': creator_data,
                 'moderator': creator_data,
-                'projectKey': self.crucible_key,
+                'projectKey': self.key,
                 'name': 'Review for {}'.format(jira_ticket),
                 'type': 'REVIEW',
             },
@@ -267,7 +267,7 @@ class Crucible(object):
 #def do_work():
         #Get the user's Atlassian credentials.
         #review_data = create_review(user_name, password,
-        #        parsed_args.participants, parsed_args.crucible_key,
+        #        parsed_args.participants, parsed_args.key,
         #        jira_ticket=parsed_args.ticket_id)
 #    review_id = get_review_id(review_data)
         #Add the diff file.  If it doesn't work out, output the error and keep
