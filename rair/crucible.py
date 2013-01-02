@@ -41,7 +41,7 @@ class Review(object):
 
     @property
     def uri_frontend(self):
-        return '/'.join([self.crucible.config['server'], 'source/cru',
+        return '/'.join([self.crucible.config['server'], 'cru',
             self.review_id])
 
     def remove_reviewers(self, reviewers):
@@ -129,8 +129,8 @@ class Crucible(object):
         self.user_name = config['username']
         self.password = config['password']
         self.uri_server = config['server']
-        self.crucible_key = config['crucible_key']
-        self.uri_api_base = self.uri_server + '/source/rest-service'
+        self.key = config['key']
+        self.uri_api_base = self.uri_server + '/rest-service'
 
     def uri_review(self):
         return '/'.join([self.uri_api_base, 'reviews-v1'])
