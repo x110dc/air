@@ -16,6 +16,9 @@ class Review(object):
         self.crucible = crucible
         self.review_id = review_id
 
+    def __str__(self):
+        return self.review_id
+
     @property
     def uri_patch(self):
         return '/'.join([self.crucible.uri_api_base, 'reviews-v1',
