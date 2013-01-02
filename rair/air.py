@@ -96,6 +96,7 @@ class Commands(object):
         # as long as the Jira ticket is associated with Crucible then there's a
         # link under 'Reviews', so this isn't necessary:
         #self.jira.add_comment(opts.ticket, 'Crucible: {}'.format(self.url))
+        out.write('Created review {} for ticket {}..\n'.format(self.review, issue.key))
 
     def reject_ticket(self, arger, args, out=sys.stdout):
 
