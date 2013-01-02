@@ -72,7 +72,7 @@ class TestCrucibleCreateReview(unittest.TestCase):
     def test_multiple_reviewers(self):
         sys.argv = ['bogus', 'start_review', '--ticket',
                 self.bug.key, '--person', 'jon.oelfke', '--person',
-                'ethan.sherman', '--open']
+                'ethan.sherman']
         d = air.Dispatcher(self.config)
         out = StringIO()
         actual = d.go(out=out)
