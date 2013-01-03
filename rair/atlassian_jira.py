@@ -67,7 +67,8 @@ class Jira(object):
         if status not in transition_names:
             raise InvalidJiraStatusException(
             '\n\'{}\' is not a valid status for this Jira issue. \
-            \nValid transitions: {}'.format(status, ', '.join(transition_names)))
+            \nValid transitions: {}'.format(
+                status, ', '.join(transition_names)))
         _id = [x['id'] for x in transitions if x['name'] == status][0]
         # transition it:
         self.server.transition_issue(issue, _id)

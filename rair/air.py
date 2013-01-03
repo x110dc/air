@@ -96,13 +96,15 @@ class Commands(object):
         # as long as the Jira ticket is associated with Crucible then there's a
         # link under 'Reviews', so this isn't necessary:
         #self.jira.add_comment(opts.ticket, 'Crucible: {}'.format(self.url))
-        out.write('Created review {} for ticket {}..\n'.format(self.review, issue.key))
+        out.write('Created review {} for ticket {}..\n'.format(self.review,
+            issue.key))
 
     def reject_ticket(self, arger, args, out=sys.stdout):
 
         arger.add_argument('-t', '--ticket')
         opts = arger.parse_args(args)
-        comment = 'Sending issue back for rework.  Please see comments in review.'
+        comment = 'Sending issue back for rework. Please see comments \
+            in review.'
         issue = self.jira.get_issue(opts.ticket)
         self.jira.add_comment(issue.key, comment)
         self.jira.transition_issue(issue.key, status='Reopen Issue')
@@ -167,7 +169,6 @@ class Commands(object):
         review = self.crucible.get_review_from_issue(issue.key)
         review.finish()
         self.svn.reintegrate(branch)
-
 
     def assign(self, arger, args, out=sys.stdout):
         '''
