@@ -8,10 +8,10 @@ completed user stories:
 - given a brief description, create a bug in Jira @done
 - given a ticket, create a branch in svn for it @done
 - refresh a branch from trunk @done
-- start an issue: create branch, start progress, add Svn URL to Jira @done
-- self-assign: assign a ticket to me @done
+- "start" an issue: create branch, start progress, add Svn URL to Jira @done
+- self-assign ("take"): assign a ticket to me @done
 - add a comment to a ticket @done
-- finish a ticket - mark ticket as ready for review, update CHANGES @done
+- "finish" a ticket - mark ticket as ready for review, update CHANGES @done
 - given a brief description, create a task in Jira @done
 - add watcher to ticket @done
 - list tickets ready for review @done
@@ -22,10 +22,11 @@ completed user stories:
 
 TODO:
 
-- allow adding (another) patch/diff to an existing review
 - command to create sample (commented) config 
+- allow adding (another) patch/diff to an existing review
 - task: delete a branch: both Svn and Git?
 - test lack of [jira] section in config
+- test lack of [crucible] section in config
 - test finishing work by getting ticket from dir
 - test taking ticket
 - test refreshing by getting ticket from dir
@@ -49,7 +50,7 @@ TODO:
 - what to do if config file doesn't exist?
 - check that aliases are valid
 - do more formal doc strings with params and return values
-- allow use of favorite filters and tab-complete their names
+- allow use of favorite filters and tab-complete their names?
 - write a README
 - check config file
 - create Sphinx (or similar) docs
@@ -58,12 +59,12 @@ TODO:
 - install tab completions as part of setup.py?
 - cache completions?
 - better completions for tickets
-- use Google SSO token instead of plaintext password?
+- use Google SSO token instead of plaintext password? LDAP?
 - a task to run tests and post the names of any failing tests to Jira?
 - check task: do a clean checkout and run tests?
 - task: log time spent on issue?
 - task: log time on issue automatically?
-- use argh package to simply command line option handling?
+- use argh package to simplify command line option handling?
 
 Known Issues:
 - completion values are cached only once and then reused so they can become out
