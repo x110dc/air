@@ -286,7 +286,7 @@ class Commands(object):
             if not opts.ticket:
                 raise TicketSpecificationException("ticket number required")
 
-        self.jira.transition_issue(opts.ticket, status='Resolve Issue')
+        self.jira.close_issue(opts.ticket)
         out.write('Ticket {} closed.\n'.format(opts.ticket))
 
     def add_comment(self, arger, args, out=sys.stdout):

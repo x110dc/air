@@ -59,6 +59,23 @@ class Jira(object):
 
         return new_issue
 
+    def close_issue(self, ticket):
+        issue = self.get_issue(ticket)
+        transitions = self.server.transitions(issue)
+        transition_names = [x['name'] for x in transitions]
+        if 'Stop Progress' in transition_names:
+            self.transition_issue(ticket, status='Stop Progress')
+            transitions = self.server.transitions(issue)
+            transition_names = [x['name'] for x in transitions]
+
+        if 'Resolve Issue' in transition_names:
+            self.transition_issue(ticket, status='Resolve Issue')
+            return self.get_issue(ticket)
+        else:
+            raise InvalidJiraStatusException(
+                    '\nattempt to close ticket failed. \
+            \nValid transitions: {}'.format(', '.join(transition_names)))
+
     def transition_issue(self, ticket, status='Resolve Issue'):
 
         issue = self.get_issue(ticket)
