@@ -1,0 +1,29 @@
+[jira]
+    username = daniel.craigmile
+    server = https://jira.r.mutualmobile.com
+# new issues will be created in this project:
+    project = MMSANDBOX 
+# and will be given this component:
+    component = Server Engineering
+    [[list]]
+        filter = 'assigned to me'
+#        jql = 'assignee=currentUser()  AND status != Closed'
+    [[review]]
+        filter = 'ready for review'
+        jql = '''project = CIGNAINC AND
+                 status IN ("Ready for Review", "In Review") 
+                 AND (Platform = Server OR Platform is EMPTY 
+                 AND (component = "Server Engineering" OR component is EMPTY)) 
+                 ORDER BY priority, updatedDate ASC'''
+[crucible]
+    username = daniel.craigmile
+    key = CR-MMSANDBOX
+    server = https://fisheye.r.mutualmobile.com
+
+[aliases]
+    ls=list_tickets
+    mkticket=create_bug
+    mkbug=create_bug
+    mktask=create_task
+    mkbranch=make_branch
+    comment=add_comment
