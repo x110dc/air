@@ -2,6 +2,8 @@
 
 from __future__ import print_function
 
+from sh import CommandNotFound
+
 # stdlib
 import string
 import tempfile
