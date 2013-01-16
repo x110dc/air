@@ -1,4 +1,4 @@
-user stories:
+user stories remaining to be implemented:
 
 - finish review - mark it as closed, reintegrate it, delete branch
 
@@ -22,8 +22,7 @@ completed user stories:
 
 TODO:
 
-- bash completions
-- command to create sample (commented) config
+- command to create sample (commented) config (say "air init"?)
 - allow adding (another) patch/diff to an existing review
 - task: delete a branch: both Svn and Git?
 - test lack of [jira] section in config
@@ -47,6 +46,7 @@ TODO:
 - tests for exceptional conditions (bad Svn, etc)
 - construct branch and trunk URLs from root url if not specified?
 - Crucible integration
+- bash completions
 - logging?
 - what to do if config file doesn't exist?
 - check that aliases are valid
