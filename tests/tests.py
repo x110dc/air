@@ -104,7 +104,7 @@ def create_conflict(repo_url, repo_file):
 
     # change the same file on trunk
     svn.co(trunk_url, working_dir)
-    repo_file = working_dir + '/' + basename(repo_file.name)
+    repo_file = working_dir + '/' + os.path.basename(repo_file.name)
     repo_file = open(repo_file, 'w')
     overwrite(repo_file, '789\n')
     svn.commit(m='creating conflict', _cwd=working_dir)
