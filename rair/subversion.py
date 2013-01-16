@@ -11,6 +11,7 @@ import shutil
 
 # installed:
 from sh import svn
+from sh import CommandNotFound
 
 
 class MultipleMatchException(Exception):

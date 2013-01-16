@@ -1,5 +1,5 @@
-from distutils.core import setup
-
+#from distutils.core import setup
+from setuptools import setup
 
 setup(name='air',
       version='0.2',
@@ -7,6 +7,6 @@ setup(name='air',
       packages=['rair'],
       author='Daniel Craigmile',
       author_email='daniel.craigmile@mutualmobile.com',
-      requires=['configobj', 'jira_python', 'sh'],
+      install_requires=['requests==0.14.2', 'configobj', 'jira_python', 'sh'],
       scripts=['air']
       )
