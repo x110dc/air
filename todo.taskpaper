@@ -22,7 +22,8 @@ completed user stories:
 
 TODO:
 
-- command to create sample (commented) config 
+- bash completions
+- command to create sample (commented) config
 - allow adding (another) patch/diff to an existing review
 - task: delete a branch: both Svn and Git?
 - test lack of [jira] section in config
@@ -71,7 +72,7 @@ Known Issues:
   of date -- this likely is only a minor problem for persons and commands, but
   a bigger issue for tickets
 
-caveats: 
+caveats:
 - uses same text for summary and description of new Jira issues
 
 Done:
@@ -91,7 +92,7 @@ Done:
 - add comment to a ticket @done
 - do completion on -t (tickets) @done
 - allow 'refresh' (and others?) to deduce ticket from PWD (Svn or Git?) @done
-- zsh/bash completions @done
+- zsh completions @done
 - post a comment to the Jira issue when doing a refresh on a branch @done
 - self-assign (take) @done
 - use tearDown to close bugs I've created through testing? @done

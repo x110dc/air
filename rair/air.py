@@ -385,9 +385,10 @@ def _get_parser(names):
     #arger.add_argument('-v', '--verbose', action='count', default=0)
     subparsers = arger.add_subparsers(dest='command', title='subcommands',
             description='valid subcommands', help='non-extant additional help')
-
-    subparser_dict = {x: subparsers.add_parser(x) for x in names}
-    return arger, subparser_dict
+    subparsers_dict = dict()
+    for name in names:
+        subparsers_dict[name] = subparsers.add_parser(name)
+    return arger, subparsers_dict
 
 
 class Dispatcher(object):
