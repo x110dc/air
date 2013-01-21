@@ -3,7 +3,6 @@ from rair import air
 from rair.crucible import Review
 
 # stdlib
-import ipdb; ipdb.set_trace()
 import sys
 from StringIO import StringIO
 import re
