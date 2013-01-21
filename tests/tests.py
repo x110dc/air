@@ -1,32 +1,27 @@
+import __builtin__
 
-# the program we're testing:
-from rair import air
-
-# stdlib
-import re
-import sys
-import unittest
-import tempfile
 import argparse
-from os.path import basename
-from StringIO import StringIO
+from configobj import ConfigObj
 import contextlib
-
-# installed libraries:
+import os
+import re
 from sh import svnadmin
 from sh import svn
-from configobj import ConfigObj
+from StringIO import StringIO
+import sys
+import tempfile
+import unittest
 
-#
-from rair.subversion import MultipleMatchException
+from rair import air
 from rair.atlassian_jira import InvalidJiraStatusException
+from rair.subversion import MultipleMatchException
 
 
 def overwrite(file_object, text):
-        if file_object.closed:
-            file_object = open(file_object.name, 'w')
-        file_object.write(text)
-        file_object.close()
+    if file_object.closed:
+        file_object = open(file_object.name, 'w')
+    file_object.write(text)
+    file_object.close()
 
 
 def create_svn_repo():
@@ -109,7 +104,7 @@ def create_conflict(repo_url, repo_file):
 
     # change the same file on trunk
     svn.co(trunk_url, working_dir)
-    repo_file = working_dir + '/' + basename(repo_file.name)
+    repo_file = working_dir + '/' + os.path.basename(repo_file.name)
     repo_file = open(repo_file, 'w')
     overwrite(repo_file, '789\n')
     svn.commit(m='creating conflict', _cwd=working_dir)
@@ -320,18 +315,18 @@ class TestCloseJiraIssue(unittest.TestCase):
         self.bug.delete()
 
     def test_transition_issue(self):
-        '''
+        """
         Check that attempting to close an issue actually closes it.
-        '''
+        """
         issue = self.jira.transition_issue(self.bug, status='Resolve Issue')
         expected = 'Resolved'
         self.assertEqual(expected, issue.fields.status.name)
 
     def test_bad_transition(self):
-        '''
+        """
         Check that trying an invalid status transition throws the right
         exception.
-        '''
+        """
         with self.assertRaises(InvalidJiraStatusException):
             self.jira.transition_issue(self.bug, status='Gobbldygook')
 
@@ -448,6 +443,7 @@ class TestFinishWork(unittest.TestCase):
 #doesn't have the same transitions available as CIGNAINC does. Figure something
 #out?
 
+
 class TestStartWork(unittest.TestCase):
 
     def setUp(self):
@@ -509,9 +505,9 @@ class TestMain(unittest.TestCase):
         self.config['crucible']['password'] = get_jira_pass()
 
     def test_aliases(self):
-        '''
+        """
         Testing that aliases specified in the the config file work.
-        '''
+        """
         sys.argv = ['bogus', 'jirals']
         d = air.Dispatcher(self.config)
         out = StringIO()
@@ -522,11 +518,64 @@ class TestMain(unittest.TestCase):
 
     @unittest.skip("removed main -- test air command instead")
     def test_main(self):
-        '''
+        """
         This is kinda lame and doesn't test much, but it makes sure there's
         test coverage for main().
-        '''
+        """
         sys.argv = ['bogus', 'list_tickets']
         actual = air.main()
         expected = 0
         self.assertEqual(expected, actual)
+
+
+real_import = __builtin__.__import__
+
+
+def fake_missing_sh_git_import(name, *args, **kwargs):
+    """
+    Traps imports to force an ImportError when
+    'from sh import git' is attempted.
+    """
+    try:
+        fromlist = args[2]
+    except IndexError:
+        fromlist = tuple()
+    if name == 'sh' and 'git' in fromlist:
+        raise ImportError
+    return real_import(name, *args, **kwargs)
+
+
+class TestMissingGit(unittest.TestCase):
+
+    def test_get_ticket_from_dir__without_git(self):
+        # Monkey patch import so we can trap 'from sh import git' and force
+        # an ImportError using fake_missing_sh_git_import.
+        __builtin__.__import__ = fake_missing_sh_git_import
+        print 'call _get_ticket_from()'
+
+        # Create a faked .git directory if it doesn't exist.
+        # However, IRL, this shouldn't really happen since if we don't have git
+        # installed, we probably wouldn't have a .git directory.
+        if not os.path.isdir('.git'):
+            os.mkdir('.git')
+            mocked_git_dir = True
+        else:
+            mocked_git_dir = False
+
+        # Temporarily hide the .svn directory if it exists.
+        if os.path.isdir('.svn'):
+            hidden_svn = True
+            os.rename('.svn', '.svn_hidden')
+        else:
+            hidden_svn = False
+
+        self.assertEqual(None, air._get_ticket_from_dir())
+        __builtin__.__import__ = real_import
+
+        # Cleanup the mocked .git directory if we had to create it.
+        if mocked_git_dir:
+            os.rmdir('.git')
+
+        # If we hid the existing top level .svn directory, un-hide it.
+        if hidden_svn:
+            os.rename('.svn_hidden', '.svn')

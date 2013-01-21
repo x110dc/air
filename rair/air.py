@@ -1,25 +1,22 @@
 #!/usr/bin/env python
 
+# stdlib
 from __future__ import print_function
 
-# stdlib
 import argparse
-import tempfile
-import shutil
 import inspect
-import sys
 import os.path
 import re
+import shutil
+import sys
+import tempfile
 import webbrowser
 
 # installed:
-from sh import svn
-from sh import git
-
-#
-from subversion import Subversion
 from atlassian_jira import Jira
 from crucible import Crucible
+from sh import svn
+from subversion import Subversion
 
 
 class MergeException(Exception):
@@ -31,7 +28,7 @@ class TicketSpecificationException(Exception):
 
 
 class Commands(object):
-    '''
+    """
     This class encapsulates all the of the subcommands available for this
     program.  Each function is a subcommand and must have the following
     signature:
@@ -45,7 +42,7 @@ class Commands(object):
 
     The method should send it's output to the buffer passed in as the 'out'
     parameter.  If no parameter is passed output should be sent to sys.stdout.
-    '''
+    """
 
     def __init__(self, config):
         self.config = config
@@ -171,9 +168,9 @@ class Commands(object):
         self.svn.reintegrate(branch)
 
     def assign(self, arger, args, out=sys.stdout):
-        '''
+        """
         assign ticket to someone
-        '''
+        """
         arger.add_argument('-p', '--person')
         arger.add_argument('-t', '--ticket')
         opts = arger.parse_args(args)
@@ -182,9 +179,9 @@ class Commands(object):
         out.write('{} assigned to {}.\n'.format(opts.ticket, assignee))
 
     def take(self, arger, args, out=sys.stdout):
-        '''
+        """
         assign ticket to myself
-        '''
+        """
         assignee = self.config['jira']['username']
         arger.add_argument('-t', '--ticket')
         opts = arger.parse_args(args)
@@ -192,13 +189,13 @@ class Commands(object):
         out.write('{} assigned to {}.\n'.format(opts.ticket, assignee))
 
     def refresh(self, arger, args, out=sys.stdout):
-        '''
+        """
         refresh branch from trunk
 
         Given a Jira ticket, refresh the associated branch from trunk.  If
         conflicts are found during the merge process an exception is raised
         and the merge process will need to be completed manually.
-        '''
+        """
 
         #arger.add_argument('ticket', nargs='?')
         arger.add_argument('-t', '--ticket')
@@ -230,10 +227,10 @@ class Commands(object):
             'Branch has been refreshed from trunk')
 
     def make_branch(self, arger, args, out=sys.stdout):
-        '''
+        """
         create branch based on ticket
         Given a Jira ticket number an Svn branch is created for it.
-        '''
+        """
 
         arger.add_argument('-t', '--ticket')
         opts = arger.parse_args(args)
@@ -247,11 +244,11 @@ class Commands(object):
         out.write(process.stdout)
 
     def create_bug(self, arger, args, out=sys.stdout):
-        '''
+        """
         create bug in Jira
         Given a brief description a Jira bug will be created. This uses options
         specified in the config file to create the ticket.
-        '''
+        """
 
         arger.add_argument('text')
         summary = arger.parse_args(args).text
@@ -261,11 +258,11 @@ class Commands(object):
         out.write('bug created: {}\n'.format(bug.key))
 
     def create_task(self, arger, args, out=sys.stdout):
-        '''
+        """
         create task in Jira
         Given a brief description a Jira task will be created. This uses
         options specified in the config file to create the ticket.
-        '''
+        """
 
         arger.add_argument('text')
         summary = arger.parse_args(args).text
@@ -275,9 +272,9 @@ class Commands(object):
         out.write('task created: {}\n'.format(bug.key))
 
     def close_ticket(self, arger, args, out=sys.stdout):
-        '''
+        """
         close issue
-        '''
+        """
 
         arger.add_argument('-t', '--ticket')
         opts = arger.parse_args(args)
@@ -290,9 +287,9 @@ class Commands(object):
         out.write('Ticket {} closed.\n'.format(opts.ticket))
 
     def add_comment(self, arger, args, out=sys.stdout):
-        '''
+        """
         add comment to Jira ticket
-        '''
+        """
 
         arger.add_argument('-t', '--ticket')
         arger.add_argument('comment', nargs='*')
@@ -306,35 +303,35 @@ class Commands(object):
         out.write('Comment added to {}.\n'.format(opts.ticket))
 
     def list_reviews(self, arger, args, out=sys.stdout):
-        '''
+        """
         list tickets that are ready for review
-        '''
+        """
         tickets = self.jira.list_reviewable()
 
         for key, summary in [(x.key, x.fields.summary) for x in tickets]:
             out.write('{}:\t{}\n'.format(key, summary))
 
     def list_tickets(self, arger, args, out=sys.stdout):
-        '''
+        """
         list Jira tickets assigned to me
-        '''
+        """
         tickets = self.jira.list_issues()
 
         for key, summary in [(x.key, x.fields.summary) for x in tickets]:
             out.write('{}:\t{}\n'.format(key, summary))
 
     def _complete_tickets(self, arger, args, out=sys.stdout):
-        '''
+        """
         this method is only intended for use by the shell completion mechanism
-        '''
+        """
         tickets = self.jira.list_issues()
         for key, summary in [(x.key, x.fields.summary) for x in tickets]:
             out.write('{}:{}\n'.format(key, summary))
 
     def _complete_subcommands(self, arger, args, out=sys.stdout):
-        '''
+        """
         this method is only intended for use by the shell completion mechanism
-        '''
+        """
         def _cleanup(docs):
             if not docs:
                 return 'No description given'
@@ -351,9 +348,9 @@ class Commands(object):
             out.write('{}:{}\n'.format(x, y))
 
     def _complete_persons(self, arger, args, out=sys.stdout):
-        '''
+        """
         this method is only intended for use by the shell completion mechanism
-        '''
+        """
         project = self.config['jira']['project']
 
         users = self.jira.server.search_assignable_users_for_issues(
@@ -373,7 +370,13 @@ def _get_ticket_from_dir():
     if os.path.isdir('.svn'):
         cmd = svn.info()
     elif os.path.isdir('.git'):
-        cmd = git.svn.info()
+        # Git is optional, but only if git is available.
+        try:
+            from sh import git
+            cmd = git.svn.info()
+        except ImportError:
+            # Now what do we do? ENV or special meta-file, or config?
+            return None
     else:
         return None
     return _parse_ticket(cmd.stdout)
