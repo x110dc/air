@@ -208,7 +208,7 @@ class Crucible(object):
                 'author': creator_data,
                 'moderator': creator_data,
                 'projectKey': self.key,
-                'name': 'Review for {}'.format(jira_ticket),
+                'name': 'Review for {0}'.format(jira_ticket),
                 'type': 'REVIEW',
             },
             'detailedReviewData': {
@@ -249,16 +249,16 @@ class Crucible(object):
         **Raises**
         """
         payload_json = json.dumps(data)
-        #print ('**REQUEST**\nMETHOD: {}\nURL: {}\nHEADERS: {}\nREQUEST DATA: {}'.format(
+        #print ('**REQUEST**\nMETHOD: {0}\nURL: {1}\nHEADERS: {2}\nREQUEST DATA: {3}'.format(
         #        method, url, headers, data))
         response = requests.request(method, url, auth=auth,
                 headers=headers, data=payload_json, params=params)
-        #print ('**RESPONSE**\nSTATUS CODE: {}\nHEADERS: {}'
-        #        '\nCONTENT: {}'.format(response.status_code,
+        #print ('**RESPONSE**\nSTATUS CODE: {0}\nHEADERS: {1}'
+        #        '\nCONTENT: {2}'.format(response.status_code,
         #            response.headers, response.content))
         if response.status_code != expected_status_code:
             raise SendRequestException('Received an unexpected response.  '
-                    'Expected a response with status code, {}.  Received {} '
+                    'Expected a response with status code, {0}.  Received {1} '
                     'instead.'.format(expected_status_code,
                         response.status_code))
         if response.content:
@@ -280,7 +280,7 @@ class Crucible(object):
 #                parsed_args.diff_file)
 #    review_web_url = '/'.join([CRUCIBLE_WEB_BASE_URL, review_id])
 #    #Report the web interface url for the crucible review.
-#    print 'Review created: {}'.format(review_web_url)
+#    print 'Review created: {0}'.format(review_web_url)
 #    #Add the web interface url to the Associated Jira ticket.
 #    return 0
 #

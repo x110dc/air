@@ -3,7 +3,6 @@ from rair import air
 from rair.crucible import Review
 
 # stdlib
-import unittest
 import sys
 from StringIO import StringIO
 import re
@@ -14,6 +13,7 @@ from configobj import ConfigObj
 from tests import get_jira_pass
 from tests import setup_svn
 from tests import create_branch
+import unittest2 as unittest
 
 
 class TestCrucibleCreateReview(unittest.TestCase):
@@ -37,7 +37,7 @@ class TestCrucibleCreateReview(unittest.TestCase):
         self.diff = open('./tests/diff.txt').read()
         self.bug = self.jira.create_issue(self.summary, self.summary)
         self.jira.transition_issue(self.bug, status='Start Progress')
-        create_branch(self.repo_url, '{}_test_ticket'.format(self.bug.key))
+        create_branch(self.repo_url, '{0}_test_ticket'.format(self.bug.key))
 
         self.review = None
 
@@ -65,7 +65,7 @@ class TestCrucibleCreateReview(unittest.TestCase):
         review_id = match.group()
         self.review = Review(self.crucible, review_id)
         self.assertEqual(0, actual)
-        self.assertGreater(len(output), 0)
+        self.assertTrue(len(output) > 0)
         expected = 'Review'
         self.assertEqual(expected, self.review.get().data['state'])
 
@@ -78,7 +78,7 @@ class TestCrucibleCreateReview(unittest.TestCase):
         actual = d.go(out=out)
         output = out.getvalue().strip()
         self.assertEqual(0, actual)
-        self.assertGreater(len(output), 0)
+        self.assertTrue(len(output) > 0)
         match = re.search('CR-MMSANDBOX-\d*', output)
         review_id = match.group()
         self.review = Review(self.crucible, review_id)
@@ -93,7 +93,7 @@ class TestCrucibleCreateReview(unittest.TestCase):
         actual = d.go(out=out)
         output = out.getvalue().strip()
         self.assertEqual(0, actual)
-        self.assertGreater(len(output), 0)
+        self.assertTrue(len(output) > 0)
         match = re.search('CR-MMSANDBOX-\d*', output)
         review_id = match.group()
         self.review = Review(self.crucible, review_id)
@@ -123,7 +123,7 @@ class TestFinishReview(unittest.TestCase):
         self.diff = open('./tests/diff.txt').read()
         self.bug = self.jira.create_issue(self.summary, self.summary)
         self.jira.transition_issue(self.bug, status='Start Progress')
-        create_branch(self.repo_url, '{}_test_ticket'.format(self.bug.key))
+        create_branch(self.repo_url, '{0}_test_ticket'.format(self.bug.key))
         self.review = self.crucible.create_review([],
                 jira_ticket=self.bug.key)
         self.review.start()

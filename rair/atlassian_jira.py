@@ -17,9 +17,9 @@ class JiraIssue(object):
         if isinstance(issue, jira.resources.Issue):
             self.issue = issue
         elif isinstance(issue, str):
-            self.issue = self.server.issue('{}'.format(issue))
+            self.issue = self.server.issue('{0}'.format(issue))
         else:
-            raise IssueNotRecognized('issue \'{}\' not \
+            raise IssueNotRecognized('issue \'{0}\' not \
                     recognized'.format(issue))
 
     def __str__(self):
@@ -74,7 +74,7 @@ class Jira(object):
         else:
             raise InvalidJiraStatusException(
                     '\nattempt to close ticket failed. \
-            \nValid transitions: {}'.format(', '.join(transition_names)))
+            \nValid transitions: {0}'.format(', '.join(transition_names)))
 
     def transition_issue(self, ticket, status='Resolve Issue'):
 
@@ -83,8 +83,8 @@ class Jira(object):
         transition_names = [x['name'] for x in transitions]
         if status not in transition_names:
             raise InvalidJiraStatusException(
-            '\n\'{}\' is not a valid status for this Jira issue. \
-            \nValid transitions: {}'.format(
+            '\n\'{0}\' is not a valid status for this Jira issue. \
+            \nValid transitions: {1}'.format(
                 status, ', '.join(transition_names)))
         _id = [x['id'] for x in transitions if x['name'] == status][0]
         # transition it:
@@ -182,4 +182,4 @@ class Jira(object):
         if isinstance(ticket, Issue):
             ticket = ticket.key
 
-        return self.server.issue('{}'.format(ticket))
+        return self.server.issue('{0}'.format(ticket))

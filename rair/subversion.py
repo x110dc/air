@@ -47,7 +47,7 @@ class Subversion(object):
         branch = [x.rstrip(self.strippers)
                 for x in branches if search_string in x]
         if len(branch) > 1:
-            raise MultipleMatchException('more than one branch matches "{}"')
+            raise MultipleMatchException('more than one branch matches "{0}"')
 
         return branch[0]
 
@@ -62,7 +62,7 @@ class Subversion(object):
             proc = filterdiff(svn.diff(trunk, branch, diff_cmd='diff', x='-U 300 -a'), clean=True)
 
         # if there's no filterdiff then hope for the best:
-        except CommandNotFound:
+        except (CommandNotFound, ImportError):
             proc = svn.diff(trunk, branch, diff_cmd='diff', x='-U 300 -a')
         return proc.stdout
 
@@ -84,7 +84,7 @@ class Subversion(object):
     def make_branch(self, name, commit_msg):
 
         src = self.config['trunk_url']
-        dest = '{}/{}'.format(self.config['branch_url'], name)
+        dest = '{0}/{1}'.format(self.config['branch_url'], name)
 
         process = svn.copy(src, dest, m=commit_msg)
         return process
