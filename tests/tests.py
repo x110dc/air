@@ -459,8 +459,6 @@ class TestFinishWork(unittest.TestCase):
     def tearDown(self):
         self.bug.delete()
 
-    @unittest.expectedFailure
-    # because of an issue with transitions in the new Jira
     def test_finish_work(self):
         sys.argv = ['bogus', 'finish_work', '-t', self.bug.key]
         d = air.Dispatcher(self.config)
