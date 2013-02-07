@@ -119,6 +119,38 @@ def get_jira_pass():
         return pfile.readline().rstrip()
 
 
+class TestBranchName(unittest.TestCase):
+
+    def setUp(self):
+        # mock the configuration file:
+        self.config = ConfigObj('./tests/config')
+        self.config['jira']['password'] = get_jira_pass()
+        self.config['crucible']['password'] = get_jira_pass()
+        self.summary = "test bug for/making branch"
+        self.jira = air.Jira(self.config['jira'])
+        self.bug = self.jira.create_issue(self.summary, self.summary)
+        self.cmd = air.Commands(self.config)
+
+        self.repo_url, self.repo_file = setup_svn()
+        self.config['svn']['root_url'] = self.repo_url
+        self.config['svn']['branch_url'] = self.repo_url + '/branches'
+        self.config['svn']['trunk_url'] = self.repo_url + '/trunk'
+
+    def tearDown(self):
+        self.bug.delete()
+
+    def test_branch_name(self):
+        self.summary = "test bug for/making branch"
+        sys.argv = ['bogus', 'make_branch', '-t', self.bug.key]
+        d = air.Dispatcher(self.config)
+        out = StringIO()
+        d.go(out=out)
+        # now that branch should exist in the list of branches:
+        branch_name = '{}_{}'.format(self.bug.key,
+                self.summary.replace(' ', '_').replace('/', '-'))
+        self.assertIn(branch_name, self.cmd.svn.get_branches())
+
+
 class TestMakeBranch(unittest.TestCase):
 
     def setUp(self):
