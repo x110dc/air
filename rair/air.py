@@ -236,10 +236,8 @@ class Commands(object):
         arger.add_argument('-t', '--ticket')
         opts = arger.parse_args(args)
         issue = self.jira.get_issue(opts.ticket)
-
-        summary = issue.fields.summary.replace(' ', '_')
         message = 'created branch for {}'.format(issue.key)
-        name = "{}_{}".format(issue.key, summary)
+        name = _make_branch_name(issue.key, issue.fields.summary)
         process = self.svn.make_branch(name, message)
 
         out.write(process.stdout)
@@ -357,6 +355,13 @@ class Commands(object):
         users = self.jira.server.search_assignable_users_for_issues(
                 '', project=project, maxResults=500)
         out.write('\n'.join([user.name for user in users]))
+
+
+def _make_branch_name(issue, text):
+    text = text.replace(' ', '_')
+    text = text.replace('/', '-')
+    text = urllib.quote_plus(text)
+    return "{}_{}".format(issue, text)
 
 
 def _get_ticket_from_dir():
