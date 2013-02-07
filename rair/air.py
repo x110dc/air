@@ -11,6 +11,7 @@ import shutil
 import sys
 import tempfile
 import webbrowser
+import urllib
 
 # installed:
 from atlassian_jira import Jira
