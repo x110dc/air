@@ -86,14 +86,14 @@ class Commands(object):
         # open review in browser
         if opts.open:
             self.url = self.review.uri_frontend
-            out.write('Opening review {} in browser...'.format(
+            out.write('Opening review {0} in browser...'.format(
                 self.review.uri_frontend))
             webbrowser.open_new_tab(self.url)
         # add Crucible URL to Jira ticket
         # as long as the Jira ticket is associated with Crucible then there's a
         # link under 'Reviews', so this isn't necessary:
-        #self.jira.add_comment(opts.ticket, 'Crucible: {}'.format(self.url))
-        out.write('Created review {} for ticket {}..\n'.format(self.review,
+        #self.jira.add_comment(opts.ticket, 'Crucible: {0}'.format(self.url))
+        out.write('Created review {0} for ticket {1}..\n'.format(self.review,
             issue.key))
 
     def reject_ticket(self, arger, args, out=sys.stdout):
@@ -115,7 +115,7 @@ class Commands(object):
         self.make_branch(arger, args)
         opts = arger.parse_args(args)
         issue = self.jira.get_issue(opts.ticket)
-        out.write('Marking issue {} as "In Progress"\n'.format(issue.key))
+        out.write('Marking issue {0} as "In Progress"\n'.format(issue.key))
         self.jira.transition_issue(opts.ticket, status='Start Progress')
         branch = self.svn.get_unique_branch(opts.ticket)
         comment = 'SVN URL: ' + self.config['svn']['branch_url'] + '/' + branch
@@ -135,7 +135,7 @@ class Commands(object):
             if not opts.ticket:
                 raise TicketSpecificationException("ticket number required")
         self.jira.add_watcher(opts.ticket, opts.person)
-        out.write('Added {} as a watcher on {}\n'.format(opts.person,
+        out.write('Added {0} as a watcher on {1}\n'.format(opts.person,
             opts.ticket))
 
     def finish_work(self, arger, args, out=sys.stdout):
@@ -151,7 +151,7 @@ class Commands(object):
             opts.ticket = _get_ticket_from_dir()
             if not opts.ticket:
                 raise TicketSpecificationException("ticket number required")
-        out.write('Marking issue {} as "Ready for Review"\n'.format(issue))
+        out.write('Marking issue {0} as "Ready for Review"\n'.format(issue))
         self.jira.transition_issue(opts.ticket, status='Ready for Review')
 
     def finish_review(self, arger, args, out=sys.stdout):
@@ -176,7 +176,7 @@ class Commands(object):
         opts = arger.parse_args(args)
         assignee = opts.person
         self.jira.assign_issue(opts.ticket, assignee)
-        out.write('{} assigned to {}.\n'.format(opts.ticket, assignee))
+        out.write('{0} assigned to {1}.\n'.format(opts.ticket, assignee))
 
     def take(self, arger, args, out=sys.stdout):
         """
@@ -186,7 +186,7 @@ class Commands(object):
         arger.add_argument('-t', '--ticket')
         opts = arger.parse_args(args)
         self.jira.assign_issue(opts.ticket, assignee)
-        out.write('{} assigned to {}.\n'.format(opts.ticket, assignee))
+        out.write('{0} assigned to {1}.\n'.format(opts.ticket, assignee))
 
     def refresh(self, arger, args, out=sys.stdout):
         """
@@ -207,7 +207,7 @@ class Commands(object):
 
         branch = self.svn.get_unique_branch(opts.ticket)
 
-        src = '{}/{}'.format(self.config['svn']['branch_url'], branch)
+        src = '{0}/{1}'.format(self.config['svn']['branch_url'], branch)
         try:
             working_dir = tempfile.mkdtemp()
             out.write('Checking out src...\n')
@@ -237,8 +237,8 @@ class Commands(object):
         issue = self.jira.get_issue(opts.ticket)
 
         summary = issue.fields.summary.replace(' ', '_')
-        message = 'created branch for {}'.format(issue.key)
-        name = "{}_{}".format(issue.key, summary)
+        message = 'created branch for {0}'.format(issue.key)
+        name = "{0}_{1}".format(issue.key, summary)
         process = self.svn.make_branch(name, message)
 
         out.write(process.stdout)
@@ -255,7 +255,7 @@ class Commands(object):
 
         bug = self.jira.create_issue(summary, summary)
 
-        out.write('bug created: {}\n'.format(bug.key))
+        out.write('bug created: {0}\n'.format(bug.key))
 
     def create_task(self, arger, args, out=sys.stdout):
         """
@@ -269,7 +269,7 @@ class Commands(object):
 
         bug = self.jira.create_issue(summary, summary, kind="Task")
 
-        out.write('task created: {}\n'.format(bug.key))
+        out.write('task created: {0}\n'.format(bug.key))
 
     def close_ticket(self, arger, args, out=sys.stdout):
         """
@@ -284,7 +284,7 @@ class Commands(object):
                 raise TicketSpecificationException("ticket number required")
 
         self.jira.close_issue(opts.ticket)
-        out.write('Ticket {} closed.\n'.format(opts.ticket))
+        out.write('Ticket {0} closed.\n'.format(opts.ticket))
 
     def add_comment(self, arger, args, out=sys.stdout):
         """
@@ -300,7 +300,7 @@ class Commands(object):
                 raise TicketSpecificationException("ticket number required")
 
         self.jira.add_comment(opts.ticket, ' '.join(opts.comment))
-        out.write('Comment added to {}.\n'.format(opts.ticket))
+        out.write('Comment added to {0}.\n'.format(opts.ticket))
 
     def list_reviews(self, arger, args, out=sys.stdout):
         """
@@ -309,7 +309,7 @@ class Commands(object):
         tickets = self.jira.list_reviewable()
 
         for key, summary in [(x.key, x.fields.summary) for x in tickets]:
-            out.write('{}:\t{}\n'.format(key, summary))
+            out.write('{0}:\t{1}\n'.format(key, summary))
 
     def list_tickets(self, arger, args, out=sys.stdout):
         """
@@ -318,7 +318,7 @@ class Commands(object):
         tickets = self.jira.list_issues()
 
         for key, summary in [(x.key, x.fields.summary) for x in tickets]:
-            out.write('{}:\t{}\n'.format(key, summary))
+            out.write('{0}:\t{1}\n'.format(key, summary))
 
     def _complete_tickets(self, arger, args, out=sys.stdout):
         """
@@ -326,7 +326,7 @@ class Commands(object):
         """
         tickets = self.jira.list_issues()
         for key, summary in [(x.key, x.fields.summary) for x in tickets]:
-            out.write('{}:{}\n'.format(key, summary))
+            out.write('{0}:{1}\n'.format(key, summary))
 
     def _complete_subcommands(self, arger, args, out=sys.stdout):
         """
@@ -345,7 +345,7 @@ class Commands(object):
         # remove private methods:
         names = [x for x in methods if not x[0].startswith('_')]
         for x, y in names:
-            out.write('{}:{}\n'.format(x, y))
+            out.write('{0}:{1}\n'.format(x, y))
 
     def _complete_persons(self, arger, args, out=sys.stdout):
         """

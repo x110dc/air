@@ -10,7 +10,7 @@ from sh import svn
 from StringIO import StringIO
 import sys
 import tempfile
-import unittest
+import unittest2 as unittest
 
 from rair import air
 from rair.atlassian_jira import InvalidJiraStatusException
@@ -30,9 +30,9 @@ def create_svn_repo():
 
     # create repo, with trunk and branches directories
     svnadmin.create(repo_dir)
-    repo_url = '{}{}'.format('file://', repo_dir)
-    trunk_url = '{}/trunk'.format(repo_url)
-    branch_url = '{}/branches'.format(repo_url)
+    repo_url = '{0}{1}'.format('file://', repo_dir)
+    trunk_url = '{0}/trunk'.format(repo_url)
+    branch_url = '{0}/branches'.format(repo_url)
     svn.mkdir(trunk_url, m='trunk dir')
     svn.mkdir(branch_url, m='branches dir')
 
@@ -43,8 +43,8 @@ def setup_svn():
 
     # create repo
     repo_url = create_svn_repo()
-    trunk_url = '{}/trunk'.format(repo_url)
-    branch_url = '{}/branches'.format(repo_url)
+    trunk_url = '{0}/trunk'.format(repo_url)
+    branch_url = '{0}/branches'.format(repo_url)
 
     # checkout trunk
     working_dir = tempfile.mkdtemp()
@@ -58,7 +58,7 @@ def setup_svn():
     svn.commit(m='message', _cwd=working_dir)
 
     # create a branch
-    new_branch_url = '{}/new-branch'.format(branch_url)
+    new_branch_url = '{0}/new-branch'.format(branch_url)
     svn.cp(trunk_url, new_branch_url, m='creating new branch')
     svn.switch(new_branch_url, _cwd=working_dir)
     # change the file and commit
@@ -66,20 +66,20 @@ def setup_svn():
     svn.commit(m='message', _cwd=working_dir)
 
     # create another branch
-    new_branch_url = '{}/foo-branch'.format(branch_url)
+    new_branch_url = '{0}/foo-branch'.format(branch_url)
     svn.cp(trunk_url, new_branch_url, m='creating another new branch')
 
     return [repo_url, repo_file]
 
 
 def create_branch(repo_url, branch_name):
-    trunk_url = '{}/trunk'.format(repo_url)
-    branch_url = '{}/branches'.format(repo_url)
+    trunk_url = '{0}/trunk'.format(repo_url)
+    branch_url = '{0}/branches'.format(repo_url)
 
     # create a branch
-    new_branch_url = '{}/{}'.format(branch_url, branch_name)
+    new_branch_url = '{0}/{1}'.format(branch_url, branch_name)
     svn.cp(trunk_url, new_branch_url,
-            m='creating new branch {}'.format(branch_name))
+            m='creating new branch {0}'.format(branch_name))
 
     # checkout branch
     working_dir = tempfile.mkdtemp()
@@ -96,7 +96,7 @@ def create_branch(repo_url, branch_name):
 
 def create_conflict(repo_url, repo_file):
 
-    trunk_url = '{}/trunk'.format(repo_url)
+    trunk_url = '{0}/trunk'.format(repo_url)
 
     # checkout trunk
     working_dir = tempfile.mkdtemp()
@@ -145,7 +145,7 @@ class TestMakeBranch(unittest.TestCase):
         out = StringIO()
         d.go(out=out)
         # now that branch should exist in the list of branches:
-        branch_name = '{}_{}'.format(self.bug.key,
+        branch_name = '{0}_{1}'.format(self.bug.key,
                 self.summary.replace(' ', '_'))
         self.assertIn(branch_name, self.cmd.svn.get_branches())
 
@@ -349,7 +349,7 @@ class TestListIssues(unittest.TestCase):
         # create a bug (in setUp) and then make the JQL query just search for
         # that bug; then we're relatively confident we're using the JQL
         self.jira.config['list']['jql'] = \
-                'assignee=currentUser() AND issue={}'.format(self.bug.key)
+                'assignee=currentUser() AND issue={0}'.format(self.bug.key)
         issues = self.jira.list_issues()
         # there should only be one issue:
         self.assertEqual(1, len(issues))
