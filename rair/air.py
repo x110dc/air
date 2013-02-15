@@ -367,14 +367,16 @@ def _make_branch_name(issue, text):
     return "{}_{}".format(issue, text)
 
 
+def _parse_ticket(string):
+    match = re.search('URL(.*)', string)
+    branch = os.path.basename(match.group(1))
+    ticket = re.search('^(\S+-\d+)_', branch).group(1)
+    return ticket
+
+
 def _get_ticket_from_dir():
 
     #TODO: how to handle non-svn Git dirs?
-    def _parse_ticket(string):
-        match = re.search('URL(.*)', string)
-        branch = os.path.basename(match.group(1))
-        ticket = re.search('\S+-\d+', branch).group()
-        return ticket
 
     if os.path.isdir('.svn'):
         cmd = svn.info()
