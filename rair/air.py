@@ -77,7 +77,7 @@ class Commands(object):
             self.jira.transition_issue(opts.ticket, status='In Review')
         # create review
         self.review = self.crucible.create_review(opts.person,
-                jira_ticket=issue.key)
+                                                  jira_ticket=issue.key)
         # create diff
         diff = self.svn.diff(branch)
         # add diff to review
@@ -95,7 +95,7 @@ class Commands(object):
         # link under 'Reviews', so this isn't necessary:
         #self.jira.add_comment(opts.ticket, 'Crucible: {0}'.format(self.url))
         out.write('Created review {0} for ticket {1}..\n'.format(self.review,
-            issue.key))
+                                                                 issue.key))
 
     def reject_ticket(self, arger, args, out=sys.stdout):
 
@@ -137,7 +137,7 @@ class Commands(object):
                 raise TicketSpecificationException("ticket number required")
         self.jira.add_watcher(opts.ticket, opts.person)
         out.write('Added {0} as a watcher on {1}\n'.format(opts.person,
-            opts.ticket))
+                                                           opts.ticket))
 
     def finish_work(self, arger, args, out=sys.stdout):
 
@@ -212,20 +212,23 @@ class Commands(object):
         try:
             working_dir = tempfile.mkdtemp()
             out.write('Checking out src...\n')
-            svn.co(src, working_dir)
+            checkout = svn.co(src, working_dir)
+            out.write(checkout.ran)
             out.write('Merging from trunk into src...\n')
             merge = svn.merge(self.config['svn']['trunk_url'],
-                    _cwd=working_dir, accept='postpone')
+                              _cwd=working_dir, accept='postpone')
+            out.write(merge.ran)
             out.write(merge.stdout)
             if 'conflicts' in merge:
                 raise MergeException(
-                        'unable to merge due to conflicts; merge manually')
+                    'unable to merge due to conflicts; merge manually')
             commit = svn.commit(m='refreshed from trunk', _cwd=working_dir)
+            out.write(commit.ran)
             out.write(commit.stdout)
         finally:
             shutil.rmtree(working_dir)
         self.jira.add_comment(opts.ticket,
-            'Branch has been refreshed from trunk')
+                              'Branch has been refreshed from trunk')
 
     def make_branch(self, arger, args, out=sys.stdout):
         """
@@ -338,8 +341,8 @@ class Commands(object):
             return docs[1].strip()
 
         methods = [(x[0], _cleanup(x[1].__doc__))
-                for x in inspect.getmembers(self) if
-                inspect.ismethod(x[1])]
+                   for x in inspect.getmembers(self) if
+                   inspect.ismethod(x[1])]
 
         # remove private methods:
         names = [x for x in methods if not x[0].startswith('_')]
@@ -353,7 +356,7 @@ class Commands(object):
         project = self.config['jira']['project']
 
         users = self.jira.server.search_assignable_users_for_issues(
-                '', project=project, maxResults=500)
+            '', project=project, maxResults=500)
         out.write('\n'.join([user.name for user in users]))
 
 
@@ -393,7 +396,8 @@ def _get_parser(names):
     arger = argparse.ArgumentParser()
     #arger.add_argument('-v', '--verbose', action='count', default=0)
     subparsers = arger.add_subparsers(dest='command', title='subcommands',
-            description='valid subcommands', help='non-extant additional help')
+                                      description='valid subcommands',
+                                      help='non-extant additional help')
     subparsers_dict = dict()
     for name in names:
         subparsers_dict[name] = subparsers.add_parser(name)
@@ -409,7 +413,7 @@ class Dispatcher(object):
 
     def completion(self):
         methods = [x for x in inspect.getmembers(self.commands) if
-                inspect.ismethod(x[1])]
+                   inspect.ismethod(x[1])]
 
         names = [x[0] for x in methods] + self.aliases.keys()
         names.remove('__init__')
@@ -420,7 +424,7 @@ class Dispatcher(object):
         # as names for  subcommands for the parser:
         # TODO: use filter() here?
         methods = [x for x in inspect.getmembers(self.commands) if
-                inspect.ismethod(x[1])]
+                   inspect.ismethod(x[1])]
 
         names = [x[0] for x in methods] + self.aliases.keys()
         names.remove('__init__')
@@ -438,6 +442,6 @@ class Dispatcher(object):
         # call the subcommand, pass the argument parser object
         if hasattr(self.commands, subcommand):
             getattr(self.commands, subcommand)(arger,
-                    args=sys.argv[2:], out=out)
+                                               args=sys.argv[2:], out=out)
 
         return 0

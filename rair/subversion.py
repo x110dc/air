@@ -2,12 +2,9 @@
 
 from __future__ import print_function
 
-from sh import CommandNotFound
-
 # stdlib
 import string
 import tempfile
-import shutil
 
 # installed:
 from sh import svn
@@ -45,21 +42,25 @@ class Subversion(object):
 
         branches = self.get_branches()
         branch = [x.rstrip(self.strippers)
-                for x in branches if search_string in x]
+                  for x in branches if search_string in x]
         if len(branch) > 1:
             raise MultipleMatchException('more than one branch matches "{0}"')
 
         return branch[0]
 
     def diff(self, branch):
-
+        """
+        Given a branch name, a diff against trunk is produced and returned.
+        """
         trunk = self.config['trunk_url']
         branch = '/'.join([self.config['branch_url'], branch])
         # if filterdiff exists, pipe diff through it to clean up parts that
         # Crucible doesn't like
         try:
             from sh import filterdiff
-            proc = filterdiff(svn.diff(trunk, branch, diff_cmd='diff', x='-U 300 -a'), clean=True)
+            proc = filterdiff(svn.diff(trunk, branch,
+                                       diff_cmd='diff', x='-U 300 -a'),
+                              clean=True)
 
         # if there's no filterdiff then hope for the best:
         except (CommandNotFound, ImportError):
@@ -67,21 +68,32 @@ class Subversion(object):
         return proc.stdout
 
     def reintegrate(self, branch):
+        """
+        Reintegration a branch into trunk.
+        """
         #TODO: pass commit message as param
 
         trunk_url = self.config['trunk_url']
         branch_url = '/'.join([self.config['branch_url'], branch])
         # checkout trunk
         working_dir = tempfile.mkdtemp()
-        svn.co(trunk_url, working_dir)
+        co = svn.co(trunk_url, working_dir)
+        print(co.ran)
+        print(co.stdout)
         # merge
-        svn.merge(branch_url, working_dir, reintegrate=True)
+        merge = svn.merge(branch_url, working_dir, reintegrate=True)
+        print(merge.ran)
+        print(merge.stdout)
         # commit
-        svn.commit(m='reintegrating into trunk', _cwd=working_dir)
-
+        commit = svn.commit(m='reintegrating into trunk', _cwd=working_dir)
+        print(commit.ran)
+        print(commit.stdout)
         #shutil.rmtree(working_dir)
 
     def make_branch(self, name, commit_msg):
+        """
+        Create a branch.
+        """
 
         src = self.config['trunk_url']
         dest = '{0}/{1}'.format(self.config['branch_url'], name)
