@@ -17,4 +17,18 @@ concepts).
 
 # Testing
 
-To run the full test suite need access to a Jira instance and a Crucible/FishEye instance.
+To run the full test suite you need access to a Jira instance and a Crucible/FishEye instance.
+
+# Examples
+
+Create a sample configuration file:
+
+    % air init
+
+See what issues I have assigned to me:
+  
+    % air ls
+
+What work on a ticket:
+
+    % air start_work --ticket MMSANDBOX-1234
