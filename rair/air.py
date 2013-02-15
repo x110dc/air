@@ -60,8 +60,53 @@ class Commands(object):
         else:
             self.crucible = None
 
-    def start_review(self, arger, args, out=sys.stdout):
+    def init(self, arger, args, out=sys.stdout):
+        """
+        create a sample .airrc file
+        """
 
+        # check to see if an .airrc file already exists
+        # if so, warn and don't overwrite
+        if os.path.isfile('.airrc'):
+            out.write('An .airrc file already exists in the directory.')
+            return
+        text = '''
+[jira]
+    username = first.last
+    password = changeme
+    server = https://jira.r.mutualmobile.com
+# new issues will be created in this project:
+    project = MMSANDBOX
+
+    [[list]]
+#       filter = 'assigned to me'
+        jql = 'assignee=currentUser()  AND status != Closed'
+    [[review]]
+#       filter = 'ready for review'
+        jql = 'status IN ("Ready for Review", "In Review")'
+[crucible]
+    username = first.last
+    password = changeme2
+    key = CR-MMSANDBOX
+    server = https://fisheye.r.mutualmobile.com
+
+[aliases]
+    ls=list_tickets
+    start=start_work
+    mkticket=create_bug
+    mkbug=create_bug
+    mktask=create_task
+    mkbranch=make_branch
+    comment=add_comment
+'''
+        airrc = open('.airrc', 'w')
+        airrc.write(text)
+        airrc.close()
+
+    def start_review(self, arger, args, out=sys.stdout):
+        """
+        create a Crucible review for a ticket
+        """
         arger.add_argument('-t', '--ticket')
         arger.add_argument('-p', '--person', action='append')
         arger.add_argument('-o', '--open', action='store_true')
