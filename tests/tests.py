@@ -119,6 +119,15 @@ def get_jira_pass():
         return pfile.readline().rstrip()
 
 
+class TestGetTicketFromDir(unittest.TestCase):
+
+    def test__parse_ticket(self):
+        string = "URL: https://svn.r.mutualmobile.com/xerox-courier/\
+                branch/Server/SCSP-10_blahblah_SCSP-11"
+        rv = air._parse_ticket(string)
+        self.assertEqual('SCSP-10', rv)
+
+
 class TestBranchName(unittest.TestCase):
 
     def setUp(self):
