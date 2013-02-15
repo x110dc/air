@@ -9,9 +9,9 @@ from configobj import ConfigObj
 from rair import air
 
 # read the configuration file from $HOME
-config = ConfigObj(expanduser('~/.air.cfg'))
+config = ConfigObj(expanduser('~/.airrc'))
 # a file in the current directory will override $HOME settings
-config.merge(ConfigObj('./.air.cfg'))
+config.merge(ConfigObj('./.airrc'))
 
 if not config:
     print "At least one configuration file must be present to use this program."
