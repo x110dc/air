@@ -23,7 +23,7 @@ To run the full test suite you need access to a Jira instance and a Crucible/Fis
 
 Create a sample configuration file:
 
-    % air init
+    % air init      # creates a sample .airrc file in the current directory
 
 See what issues I have assigned to me:
   
