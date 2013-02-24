@@ -99,4 +99,6 @@ class Subversion(object):
         dest = '{0}/{1}'.format(self.config['branch_url'], name)
 
         process = svn.copy(src, dest, m=commit_msg)
+        print(process.ran)
+        print(process.stdout)
         return process
