@@ -124,6 +124,7 @@ class Commands(object):
         self.review = self.crucible.create_review(opts.person,
                                                   jira_ticket=issue.key)
         # create diff
+        #TODO: so this in SVN module:
         diff = self.svn.diff(branch)
         # add diff to review
         self.review.add_patch(diff)
@@ -257,9 +258,11 @@ class Commands(object):
         try:
             working_dir = tempfile.mkdtemp()
             out.write('Checking out src...\n')
+            #TODO: do this in SVN module
             checkout = svn.co(src, working_dir)
             out.write(checkout.ran)
             out.write('Merging from trunk into src...\n')
+            #TODO: do this in SVN module
             merge = svn.merge(self.config['svn']['trunk_url'],
                               _cwd=working_dir, accept='postpone')
             out.write(merge.ran)
@@ -267,6 +270,7 @@ class Commands(object):
             if 'conflicts' in merge:
                 raise MergeException(
                     'unable to merge due to conflicts; merge manually')
+            #TODO: do this in SVN module
             commit = svn.commit(m='refreshed from trunk', _cwd=working_dir)
             out.write(commit.ran)
             out.write(commit.stdout)
