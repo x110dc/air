@@ -163,7 +163,7 @@ class Commands(object):
         opts = arger.parse_args(args)
         issue = self.jira.get_issue(opts.ticket)
         out.write('Marking issue {0} as "In Progress"\n'.format(issue.key))
-        self.jira.transition_issue(opts.ticket, status='Start Progress')
+        self.jira.transition_issue(opts.ticket, status='In Progress')
         branch = self.svn.get_unique_branch(opts.ticket)
         comment = 'SVN URL: ' + self.config['svn']['branch_url'] + '/' + branch
         out.write('Adding SVN URL for branch to Jira issue\n')
