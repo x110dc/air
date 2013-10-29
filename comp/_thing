@@ -1,0 +1,51 @@
+#compdef thing
+
+local curcontext="$curcontext" state line
+declare -A opt_args
+
+# this seems like a hack and it looks like I should've been able to
+# do this either this way:
+#
+#        cmds=${(f)"$(/Users/danielc/Git/mine/air/air ticket_completion)"}
+#
+# or this way:
+#
+#        cmds=( ${(s.
+#        .)"$(/Users/danielc/Git/mine/air/air ticket_completion)"} )
+#
+# but this is the only one I got to work properly:
+
+saveIFS=$IFS
+IFS=$'\n'
+ticket_array=($(/Users/danielc/Git/mine/air/air ticket_completion)) 
+IFS=$saveIFS 
+
+_thing() { 
+    _arguments '--ticket[ticket]:ticket key:->tickets' '-bogus[foo]'
+    if [[ -n $state ]]; then
+#        my_array=(Foo Bar Baz)
+#        my_other=(Quux Bix Nin)
+#        compadd -a my_array -d my_other -l
+
+
+#        cmds=${(f)"$(/Users/danielc/Git/mine/air/air ticket_completion)"}
+#        cmds=(
+#            'Foo:<junk>Bar Thingy'
+#            'Baz     :<stuff>Quux Other'
+#            'Abc:<more>Def'
+#        )
+#        print -c "cmds: <$cmds>" > /dev/ttys005
+        print context: $curcontext > /dev/ttys005
+        print state: $state > /dev/ttys005
+        print line: $line > /dev/ttys005
+#        for i in $cmds
+#            print i, $i > /dev/ttys005
+        _describe 'blah' ticket_array
+        
+#        '((Abb\:this_one_is_going_to_be_really_long_so_hopefully_I_can_see
+#        Cdd\:what_happens_when_it_wraps_beyond Eff\:Fgg))' && ret=0
+    fi
+    return ret
+}
+
+_thing "$@"

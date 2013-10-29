@@ -1,0 +1,22 @@
+_air() 
+{
+    local cur prev opts base
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts=`/Users/danielc/Git/mine/air/completion.py`
+    IFS=$'\n'
+    case "${prev}" in 
+        mkbranch)
+            local running=$(air ls | tr '<>' ' ')
+            COMPREPLY=( $(compgen -W "${running}" -- ${cur}) )
+            return 0
+            ;;
+        *)
+        ;;
+    esac
+
+    COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+    return 0
+}
+complete -F _air air

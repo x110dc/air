@@ -1,5 +1,5 @@
 [jira]
-    username = some.user
+    username = test.user
     project = MMSANDBOX
     server = https://jira.r.mutualmobile.com
     [[list]]
@@ -13,7 +13,7 @@
                  AND (component = "Server Engineering" OR component is EMPTY))
                  ORDER BY priority, updatedDate ASC'''
 [crucible]
-    username = some.user
+    username = test.user
     key = CR-MMSANDBOX
     server = https://fisheye.r.mutualmobile.com
 [svn]
