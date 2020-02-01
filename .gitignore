@@ -6,3 +6,4 @@ dist
 htmlcov
 MANIFEST
 .ropeproject
+*.pyc
